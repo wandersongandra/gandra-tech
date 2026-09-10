@@ -50,6 +50,9 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
   return (
     <html lang="pt-BR" className={`${bodoni.variable} ${cormorant.variable} ${inter.variable}`}>
       <body>
+        <a className="skip-link" href="#main-content">
+          Pular para o conteúdo
+        </a>
         <div className="grain" aria-hidden="true" />
         <PageCurtain />
         <CustomCursor />
