@@ -13,11 +13,6 @@ type Particle = {
   wait: number
 }
 
-/**
- * Texto de partículas: o nome GANDRA/TECH é desenhado num canvas offscreen
- * e os pixels viram alvos. Cada partícula é puxada por uma mola para o seu
- * ponto do texto — o cursor dispersa, a mola reagrupa.
- */
 export default function HeroParticles() {
   const canvasRef = useRef<HTMLCanvasElement>(null)
 
@@ -34,8 +29,6 @@ export default function HeroParticles() {
     let parts: Particle[] = []
     const MAX_PARTS = 1600
 
-    // Nasce fora da tela, numa borda aleatória — a entrada é uma chegada
-    // de todos os cantos, não um fade.
     const edgeSpawn = () => {
       const edge = Math.floor(Math.random() * 4)
       const m = 30 + Math.random() * 90
@@ -47,7 +40,6 @@ export default function HeroParticles() {
       }
     }
 
-    // Amostra os pixels do texto e devolve os pontos-alvo.
     const sampleText = (): { x: number; y: number }[] => {
       const off = document.createElement('canvas')
       off.width = w
@@ -55,8 +47,6 @@ export default function HeroParticles() {
       const octx = off.getContext('2d')
       if (!octx) return []
 
-      // No mobile o nome sobe para o terço superior e encolhe — no centro
-      // ele colidia com o título e o subtítulo.
       const isSmall = w < 768
       const fontSize = isSmall ? w * 0.17 : Math.min(w * 0.22, h * 0.36)
       const centerY = isSmall ? h * 0.3 : h / 2
@@ -84,12 +74,13 @@ export default function HeroParticles() {
       const r = parent.getBoundingClientRect()
       w = Math.round(r.width)
       h = Math.round(r.height)
-      canvas.width = w * dpr
-      canvas.height = h * dpr
+      if (!w || !h) return
+
+      canvas.width = Math.round(w * dpr)
+      canvas.height = Math.round(h * dpr)
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
 
       const pts = sampleText()
-      // Distribui o excesso de pontos: embaralha e corta no limite.
       for (let i = pts.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1))
         ;[pts[i], pts[j]] = [pts[j], pts[i]]
@@ -104,19 +95,26 @@ export default function HeroParticles() {
           vy: 0,
           tx: t.x,
           ty: t.y,
-          c: accent ? '143,151,221' : '245,244,241', // acento / papel
-          // Marca d'água: brilho baixo para não brigar com o título.
+          c: accent ? '143,151,221' : '245,244,241',
           a: accent ? 0.5 : 0.3,
-          // Espera em frames antes de partir: a chegada acontece em ondas.
           wait: Math.floor(Math.random() * 90),
         }
       })
     }
 
     build()
-    window.addEventListener('resize', build)
-    // A amostragem usa a Inter: reconstrói quando ela terminar de carregar.
-    document.fonts?.ready.then(build)
+
+    let resizeRaf = 0
+    const scheduleBuild = () => {
+      cancelAnimationFrame(resizeRaf)
+      resizeRaf = requestAnimationFrame(build)
+    }
+    window.addEventListener('resize', scheduleBuild)
+
+    let disposed = false
+    document.fonts?.ready.then(() => {
+      if (!disposed) scheduleBuild()
+    })
 
     const mouse = { x: -9999, y: -9999 }
     const onMove = (e: MouseEvent) => {
@@ -132,26 +130,30 @@ export default function HeroParticles() {
     window.addEventListener('mouseout', onOut)
 
     let raf = 0
+    let readyToAnimate = false
+    let inViewport = false
+    let pageVisible = document.visibilityState === 'visible'
+
     const tick = () => {
-      // Rastro transparente: apagar uma fração do frame anterior em vez de
-      // pintar preto por cima — um véu opaco cobriria o blob WebGL abaixo.
+      if (!readyToAnimate || !inViewport || !pageVisible) {
+        raf = 0
+        return
+      }
+
       ctx.globalCompositeOperation = 'destination-out'
       ctx.fillStyle = 'rgba(0,0,0,0.32)'
       ctx.fillRect(0, 0, w, h)
       ctx.globalCompositeOperation = 'source-over'
 
       for (const p of parts) {
-        // Onda de chegada: cada partícula espera a sua vez de partir.
         if (p.wait > 0) {
           p.wait--
           continue
         }
 
-        // Mola suave para o ponto do texto.
         p.vx += (p.tx - p.x) * 0.012
         p.vy += (p.ty - p.y) * 0.012
 
-        // O cursor dispersa num raio de 110px.
         const dx = p.x - mouse.x
         const dy = p.y - mouse.y
         const d2 = dx * dx + dy * dy
@@ -165,8 +167,6 @@ export default function HeroParticles() {
         p.vx *= 0.88
         p.vy *= 0.88
 
-        // Teto de velocidade: a viagem até o nome é uma flutuação
-        // cinematográfica, não um disparo.
         const spd = Math.hypot(p.vx, p.vy)
         if (spd > 4.5) {
           p.vx = (p.vx / spd) * 4.5
@@ -182,20 +182,50 @@ export default function HeroParticles() {
       raf = requestAnimationFrame(tick)
     }
 
-    // Só começa quando a cortina abre — a formação do nome é a primeira
-    // coisa que se vê. O timeout é rede de segurança caso o evento se perca.
-    const start = () => {
-      if (raf) return
+    const stop = () => {
+      cancelAnimationFrame(raf)
+      raf = 0
+    }
+
+    const requestRun = () => {
+      if (raf || !readyToAnimate || !inViewport || !pageVisible) return
       raf = requestAnimationFrame(tick)
     }
-    window.addEventListener('gt:curtain-open', start, { once: true })
-    const fallback = setTimeout(start, 4200)
+
+    const unlock = () => {
+      readyToAnimate = true
+      requestRun()
+    }
+
+    const visibilityObserver = new IntersectionObserver(
+      ([entry]) => {
+        inViewport = entry.isIntersecting
+        if (inViewport) requestRun()
+        else stop()
+      },
+      { rootMargin: '25% 0px 25% 0px' }
+    )
+    visibilityObserver.observe(canvas)
+
+    const onVisibilityChange = () => {
+      pageVisible = document.visibilityState === 'visible'
+      if (pageVisible) requestRun()
+      else stop()
+    }
+    document.addEventListener('visibilitychange', onVisibilityChange)
+
+    window.addEventListener('gt:curtain-open', unlock, { once: true })
+    const fallback = setTimeout(unlock, 4200)
 
     return () => {
-      cancelAnimationFrame(raf)
+      disposed = true
+      stop()
+      cancelAnimationFrame(resizeRaf)
       clearTimeout(fallback)
-      window.removeEventListener('gt:curtain-open', start)
-      window.removeEventListener('resize', build)
+      visibilityObserver.disconnect()
+      document.removeEventListener('visibilitychange', onVisibilityChange)
+      window.removeEventListener('gt:curtain-open', unlock)
+      window.removeEventListener('resize', scheduleBuild)
       window.removeEventListener('mousemove', onMove)
       window.removeEventListener('mouseout', onOut)
     }
