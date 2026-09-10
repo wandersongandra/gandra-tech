@@ -22,6 +22,37 @@ export default function FeaturedProduct() {
     const wrap = mockupWrapRef.current
     if (!section || !wrap) return
 
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      gsap.set(wrap, { opacity: 1, y: 0, scale: 1 })
+      return
+    }
+
+    const compact = window.matchMedia('(max-width: 767px), (pointer: coarse)').matches
+
+    if (compact) {
+      const tween = gsap.fromTo(
+        wrap,
+        { opacity: 0, y: 24, scale: 0.985 },
+        {
+          opacity: 1,
+          y: 0,
+          scale: 1,
+          duration: 0.65,
+          ease: 'power2.out',
+          scrollTrigger: {
+            trigger: wrap,
+            start: 'top 90%',
+            once: true,
+          },
+        }
+      )
+
+      return () => {
+        tween.scrollTrigger?.kill()
+        tween.kill()
+      }
+    }
+
     const from = { opacity: 0, y: 60, scale: 0.94 }
     const entryTrigger = ScrollTrigger.create({
       trigger: wrap,
@@ -40,14 +71,12 @@ export default function FeaturedProduct() {
     return () => {
       entryTrigger.kill()
       parallax.scrollTrigger?.kill()
+      parallax.kill()
     }
   }, [])
 
   return (
     <section ref={sectionRef} className="featured stack-card">
-      {/* data-stack-inner: o encolhimento do CardStack acontece só no
-          conteúdo — o fundo claro da seção segue full-bleed e não aparece
-          fresta cinza (card escurecido) contra a página clara. */}
       <div className="container" data-stack-inner>
         <div className="section-label">
           <ScrambleText text="01 / PRODUTO EM DESTAQUE" speed={2} />
