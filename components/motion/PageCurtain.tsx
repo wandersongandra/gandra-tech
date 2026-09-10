@@ -93,7 +93,8 @@ export default function PageCurtain() {
     sweepOut(0.05)
   }, [pathname])
 
-  // Global link click interception → animate panel in, then navigate
+  // Intercepta apenas navegação interna comum. Cliques modificados, downloads,
+  // novas abas e links externos preservam integralmente o comportamento nativo.
   useEffect(() => {
     const panel = panelRef.current
     const path = pathRef.current
@@ -103,20 +104,47 @@ export default function PageCurtain() {
     const drawEnter = () => path.setAttribute('d', enterD(sweep.b))
 
     const onClick = (e: MouseEvent) => {
-      const a = (e.target as Element).closest('a[href]') as HTMLAnchorElement | null
-      if (!a) return
-
-      const href = a.getAttribute('href') ?? ''
       if (
-        !href ||
-        href.startsWith('http') ||
-        href.startsWith('//') ||
-        href.startsWith('mailto:') ||
-        href.startsWith('#')
+        e.defaultPrevented ||
+        e.button !== 0 ||
+        e.metaKey ||
+        e.ctrlKey ||
+        e.shiftKey ||
+        e.altKey
       ) return
 
-      const targetPath = href.split('?')[0]
-      if (targetPath === window.location.pathname) return
+      const target = e.target
+      if (!(target instanceof Element)) return
+
+      const a = target.closest('a[href]') as HTMLAnchorElement | null
+      if (!a || a.hasAttribute('download')) return
+
+      const linkTarget = a.getAttribute('target')
+      if (linkTarget && linkTarget.toLowerCase() !== '_self') return
+
+      const href = a.getAttribute('href')
+      if (!href || href.startsWith('#')) return
+
+      let destination: URL
+      try {
+        destination = new URL(a.href, window.location.href)
+      } catch {
+        return
+      }
+
+      if (
+        destination.origin !== window.location.origin ||
+        !['http:', 'https:'].includes(destination.protocol)
+      ) return
+
+      const current = new URL(window.location.href)
+      const sameDocument =
+        destination.pathname === current.pathname &&
+        destination.search === current.search
+
+      if (sameDocument) return
+
+      const routerHref = `${destination.pathname}${destination.search}${destination.hash}`
 
       e.preventDefault()
       gsap.killTweensOf(panel)
@@ -134,7 +162,7 @@ export default function PageCurtain() {
             yPercent: 0,
             duration: 0.6,
             ease: 'power3.inOut',
-            onComplete: () => router.push(href),
+            onComplete: () => router.push(routerHref),
           },
           0
         )
@@ -144,7 +172,7 @@ export default function PageCurtain() {
 
     document.addEventListener('click', onClick)
     return () => document.removeEventListener('click', onClick)
-  }, [pathname, router])
+  }, [router])
 
   return (
     <div ref={panelRef} className="curtain">
