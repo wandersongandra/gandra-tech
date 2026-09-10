@@ -1,0 +1,56 @@
+name: Export Vercel Payload
+
+on:
+  push:
+    branches:
+      - chore/deploy-export
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  export:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Build deploy payload
+        shell: python
+        run: |
+          from pathlib import Path
+          import json
+
+          commit = "054e4045ddb5b56464bd00402a6bfbea00d6a974"
+          raw = f"https://raw.githubusercontent.com/wandersongandra/gandra-tech/{commit}/public/images/"
+          roots = [Path("app"), Path("components"), Path("lib")]
+          files = []
+
+          for root in roots:
+              for path in sorted(root.rglob("*")):
+                  if not path.is_file():
+                      continue
+                  text = path.read_text(encoding="utf-8")
+                  text = text.replace("/images/", raw)
+                  files.append({"file": path.as_posix(), "data": text})
+
+          for name in ["package.json", "package-lock.json", "tsconfig.json", "next.config.ts"]:
+              path = Path(name)
+              text = path.read_text(encoding="utf-8")
+              if name == "next.config.ts":
+                  text = text.replace(
+                      "qualities: [75, 95],",
+                      "qualities: [75, 95],\n    remotePatterns: [{ protocol: 'https', hostname: 'raw.githubusercontent.com', pathname: '/wandersongandra/gandra-tech/**' }],"
+                  )
+              files.append({"file": name, "data": text})
+
+          Path("deploy-files.json").write_text(json.dumps(files, ensure_ascii=False), encoding="utf-8")
+          print(f"Prepared {len(files)} files")
+
+      - name: Upload payload
+        uses: actions/upload-artifact@v4
+        with:
+          name: vercel-deploy-files
+          path: deploy-files.json
+          retention-days: 1
