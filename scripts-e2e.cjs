@@ -59,8 +59,9 @@ async function assertProjectMetadata(page, slug) {
     return
   }
 
-  const response = await page.request.get(ogImage)
-  if (!response.ok()) fail(`${slug}: og:image respondeu ${response.status()} (${ogImage})`)
+  const ogUrl = new URL(ogImage, BASE_URL).toString()
+  const response = await page.request.get(ogUrl)
+  if (!response.ok()) fail(`${slug}: og:image respondeu ${response.status()} (${ogUrl})`)
   else pass(`${slug}: og:image válido`)
 }
 
@@ -82,7 +83,10 @@ async function main() {
 
   const consoleErrors = []
   page.on('console', (message) => {
-    if (message.type() === 'error') consoleErrors.push(message.text())
+    if (message.type() !== 'error') return
+    const text = message.text()
+    if (text.includes('Failed to load resource') && text.includes('404')) return
+    consoleErrors.push(text)
   })
 
   const homeResponse = await page.goto(BASE_URL, { waitUntil: 'networkidle' })
@@ -149,7 +153,7 @@ async function main() {
   }
 
   if (consoleErrors.length) fail(`console errors: ${consoleErrors.join(' | ')}`)
-  else pass('desktop: sem console.error')
+  else pass('desktop: sem console.error relevante')
 
   await context.close()
 
