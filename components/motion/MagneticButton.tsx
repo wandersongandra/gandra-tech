@@ -16,6 +16,7 @@ export default function MagneticButton({ children, strength = 0.38, className }:
     const wrap = wrapRef.current
     const inner = innerRef.current
     if (!wrap || !inner) return
+    if (window.matchMedia('(max-width: 767px), (pointer: coarse)').matches) return
 
     const onMove = (e: MouseEvent) => {
       const rect = wrap.getBoundingClientRect()
