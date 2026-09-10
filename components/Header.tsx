@@ -9,12 +9,13 @@ export default function Header() {
   const isHome = pathname === '/'
   const logoRef = useRef<HTMLAnchorElement>(null)
 
-  // Logo vivo: as letras "respiram" — o espaçamento abre conforme o
-  // scroll desce e se comprime de volta no topo.
+  // Logo vivo no desktop. Em touch/mobile o espaçamento permanece estável
+  // para preservar largura útil e evitar reflow durante a rolagem.
   useEffect(() => {
     const logo = logoRef.current
     if (!logo) return
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
+    if (window.matchMedia('(max-width: 767px), (pointer: coarse)').matches) return
 
     let raf = 0
     const onScroll = () => {
@@ -36,7 +37,7 @@ export default function Header() {
       <Link href="/" ref={logoRef} className="site-header__logo">
         GANDRA TECH<sup>®</sup>
       </Link>
-      <nav className="site-header__nav">
+      <nav className="site-header__nav" aria-label="Navegação principal">
         {isHome ? (
           <button onClick={() => scrollToSection('#trabalhos')} className="site-header__link">
             Trabalhos
