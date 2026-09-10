@@ -2,9 +2,8 @@
 import { useRef, useEffect } from 'react'
 
 /**
- * Fio condutor: uma linha orgânica serpenteia pela lateral da página e vai
- * se desenhando conforme o scroll desce — progresso do site como traço.
- * Fica por cima do conteúdo (pointer-events: none), na cor de acento.
+ * Fio condutor da versão desktop. Em telas pequenas ele é omitido para
+ * reduzir ruído visual e evitar listeners de scroll sem benefício em touch.
  */
 export default function ScrollThread() {
   const svgRef = useRef<SVGSVGElement>(null)
@@ -14,18 +13,19 @@ export default function ScrollThread() {
     const svg = svgRef.current
     const path = pathRef.current
     if (!svg || !path) return
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
+    if (
+      window.matchMedia(
+        '(max-width: 767px), (pointer: coarse), (prefers-reduced-motion: reduce)'
+      ).matches
+    ) return
 
     let len = 0
 
     const build = () => {
-      // A altura do traço é a do <main> (pai), não a do documento —
-      // medir o documento faria o SVG vazar além do rodapé.
       const parent = svg.parentElement
       const h = parent ? parent.scrollHeight : document.documentElement.scrollHeight
       const w = window.innerWidth
-      // Lateral esquerda no desktop, direita no mobile.
-      const x = w < 768 ? w * 0.92 : w * 0.05
+      const x = w * 0.05
       const amp = Math.min(56, w * 0.045)
 
       svg.setAttribute('viewBox', `0 0 ${w} ${h}`)
@@ -52,7 +52,6 @@ export default function ScrollThread() {
     draw()
     window.addEventListener('resize', build)
     window.addEventListener('scroll', draw, { passive: true })
-    // Alturas mudam quando fontes carregam — reconstrói o traço.
     document.fonts?.ready.then(() => {
       build()
       draw()
