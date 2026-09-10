@@ -1,4 +1,4 @@
-name: Temporary Visual Audit
+name: Temporary Live Visual Audit
 
 on:
   push:
@@ -10,7 +10,7 @@ permissions:
   contents: read
 
 jobs:
-  visual-audit:
+  live-visual-audit:
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
@@ -29,44 +29,113 @@ jobs:
       - name: Install Chromium
         run: npx playwright install --with-deps chromium
 
-      - name: Build
-        run: npm run build
-
-      - name: Start production server
+      - name: Run live visual audit
         run: |
-          mkdir -p .playwright-mcp
-          npm run start > /tmp/gandra-next.log 2>&1 &
-          echo $! > /tmp/gandra-next.pid
-          for i in {1..30}; do
-            if curl -fsS http://127.0.0.1:3000 >/dev/null; then
-              exit 0
-            fi
-            sleep 1
-          done
-          cat /tmp/gandra-next.log
-          exit 1
+          cat > /tmp/live-audit.cjs <<'NODE'
+          const { chromium } = require('playwright')
+          const fs = require('fs')
+          const path = require('path')
 
-      - name: Capture audit screenshots
-        run: node scripts-final-audit.cjs
+          ;(async () => {
+            const out = '.visual-live'
+            fs.mkdirSync(out, { recursive: true })
+            const base = 'https://gandra-tech.vercel.app'
+            const browser = await chromium.launch()
+            const issues = []
 
-      - name: Capture section screenshots
-        run: node scripts-shot-sections.cjs
+            async function openPage(context, route, label, settle = 4500) {
+              const page = await context.newPage()
+              page.on('console', msg => {
+                if (msg.type() === 'error') issues.push({ label, type: 'console', text: msg.text() })
+              })
+              page.on('pageerror', err => issues.push({ label, type: 'pageerror', text: err.message }))
+              page.on('requestfailed', req => issues.push({ label, type: 'requestfailed', text: `${req.method()} ${req.url()} :: ${req.failure()?.errorText || ''}` }))
+              page.on('response', res => {
+                if (res.status() >= 400) issues.push({ label, type: 'http', text: `${res.status()} ${res.url()}` })
+              })
+              await page.goto(base + route, { waitUntil: 'networkidle', timeout: 60000 })
+              await page.waitForTimeout(settle)
+              const metrics = await page.evaluate(() => ({
+                innerWidth: window.innerWidth,
+                scrollWidth: document.documentElement.scrollWidth,
+                clientWidth: document.documentElement.clientWidth,
+                scrollHeight: document.documentElement.scrollHeight,
+              }))
+              if (metrics.scrollWidth > metrics.clientWidth + 2) {
+                issues.push({ label, type: 'horizontal-overflow', text: JSON.stringify(metrics) })
+              }
+              return page
+            }
 
-      - name: Upload screenshots
+            async function snapViewport(page, file) {
+              await page.screenshot({ path: path.join(out, file), animations: 'allow' })
+            }
+
+            async function snapSection(page, selector, file, settle = 2500) {
+              const loc = page.locator(selector).first()
+              await loc.scrollIntoViewIfNeeded()
+              await page.waitForTimeout(settle)
+              await snapViewport(page, file)
+            }
+
+            const viewports = [
+              { name: 'desktop', width: 1440, height: 900 },
+              { name: 'tablet', width: 768, height: 1024 },
+              { name: 'mobile', width: 390, height: 844 },
+            ]
+
+            for (const v of viewports) {
+              const context = await browser.newContext({
+                viewport: { width: v.width, height: v.height },
+                hasTouch: v.name !== 'desktop',
+                isMobile: v.name === 'mobile',
+              })
+              const home = await openPage(context, '/', `${v.name}:home`)
+              await snapViewport(home, `${v.name}-home-hero.png`)
+              await snapSection(home, '.featured', `${v.name}-home-featured.png`)
+              if (v.name !== 'tablet') {
+                await snapSection(home, '.manifesto', `${v.name}-home-manifesto.png`)
+                await snapSection(home, '.contact', `${v.name}-home-contact.png`)
+              }
+              await home.close()
+
+              const trabalhos = await openPage(context, '/trabalhos', `${v.name}:trabalhos`, 3500)
+              await snapViewport(trabalhos, `${v.name}-trabalhos-top.png`)
+              if (v.name !== 'tablet') {
+                await trabalhos.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight * 0.55))
+                await trabalhos.waitForTimeout(1800)
+                await snapViewport(trabalhos, `${v.name}-trabalhos-mid.png`)
+              }
+              await trabalhos.close()
+
+              const contato = await openPage(context, '/contato', `${v.name}:contato`, 3500)
+              await snapViewport(contato, `${v.name}-contato.png`)
+              await contato.close()
+
+              const sgs = await openPage(context, '/trabalhos/sgs', `${v.name}:sgs`, 3500)
+              await snapViewport(sgs, `${v.name}-sgs-top.png`)
+              if (v.name !== 'tablet') {
+                await sgs.evaluate(() => window.scrollTo(0, Math.min(document.documentElement.scrollHeight * 0.42, 2200)))
+                await sgs.waitForTimeout(1800)
+                await snapViewport(sgs, `${v.name}-sgs-mid.png`)
+              }
+              await sgs.close()
+              await context.close()
+            }
+
+            fs.writeFileSync(path.join(out, 'audit.json'), JSON.stringify({ base, issues }, null, 2))
+            console.log(`audit issues captured: ${issues.length}`)
+            await browser.close()
+          })().catch(err => { console.error(err); process.exit(1) })
+          NODE
+          node /tmp/live-audit.cjs
+
+      - name: Upload live audit
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: gandra-visual-audit
-          path: .playwright-mcp/*.png
-          if-no-files-found: warn
+          name: gandra-live-visual-audit
+          path: .visual-live/*
+          if-no-files-found: error
           retention-days: 1
           include-hidden-files: true
-
-      - name: Upload server log
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: gandra-server-log
-          path: /tmp/gandra-next.log
-          if-no-files-found: ignore
-          retention-days: 1
