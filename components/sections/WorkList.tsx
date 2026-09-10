@@ -48,14 +48,45 @@ function WorkRow({
     const number = numberRef.current
     if (!row || !parallaxEl || !spin || !tilt || !curtain || !info) return
 
-    // No trilho horizontal (desktop largo) os efeitos atados ao scroll
-    // vertical não fazem sentido: fica só a revelação por IntersectionObserver.
-    const isRail = window.matchMedia('(min-width: 1024px)').matches
-
-    // A direção de onde a cortina abre e de onde o mockup gira acompanha
-    // o lado em que ele está, para o movimento apontar sempre "para fora".
-    const dir = flipped ? -1 : 1
     const infoParts = info.querySelectorAll<HTMLElement>('[data-stagger]')
+    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    const compact = window.matchMedia('(max-width: 767px)').matches
+
+    if (reduced) {
+      gsap.set(curtain, { scaleX: 0 })
+      gsap.set(tilt, { opacity: 1, rotationY: 0, rotationX: 0, scale: 1 })
+      gsap.set(infoParts, { opacity: 1, y: 0, filter: 'none' })
+      return
+    }
+
+    // Mobile: uma única revelação curta. Sem parallax, rotação 3D,
+    // cálculo de velocidade ou RAF contínuo.
+    if (compact) {
+      gsap.set(curtain, { scaleX: 0 })
+      gsap.set(tilt, { opacity: 0, y: 18, rotationY: 0, rotationX: 0, scale: 0.985 })
+      gsap.set(infoParts, { opacity: 0, y: 16, filter: 'none' })
+
+      let timeline: gsap.core.Timeline | null = null
+      const observer = new IntersectionObserver(
+        ([entry]) => {
+          if (!entry.isIntersecting) return
+          timeline = gsap.timeline({ defaults: { ease: 'power3.out' } })
+            .to(tilt, { opacity: 1, y: 0, scale: 1, duration: 0.6 }, 0)
+            .to(infoParts, { opacity: 1, y: 0, duration: 0.55, stagger: 0.07 }, 0.12)
+          observer.disconnect()
+        },
+        { rootMargin: '0px 0px -10% 0px', threshold: 0.12 }
+      )
+      observer.observe(row)
+
+      return () => {
+        observer.disconnect()
+        timeline?.kill()
+      }
+    }
+
+    const isRail = window.matchMedia('(min-width: 1024px)').matches
+    const dir = flipped ? -1 : 1
 
     const setInitial = () => {
       gsap.set(curtain, { scaleX: 1, transformOrigin: flipped ? 'right center' : 'left center' })
@@ -66,24 +97,18 @@ function WorkRow({
 
     const build = () => {
       const tl = gsap.timeline({ defaults: { ease: 'power3.out' } })
-
-      // 1. O mockup já está girado atrás da cortina e aparece durante a abertura.
       tl.to(tilt, { opacity: 1, duration: 0.3 }, 0)
-        // 2. A cortina desliza revelando.
         .to(curtain, { scaleX: 0, duration: 0.95, ease: 'expo.inOut' }, 0)
-        // 3. O mockup endireita e assenta.
         .to(
           tilt,
           { rotationY: 0, rotationX: 0, scale: 1, duration: 1.25, ease: 'power4.out' },
           0.12
         )
-        // 4. O texto entra em cascata pelo lado.
         .to(
           infoParts,
           { opacity: 1, y: 0, filter: 'blur(0px)', duration: 0.8, stagger: 0.09, clearProps: 'filter' },
           0.35
         )
-
       return tl
     }
 
@@ -110,22 +135,16 @@ function WorkRow({
       })
     }
 
-    // Rede de segurança: saltos de scroll (âncora, refresh no meio da página,
-    // scrollTo programático) podem não propagar do Lenis para o ScrollTrigger,
-    // e a linha ficaria coberta pela cortina. O observer garante a revelação.
     const io = new IntersectionObserver(
       (entries) => {
-        for (const e of entries) if (e.isIntersecting) play()
+        for (const entry of entries) if (entry.isIntersecting) play()
       },
       { rootMargin: '0px 0px -22% 0px' }
     )
     io.observe(row)
 
-    // Daqui em diante só efeitos de scroll vertical — pulados no trilho.
     let cleanupVertical: (() => void) | undefined
     if (!isRail) {
-      // Parallax sutil enquanto a linha atravessa a viewport — em camada
-      // própria para não conflitar com o tilt nem com o hover.
       const parallax = gsap.fromTo(
         parallaxEl,
         { yPercent: 4 },
@@ -136,9 +155,6 @@ function WorkRow({
         }
       )
 
-      // Rotação 3D contínua: chega inclinada, fica reta no centro da viewport,
-      // inclina para o outro lado ao sair. Camada própria (spin), separada do
-      // tilt da entrada — dois tweens no mesmo elemento se sobrescreveriam.
       const spinTween = gsap.fromTo(
         spin,
         { rotationY: 22 * dir, rotationX: 3 },
@@ -150,7 +166,6 @@ function WorkRow({
         }
       )
 
-      // Título fantasma e número deslizam em contrafluxo ao scroll.
       const ghostTween = ghost
         ? gsap.fromTo(
             ghost,
@@ -175,14 +190,8 @@ function WorkRow({
           )
         : null
 
-      // Distorção pela velocidade do scroll: quanto mais rápido, mais o mockup
-      // "entorta" e inclina; ao parar, tudo relaxa. quickTo evita criar um tween
-      // por frame. A velocidade vem do ScrollTrigger, que já reflete o scroll
-      // suavizado do Lenis.
       const skewTo = gsap.quickTo(spin, 'skewY', { duration: 0.5, ease: 'power3.out' })
       const scaleTo = gsap.quickTo(spin, 'scaleY', { duration: 0.5, ease: 'power3.out' })
-      // 'rotation' (GSAP), não 'rotate' (CSS): a propriedade CSS independente
-      // conflita com o transform que o GSAP já escreve neste elemento.
       const leanTo = gsap.quickTo(spin, 'rotation', { duration: 0.7, ease: 'power2.out' })
       let raf = 0
       const applyVelocity = () => {
@@ -190,7 +199,6 @@ function WorkRow({
         const v = gsap.utils.clamp(-1, 1, vel)
         skewTo(v * -4)
         scaleTo(1 + Math.abs(v) * 0.03)
-        // Inclina para o lado contrário ao movimento, como inércia.
         leanTo(v * -0.8 * dir)
         raf = requestAnimationFrame(applyVelocity)
       }
@@ -219,18 +227,14 @@ function WorkRow({
         href={`/trabalhos/${work.slug}`}
         className={`work-item${flipped ? ' work-item--flipped' : ''}`}
       >
-        {/* Título fantasma: nome do projeto em escala editorial, ao fundo. */}
         <div ref={ghostRef} className="work-item__ghost" aria-hidden="true">
           {work.name}
         </div>
 
-        {/* Numeração do projeto, com movimento próprio. */}
         <div ref={numberRef} className="work-item__number" aria-hidden="true">
           {String(index + 1).padStart(2, '0')}
         </div>
 
-        {/* Camadas empilhadas — cada transform tem dono exclusivo:
-            parallax (y) › spin (rotação do scroll + skew) › tilt (entrada). */}
         <div ref={parallaxRef} className="work-item__mockup">
           <div className="work-item__stage">
             <div ref={spinRef} className="work-item__spin">
@@ -275,8 +279,6 @@ export default function WorkList() {
   const railRef = useRef<HTMLDivElement>(null)
   const trackRef = useRef<HTMLDivElement>(null)
 
-  // Trilho horizontal: no desktop a seção ganha altura extra e o scroll
-  // vertical desliza os projetos para o lado. Mobile continua vertical.
   useEffect(() => {
     const rail = railRef.current
     const track = trackRef.current
@@ -284,7 +286,6 @@ export default function WorkList() {
     if (!window.matchMedia('(min-width: 1024px)').matches) return
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
 
-    // Altura do trilho = distância horizontal a percorrer + uma viewport.
     const setHeight = () => {
       rail.style.height = `${track.scrollWidth - window.innerWidth + window.innerHeight}px`
       ScrollTrigger.refresh()
@@ -331,8 +332,8 @@ export default function WorkList() {
       <div ref={railRef} className="work-rail">
         <div className="work-rail__sticky">
           <div ref={trackRef} className="work-rail__track work-list__items">
-            {works.map((w, i) => (
-              <WorkRow key={w.slug} work={w} flipped={i % 2 === 1} index={i} />
+            {works.map((work, i) => (
+              <WorkRow key={work.slug} work={work} flipped={i % 2 === 1} index={i} />
             ))}
           </div>
         </div>
