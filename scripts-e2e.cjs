@@ -152,6 +152,31 @@ async function main() {
     pass(`teclado: foco visível em ${focusState.tag}`)
   }
 
+  for (const width of [320, 360, 375, 390, 414, 768, 1024, 1280, 1440]) {
+    await page.setViewportSize({ width, height: width < 768 ? 844 : 900 })
+    await page.waitForTimeout(250)
+    const layout = await page.evaluate(() => ({
+      viewport: document.documentElement.clientWidth,
+      scrollWidth: document.documentElement.scrollWidth,
+      railPosition: document.querySelector('.work-rail__sticky')
+        ? getComputedStyle(document.querySelector('.work-rail__sticky')).position
+        : null,
+    }))
+
+    if (layout.scrollWidth > layout.viewport + 1) {
+      fail(`responsivo ${width}px: overflow ${layout.scrollWidth}px > ${layout.viewport}px`)
+    } else {
+      pass(`responsivo ${width}px: sem overflow horizontal`)
+    }
+
+    if (width === 768 && layout.railPosition !== 'static') {
+      fail(`responsivo 768px: rail deveria ser estático, recebido ${layout.railPosition}`)
+    }
+    if (width === 1024 && layout.railPosition !== 'sticky') {
+      fail(`responsivo 1024px: rail deveria ser sticky, recebido ${layout.railPosition}`)
+    }
+  }
+
   if (consoleErrors.length) fail(`console errors: ${consoleErrors.join(' | ')}`)
   else pass('desktop: sem console.error relevante')
 
