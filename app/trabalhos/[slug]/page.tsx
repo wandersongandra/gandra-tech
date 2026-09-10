@@ -18,7 +18,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     openGraph: {
       title: project.name,
       description: project.headline,
-      images: [{ url: `/images/projects/${project.slug}/cover.png` }],
+      images: [{ url: project.coverImage, alt: `${project.name} — projeto Gandra Tech` }],
     },
   }
 }
