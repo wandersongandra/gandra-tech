@@ -3,15 +3,6 @@ import { useEffect, useRef } from 'react'
 import { useRouter, usePathname } from 'next/navigation'
 import gsap from 'gsap'
 
-/**
- * Cortina de página em blob: um path SVG cobre a viewport e a borda
- * deforma durante a varredura, como tecido puxado. Na saída (painel sobe),
- * a borda inferior estica para baixo e depois recolhe; na entrada (painel
- * vem de baixo), a borda superior avança numa crista e assenta.
- *
- * `b` é a profundidade da deformação em centésimos da altura da viewport
- * (viewBox 0..100 com preserveAspectRatio="none").
- */
 const exitD = (b: number) => `M 0 0 H 100 V 100 Q 50 ${100 + b} 0 100 Z`
 const enterD = (b: number) => `M 0 0 Q 50 ${-b} 100 0 V 100 H 0 Z`
 const FLAT = exitD(0)
@@ -21,36 +12,63 @@ export default function PageCurtain() {
   const pathRef = useRef<SVGPathElement>(null)
   const logoRef = useRef<HTMLSpanElement>(null)
   const countRef = useRef<HTMLSpanElement>(null)
-  // Objeto-mutação dirigido pelos tweens — fora do state para não rerenderizar.
   const sweepRef = useRef({ b: 0 })
   const didMount = useRef(false)
   const router = useRouter()
   const pathname = usePathname()
 
-  // Entrance: animate panel out on mount / route change
   useEffect(() => {
     const panel = panelRef.current
     const path = pathRef.current
     const logo = logoRef.current
-    if (!panel || !path || !logo) return
+    const count = countRef.current
+    if (!panel || !path || !logo || !count) return
 
+    const compact = window.matchMedia('(max-width: 767px), (pointer: coarse)').matches
+    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
     const sweep = sweepRef.current
     const drawExit = () => path.setAttribute('d', exitD(sweep.b))
 
-    // Varredura de saída: o painel sobe enquanto a borda inferior estica
-    // no início do movimento e recolhe conforme ele ganha velocidade.
-    const sweepOut = (delay = 0) => {
+    const openCurtain = () => window.dispatchEvent(new Event('gt:curtain-open'))
+
+    if (reduced) {
+      gsap.set(panel, { yPercent: -100 })
+      gsap.set([logo, count], { opacity: 0 })
+      openCurtain()
+      didMount.current = true
+      return
+    }
+
+    const sweepOut = (delay = 0, duration = compact ? 0.48 : 0.9) => {
       sweep.b = 0
       drawExit()
-      gsap.timeline({ delay, onStart: () => window.dispatchEvent(new Event('gt:curtain-open')) })
+      gsap.timeline({ delay, onStart: openCurtain })
         .fromTo(
           panel,
           { yPercent: 0 },
-          { yPercent: -100, duration: 0.9, ease: 'power3.inOut' },
+          { yPercent: -100, duration, ease: 'power3.inOut' },
           0
         )
-        .to(sweep, { b: 22, duration: 0.32, ease: 'power2.in', onUpdate: drawExit }, 0)
-        .to(sweep, { b: 0, duration: 0.6, ease: 'power3.out', onUpdate: drawExit }, 0.32)
+        .to(
+          sweep,
+          {
+            b: compact ? 12 : 22,
+            duration: compact ? 0.18 : 0.32,
+            ease: 'power2.in',
+            onUpdate: drawExit,
+          },
+          0
+        )
+        .to(
+          sweep,
+          {
+            b: 0,
+            duration: compact ? 0.32 : 0.6,
+            ease: 'power3.out',
+            onUpdate: drawExit,
+          },
+          compact ? 0.18 : 0.32
+        )
     }
 
     if (!didMount.current) {
@@ -59,54 +77,88 @@ export default function PageCurtain() {
 
       if (isFirstVisit) {
         sessionStorage.setItem('gt-loaded', '1')
-        const count = countRef.current
         const counter = { v: 0 }
-        // Preloader: contador 0→100 enquanto o logo entra (com glitch RGB
-        // no CSS), depois os dois saem e a cortina varre para cima.
-        gsap.timeline()
-          .fromTo(logo,
-            { opacity: 0, y: 18 },
-            { opacity: 1, y: 0, duration: 0.65, ease: 'power3.out', delay: 0.2 })
-          .fromTo(count,
-            { opacity: 0 },
-            { opacity: 1, duration: 0.4, ease: 'power2.out' }, '<')
-          .to(counter, {
-            v: 100,
-            duration: 1.15,
-            ease: 'power2.inOut',
-            onUpdate: () => {
-              if (count) count.textContent = String(Math.round(counter.v)).padStart(3, '0')
-            },
-          }, '<0.1')
-          .to(logo,
-            { opacity: 0, y: -14, duration: 0.4, ease: 'power3.in', delay: 0.15 })
-          .to(count, { opacity: 0, duration: 0.3, ease: 'power2.in' }, '<')
-          .add(() => sweepOut())
+
+        if (compact) {
+          gsap.timeline()
+            .fromTo(
+              logo,
+              { opacity: 0, y: 10 },
+              { opacity: 1, y: 0, duration: 0.28, ease: 'power2.out', delay: 0.06 }
+            )
+            .fromTo(
+              count,
+              { opacity: 0 },
+              { opacity: 0.7, duration: 0.16, ease: 'power2.out' },
+              '<'
+            )
+            .to(
+              counter,
+              {
+                v: 100,
+                duration: 0.52,
+                ease: 'power2.inOut',
+                onUpdate: () => {
+                  count.textContent = String(Math.round(counter.v)).padStart(3, '0')
+                },
+              },
+              '<0.04'
+            )
+            .to([logo, count], { opacity: 0, duration: 0.16, ease: 'power2.in' })
+            .add(() => sweepOut())
+        } else {
+          gsap.timeline()
+            .fromTo(
+              logo,
+              { opacity: 0, y: 18 },
+              { opacity: 1, y: 0, duration: 0.65, ease: 'power3.out', delay: 0.2 }
+            )
+            .fromTo(
+              count,
+              { opacity: 0 },
+              { opacity: 1, duration: 0.4, ease: 'power2.out' },
+              '<'
+            )
+            .to(
+              counter,
+              {
+                v: 100,
+                duration: 1.15,
+                ease: 'power2.inOut',
+                onUpdate: () => {
+                  count.textContent = String(Math.round(counter.v)).padStart(3, '0')
+                },
+              },
+              '<0.1'
+            )
+            .to(logo, { opacity: 0, y: -14, duration: 0.4, ease: 'power3.in', delay: 0.15 })
+            .to(count, { opacity: 0, duration: 0.3, ease: 'power2.in' }, '<')
+            .add(() => sweepOut())
+        }
       } else {
-        // Returning user or came via navigation — reveal fast
-        sweepOut(0.05)
+        sweepOut(compact ? 0 : 0.05)
       }
       return
     }
 
-    // Subsequent pathname changes: panel is at yPercent:0 (was animated in), sweep out
-    sweepOut(0.05)
+    sweepOut(compact ? 0 : 0.05)
   }, [pathname])
 
-  // Global link click interception → animate panel in, then navigate
   useEffect(() => {
     const panel = panelRef.current
     const path = pathRef.current
     if (!panel || !path) return
 
+    const compact = window.matchMedia('(max-width: 767px), (pointer: coarse)').matches
+    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
     const sweep = sweepRef.current
     const drawEnter = () => path.setAttribute('d', enterD(sweep.b))
 
     const onClick = (e: MouseEvent) => {
-      const a = (e.target as Element).closest('a[href]') as HTMLAnchorElement | null
-      if (!a) return
+      const anchor = (e.target as Element).closest('a[href]') as HTMLAnchorElement | null
+      if (!anchor) return
 
-      const href = a.getAttribute('href') ?? ''
+      const href = anchor.getAttribute('href') ?? ''
       if (
         !href ||
         href.startsWith('http') ||
@@ -119,27 +171,50 @@ export default function PageCurtain() {
       if (targetPath === window.location.pathname) return
 
       e.preventDefault()
+
+      if (reduced) {
+        router.push(href)
+        return
+      }
+
       gsap.killTweensOf(panel)
       gsap.killTweensOf(sweep)
       sweep.b = 0
       drawEnter()
 
-      // Varredura de entrada: a crista avança à frente do painel e assenta
-      // quando ele cobre a tela — aí a navegação acontece por baixo.
+      const duration = compact ? 0.36 : 0.6
       gsap.timeline()
         .fromTo(
           panel,
           { yPercent: 100 },
           {
             yPercent: 0,
-            duration: 0.6,
+            duration,
             ease: 'power3.inOut',
             onComplete: () => router.push(href),
           },
           0
         )
-        .to(sweep, { b: 20, duration: 0.22, ease: 'power2.out', onUpdate: drawEnter }, 0)
-        .to(sweep, { b: 0, duration: 0.5, ease: 'power3.inOut', onUpdate: drawEnter }, 0.22)
+        .to(
+          sweep,
+          {
+            b: compact ? 10 : 20,
+            duration: compact ? 0.14 : 0.22,
+            ease: 'power2.out',
+            onUpdate: drawEnter,
+          },
+          0
+        )
+        .to(
+          sweep,
+          {
+            b: 0,
+            duration: compact ? 0.26 : 0.5,
+            ease: 'power3.inOut',
+            onUpdate: drawEnter,
+          },
+          compact ? 0.14 : 0.22
+        )
     }
 
     document.addEventListener('click', onClick)
