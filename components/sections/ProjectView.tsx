@@ -33,7 +33,6 @@ export default function ProjectView({ project, next }: { project: Project; next:
 
   return (
     <PageTransition>
-      {/* Hero */}
       <section className="pv-hero">
         <div className="container">
           <FadeIn as="div" className="pv-hero__meta" trigger="load" y={12} duration={0.5}>
@@ -55,7 +54,7 @@ export default function ProjectView({ project, next }: { project: Project; next:
 
         <FadeIn as="div" className="pv-hero__cover" trigger="load" delay={0.4} y={32} duration={0.9}>
           <ImageFill
-            src={`/images/projects/${project.slug}/cover.png`}
+            src={project.coverImage}
             alt={`${project.name} — capa do projeto`}
             sizes="100vw"
             quality={95}
@@ -69,7 +68,6 @@ export default function ProjectView({ project, next }: { project: Project; next:
         </FadeIn>
       </section>
 
-      {/* Overview */}
       <section className="pv-overview">
         <div className="container">
           <div className="pv-overview__grid">
@@ -91,12 +89,11 @@ export default function ProjectView({ project, next }: { project: Project; next:
         </div>
       </section>
 
-      {/* Uma única tela do produto — o portfólio mostra o essencial. */}
       <section className="pv-content">
         <div className="container">
           <div className="pv-block pv-block--wide">
             <ImageFill
-              src={`/images/projects/${project.slug}/main.png`}
+              src={project.mainImage}
               alt={`Tela principal — ${project.name}`}
               sizes="(min-width: 1200px) 1104px, 100vw"
               quality={95}
@@ -110,7 +107,6 @@ export default function ProjectView({ project, next }: { project: Project; next:
         </div>
       </section>
 
-      {/* Next project */}
       <section className="pv-next">
         <div className="container">
           <div className="pv-next__label">PRÓXIMO PROJETO</div>
