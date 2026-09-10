@@ -3,6 +3,15 @@ const { chromium } = require('playwright')
 const BASE_URL = process.env.BASE_URL || 'http://127.0.0.1:3000'
 const failures = []
 
+const projectSlugs = [
+  'sgs',
+  'axiom-health',
+  'norte-vivo',
+  'marea-finance',
+  'orbit-house',
+  'vertice-open',
+]
+
 function fail(message) {
   failures.push(message)
   console.error(`FAIL: ${message}`)
@@ -12,26 +21,47 @@ function pass(message) {
   console.log(`PASS: ${message}`)
 }
 
-async function assertRoute(page, path, label) {
-  const badResponses = []
+async function assertRoute(page, path, label, expectedStatus = 200) {
+  const badSubresources = []
   const onResponse = (response) => {
-    if (response.status() >= 400) badResponses.push(`${response.status()} ${response.url()}`)
+    if (response.request().resourceType() !== 'document' && response.status() >= 400) {
+      badSubresources.push(`${response.status()} ${response.url()}`)
+    }
   }
   page.on('response', onResponse)
 
   const response = await page.goto(`${BASE_URL}${path}`, { waitUntil: 'networkidle' })
-  await page.waitForTimeout(1200)
+  await page.waitForTimeout(1000)
 
-  if (!response || response.status() >= 400) fail(`${label}: resposta principal inválida`)
-  else pass(`${label}: rota respondeu ${response.status()}`)
+  if (!response || response.status() !== expectedStatus) {
+    fail(`${label}: esperado HTTP ${expectedStatus}, recebido ${response?.status() ?? 'sem resposta'}`)
+  } else {
+    pass(`${label}: rota respondeu ${expectedStatus}`)
+  }
 
   const pageErrors = await page.evaluate(() => window.__e2ePageErrors || [])
   if (pageErrors.length) fail(`${label}: page errors: ${pageErrors.join(' | ')}`)
+  else pass(`${label}: sem page errors`)
 
-  if (badResponses.length) fail(`${label}: requests >= 400: ${badResponses.join(' | ')}`)
-  else pass(`${label}: sem requests quebradas`)
+  if (badSubresources.length) fail(`${label}: subresources >= 400: ${badSubresources.join(' | ')}`)
+  else pass(`${label}: sem subresources quebradas`)
 
   page.off('response', onResponse)
+}
+
+async function assertProjectMetadata(page, slug) {
+  const path = `/trabalhos/${slug}`
+  await assertRoute(page, path, `projeto ${slug}`)
+
+  const ogImage = await page.locator('meta[property="og:image"]').getAttribute('content')
+  if (!ogImage) {
+    fail(`${slug}: og:image ausente`)
+    return
+  }
+
+  const response = await page.request.get(ogImage)
+  if (!response.ok()) fail(`${slug}: og:image respondeu ${response.status()} (${ogImage})`)
+  else pass(`${slug}: og:image válido`)
 }
 
 async function main() {
@@ -56,7 +86,7 @@ async function main() {
   })
 
   const homeResponse = await page.goto(BASE_URL, { waitUntil: 'networkidle' })
-  await page.waitForTimeout(1200)
+  await page.waitForTimeout(1000)
   if (!homeResponse) {
     fail('home: resposta ausente')
   } else {
@@ -75,23 +105,24 @@ async function main() {
     }
   }
 
+  await assertRoute(page, '/', 'home')
+  await assertRoute(page, '/trabalhos', 'trabalhos')
+  await assertRoute(page, '/contato', 'contato')
+  for (const slug of projectSlugs) await assertProjectMetadata(page, slug)
+  await assertRoute(page, '/nao-existe', '404 customizado', 404)
+
   for (const [path, label] of [
-    ['/', 'home'],
     ['/trabalhos', 'trabalhos'],
     ['/contato', 'contato'],
-    ['/trabalhos/sgs', 'projeto SGS'],
-    ['/trabalhos/axiom-health', 'projeto fallback'],
-    ['/nao-existe', '404 customizado'],
+    ['/trabalhos/sgs', 'projeto'],
   ]) {
-    await assertRoute(page, path, label)
+    await page.goto(`${BASE_URL}${path}`, { waitUntil: 'networkidle' })
+    const h1Count = await page.locator('h1').count()
+    if (h1Count !== 1) fail(`${label}: esperado 1 h1, encontrado ${h1Count}`)
+    else pass(`${label}: hierarquia principal possui 1 h1`)
   }
 
-  await page.goto(`${BASE_URL}/trabalhos`, { waitUntil: 'networkidle' })
-  await page.waitForTimeout(900)
-  const h1Count = await page.locator('h1').count()
-  if (h1Count !== 1) fail(`trabalhos: esperado 1 h1, encontrado ${h1Count}`)
-  else pass('trabalhos: hierarquia principal possui 1 h1')
-
+  await page.goto(`${BASE_URL}/contato`, { waitUntil: 'networkidle' })
   const unsafeBlankLinks = await page.locator('a[target="_blank"]').evaluateAll((links) =>
     links
       .filter((link) => {
@@ -131,13 +162,17 @@ async function main() {
   const reducedState = await reducedPage.evaluate(() => {
     const sticky = document.querySelector('.work-rail__sticky')
     const items = Array.from(document.querySelectorAll('.work-item'))
+    const hiddenMotion = Array.from(document.querySelectorAll('[data-motion]')).filter(
+      (element) => getComputedStyle(element).opacity === '0'
+    ).length
     const viewport = document.documentElement.clientWidth
     return {
       stickyPosition: sticky ? getComputedStyle(sticky).position : null,
       items: items.map((item) => {
         const rect = item.getBoundingClientRect()
-        return { left: rect.left, right: rect.right, opacity: getComputedStyle(item).opacity }
+        return { left: rect.left, right: rect.right }
       }),
+      hiddenMotion,
       viewport,
       hasLenis: Boolean(window.__lenis),
     }
@@ -148,6 +183,9 @@ async function main() {
 
   if (reducedState.hasLenis) fail('reduced-motion: Lenis permaneceu ativo')
   else pass('reduced-motion: smooth scroll pesado desativado')
+
+  if (reducedState.hiddenMotion) fail(`reduced-motion: ${reducedState.hiddenMotion} elementos de motion ficaram invisíveis`)
+  else pass('reduced-motion: conteúdo animado permanece visível')
 
   const clippedItems = reducedState.items.filter((item) => item.left < -1 || item.right > reducedState.viewport + 1)
   if (clippedItems.length) fail(`reduced-motion: ${clippedItems.length} projetos horizontalmente cortados`)
