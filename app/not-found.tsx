@@ -11,7 +11,7 @@ export default function NotFound() {
   return (
     <>
       <Header />
-      <main>
+      <main id="main-content">
         <section className="cp-hero">
           <div className="container">
             <div className="cp-hero__label">ERRO / PÁGINA NÃO ENCONTRADA</div>
