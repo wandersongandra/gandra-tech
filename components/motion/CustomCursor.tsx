@@ -2,6 +2,8 @@
 import { useEffect, useRef } from 'react'
 import gsap from 'gsap'
 
+const ECHO_POOL_SIZE = 12
+
 export default function CustomCursor() {
   const dotRef = useRef<HTMLDivElement>(null)
   const ringRef = useRef<HTMLDivElement>(null)
@@ -10,88 +12,104 @@ export default function CustomCursor() {
     const dot = dotRef.current
     const ring = ringRef.current
     if (!dot || !ring) return
+    if (window.matchMedia('(pointer: coarse)').matches) return
 
-    // Escondidos até o primeiro movimento do mouse — evita o anel parado
-    // no canto superior esquerdo antes de qualquer interação.
+    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+
     gsap.set([dot, ring], { autoAlpha: 0 })
     let revealed = false
 
-    const xDot = gsap.quickTo(dot, 'x', { duration: 0.08, ease: 'power3' })
-    const yDot = gsap.quickTo(dot, 'y', { duration: 0.08, ease: 'power3' })
-    const xRing = gsap.quickTo(ring, 'x', { duration: 0.38, ease: 'power3' })
-    const yRing = gsap.quickTo(ring, 'y', { duration: 0.38, ease: 'power3' })
+    const xDot = gsap.quickTo(dot, 'x', { duration: reducedMotion ? 0 : 0.08, ease: 'power3' })
+    const yDot = gsap.quickTo(dot, 'y', { duration: reducedMotion ? 0 : 0.08, ease: 'power3' })
+    const xRing = gsap.quickTo(ring, 'x', { duration: reducedMotion ? 0 : 0.38, ease: 'power3' })
+    const yRing = gsap.quickTo(ring, 'y', { duration: reducedMotion ? 0 : 0.38, ease: 'power3' })
 
-    const onMove = (e: MouseEvent) => {
+    const echoes = reducedMotion
+      ? []
+      : Array.from({ length: ECHO_POOL_SIZE }, () => {
+          const echo = document.createElement('div')
+          echo.className = 'c-echo'
+          echo.setAttribute('aria-hidden', 'true')
+          document.body.appendChild(echo)
+          gsap.set(echo, { autoAlpha: 0 })
+          return echo
+        })
+    let echoIndex = 0
+    let lastSpawn = 0
+
+    const onMove = (event: MouseEvent) => {
       if (!revealed) {
         revealed = true
-        gsap.to([dot, ring], { autoAlpha: 1, duration: 0.3 })
+        gsap.to([dot, ring], { autoAlpha: 1, duration: reducedMotion ? 0 : 0.3 })
       }
-      xDot(e.clientX)
-      yDot(e.clientY)
-      xRing(e.clientX)
-      yRing(e.clientY)
-    }
 
-    const grow = () => gsap.to(ring, { scale: 2.6, duration: 0.4, ease: 'power2.out' })
-    const shrink = () => gsap.to(ring, { scale: 1, duration: 0.4, ease: 'power2.out' })
-    const growBig = () => gsap.to(ring, { scale: 4.5, duration: 0.45, ease: 'power2.out' })
+      xDot(event.clientX)
+      yDot(event.clientY)
+      xRing(event.clientX)
+      yRing(event.clientY)
 
-    window.addEventListener('mousemove', onMove)
-
-    // Rastro: ecos que nascem do movimento e morrem em fade. Herdam o
-    // mix-blend difference do cursor, então invertem cor em qualquer fundo.
-    let lastSpawn = 0
-    const onMoveEcho = (e: MouseEvent) => {
+      if (!echoes.length) return
       const now = performance.now()
       if (now - lastSpawn < 80) return
       lastSpawn = now
-      if (document.querySelectorAll('.c-echo').length > 16) return
-      const echo = document.createElement('div')
-      echo.className = 'c-echo'
-      document.body.appendChild(echo)
+
+      const echo = echoes[echoIndex]
+      echoIndex = (echoIndex + 1) % echoes.length
+      gsap.killTweensOf(echo)
       gsap.fromTo(
         echo,
-        { x: e.clientX, y: e.clientY, scale: 1, opacity: 0.55 },
-        {
-          scale: 0,
-          opacity: 0,
-          duration: 0.8,
-          ease: 'power2.out',
-          onComplete: () => echo.remove(),
-        }
+        { x: event.clientX, y: event.clientY, scale: 1, opacity: 0.55 },
+        { scale: 0, opacity: 0, duration: 0.8, ease: 'power2.out' }
       )
     }
-    window.addEventListener('mousemove', onMoveEcho)
 
-    const bindHover = () => {
-      document.querySelectorAll('a, button').forEach((el) => {
-        if (el.closest('.work-item')) return
-        el.addEventListener('mouseenter', grow)
-        el.addEventListener('mouseleave', shrink)
-      })
-      document.querySelectorAll('.work-item').forEach((el) => {
-        el.addEventListener('mouseenter', growBig)
-        el.addEventListener('mouseleave', shrink)
-      })
+    const grow = () => gsap.to(ring, { scale: 2.6, duration: reducedMotion ? 0 : 0.4, ease: 'power2.out' })
+    const growBig = () => gsap.to(ring, { scale: 4.5, duration: reducedMotion ? 0 : 0.45, ease: 'power2.out' })
+    const shrink = () => gsap.to(ring, { scale: 1, duration: reducedMotion ? 0 : 0.4, ease: 'power2.out' })
+
+    let hovered: Element | null = null
+
+    const interactiveFor = (target: EventTarget | null) => {
+      if (!(target instanceof Element)) return null
+      return target.closest('.work-item, a, button')
     }
 
-    bindHover()
+    const onPointerOver = (event: PointerEvent) => {
+      const interactive = interactiveFor(event.target)
+      if (!interactive || interactive === hovered) return
+      hovered = interactive
+      if (interactive.matches('.work-item')) growBig()
+      else grow()
+    }
 
-    // Re-bind on route changes (SPA nav adds new elements)
-    const observer = new MutationObserver(bindHover)
-    observer.observe(document.body, { childList: true, subtree: true })
+    const onPointerOut = (event: PointerEvent) => {
+      const current = interactiveFor(event.target)
+      if (!current || current !== hovered) return
+      const next = interactiveFor(event.relatedTarget)
+      if (next === current) return
+      hovered = next
+      if (!next) shrink()
+      else if (next.matches('.work-item')) growBig()
+      else grow()
+    }
+
+    window.addEventListener('mousemove', onMove, { passive: true })
+    document.addEventListener('pointerover', onPointerOver, { passive: true })
+    document.addEventListener('pointerout', onPointerOut, { passive: true })
 
     return () => {
       window.removeEventListener('mousemove', onMove)
-      window.removeEventListener('mousemove', onMoveEcho)
-      observer.disconnect()
+      document.removeEventListener('pointerover', onPointerOver)
+      document.removeEventListener('pointerout', onPointerOut)
+      gsap.killTweensOf([dot, ring, ...echoes])
+      echoes.forEach((echo) => echo.remove())
     }
   }, [])
 
   return (
     <>
-      <div ref={dotRef} className="c-dot" />
-      <div ref={ringRef} className="c-ring" />
+      <div ref={dotRef} className="c-dot" aria-hidden="true" />
+      <div ref={ringRef} className="c-ring" aria-hidden="true" />
     </>
   )
 }
