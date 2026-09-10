@@ -7,6 +7,7 @@ import VelocityWarp from '@/components/motion/VelocityWarp'
 import ChaosMode from '@/components/motion/ChaosMode'
 import { siteDescription, siteName, siteUrl } from '@/lib/site'
 import './globals.css'
+import './accessibility.css'
 
 const bodoni = Bodoni_Moda({
   subsets: ['latin'],
