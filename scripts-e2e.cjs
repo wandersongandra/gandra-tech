@@ -59,10 +59,11 @@ async function assertProjectMetadata(page, slug) {
     return
   }
 
-  const ogUrl = new URL(ogImage, BASE_URL).toString()
-  const response = await page.request.get(ogUrl)
-  if (!response.ok()) fail(`${slug}: og:image respondeu ${response.status()} (${ogUrl})`)
-  else pass(`${slug}: og:image válido`)
+  const parsedOgUrl = new URL(ogImage, BASE_URL)
+  const localOgUrl = new URL(`${parsedOgUrl.pathname}${parsedOgUrl.search}`, BASE_URL).toString()
+  const response = await page.request.get(localOgUrl)
+  if (!response.ok()) fail(`${slug}: og:image local respondeu ${response.status()} (${localOgUrl})`)
+  else pass(`${slug}: og:image local válido`)
 }
 
 async function main() {
@@ -144,13 +145,28 @@ async function main() {
     const el = document.activeElement
     if (!(el instanceof HTMLElement)) return null
     const style = getComputedStyle(el)
-    return { tag: el.tagName, outlineStyle: style.outlineStyle, outlineWidth: style.outlineWidth }
+    return {
+      tag: el.tagName,
+      className: el.className,
+      outlineStyle: style.outlineStyle,
+      outlineWidth: style.outlineWidth,
+    }
   })
   if (!focusState || focusState.outlineStyle === 'none' || focusState.outlineWidth === '0px') {
     fail('teclado: foco visível não detectado no primeiro elemento focável')
   } else {
     pass(`teclado: foco visível em ${focusState.tag}`)
   }
+
+  if (!focusState || !String(focusState.className).split(' ').includes('skip-link')) {
+    fail('teclado: skip link não é o primeiro foco da página')
+  } else {
+    pass('teclado: skip link é o primeiro foco da página')
+  }
+
+  const hasMainTarget = (await page.locator('#main-content').count()) === 1
+  if (!hasMainTarget) fail('teclado: alvo #main-content ausente ou duplicado')
+  else pass('teclado: alvo #main-content único')
 
   for (const width of [320, 360, 375, 390, 414, 768, 1024, 1280, 1440]) {
     await page.setViewportSize({ width, height: width < 768 ? 844 : 900 })
