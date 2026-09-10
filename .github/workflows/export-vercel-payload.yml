@@ -60,6 +60,7 @@ jobs:
           path: .playwright-mcp/*.png
           if-no-files-found: warn
           retention-days: 1
+          include-hidden-files: true
 
       - name: Upload server log
         if: always()
