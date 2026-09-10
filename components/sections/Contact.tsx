@@ -9,18 +9,18 @@ import { activeSocialLinks, contactEmail, contactNotes } from '@/lib/site'
 export default function Contact() {
   const sectionRef = useRef<HTMLElement>(null)
 
-  // Lanterna: o texto escondido só existe dentro do círculo de luz que
-  // persegue o cursor (variáveis --mx/--my consumidas pela máscara CSS).
   useEffect(() => {
-    const s = sectionRef.current
-    if (!s) return
+    const section = sectionRef.current
+    if (!section) return
+    if (window.matchMedia('(max-width: 767px), (pointer: coarse)').matches) return
+
     const onMove = (e: MouseEvent) => {
-      const r = s.getBoundingClientRect()
-      s.style.setProperty('--mx', `${e.clientX - r.left}px`)
-      s.style.setProperty('--my', `${e.clientY - r.top}px`)
+      const r = section.getBoundingClientRect()
+      section.style.setProperty('--mx', `${e.clientX - r.left}px`)
+      section.style.setProperty('--my', `${e.clientY - r.top}px`)
     }
-    s.addEventListener('mousemove', onMove)
-    return () => s.removeEventListener('mousemove', onMove)
+    section.addEventListener('mousemove', onMove)
+    return () => section.removeEventListener('mousemove', onMove)
   }, [])
 
   return (
@@ -49,8 +49,6 @@ export default function Contact() {
             <FadeIn as="div" className="contact__col-label contact__col-label--accent" y={16} duration={0.6}>
               VAMOS CONVERSAR
             </FadeIn>
-            {/* O e-mail é a ação principal da seção: entra por último e
-                com mais presença que o resto. */}
             <FadeIn y={30} scale={0.96} duration={0.85} delay={0.12}>
               <MagneticButton>
                 <a href={`mailto:${contactEmail}`} className="contact__email">
@@ -64,9 +62,9 @@ export default function Contact() {
               NOTAS
             </FadeIn>
             <div className="contact__notes">
-              {contactNotes.map((n, i) => (
-                <FadeIn key={n} as="div" y={18} duration={0.6} delay={0.18 + i * 0.1}>
-                  {n}
+              {contactNotes.map((note, i) => (
+                <FadeIn key={note} as="div" y={18} duration={0.6} delay={0.18 + i * 0.1}>
+                  {note}
                 </FadeIn>
               ))}
             </div>
