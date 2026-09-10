@@ -8,6 +8,7 @@ import ChaosMode from '@/components/motion/ChaosMode'
 import { siteDescription, siteName, siteUrl } from '@/lib/site'
 import './globals.css'
 import './accessibility.css'
+import './responsive.css'
 
 const bodoni = Bodoni_Moda({
   subsets: ['latin'],
