@@ -36,11 +36,19 @@ export const metadata: Metadata = {
     template: `%s — ${siteName}`,
   },
   description: siteDescription,
+  alternates: {
+    canonical: '/',
+  },
   openGraph: {
     type: 'website',
     locale: 'pt_BR',
     url: siteUrl,
     siteName,
+    title: `${siteName} — Estúdio de Software Digital`,
+    description: siteDescription,
+  },
+  twitter: {
+    card: 'summary',
     title: `${siteName} — Estúdio de Software Digital`,
     description: siteDescription,
   },
