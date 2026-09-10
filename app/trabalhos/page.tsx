@@ -14,7 +14,7 @@ export default function Trabalhos() {
   return (
     <>
       <Header />
-      <main>
+      <main id="main-content">
         <WorkIndex />
       </main>
       <Footer />
