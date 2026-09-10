@@ -22,17 +22,21 @@ export default function Hero() {
     const line = lineRef.current
     if (!section || !center || !titleWrap || !line) return
 
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
+    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    if (reduced) return
+
+    const compact = window.matchMedia('(max-width: 767px), (pointer: coarse)').matches
 
     const ctx = gsap.context(() => {
-      // Linha inferior: expande da esquerda para a direita
       gsap.fromTo(
         line,
         { scaleX: 0 },
-        { scaleX: 1, duration: 1.4, delay: 1.8, ease: 'power3.inOut' }
+        { scaleX: 1, duration: compact ? 0.8 : 1.4, delay: compact ? 0.8 : 1.8, ease: 'power3.inOut' }
       )
 
-      // Scroll: o bloco sobe lentamente e o título perde um pouco de opacidade
+      // Smartphones keep the entrance motion but avoid scrub/mouse effects.
+      if (compact) return
+
       const scrub = gsap.timeline({
         scrollTrigger: {
           trigger: section,
@@ -44,7 +48,6 @@ export default function Hero() {
       scrub.to(center, { yPercent: -20, ease: 'none' }, 0)
       scrub.to(titleWrap, { opacity: 0.12, ease: 'none' }, 0)
 
-      // Hover do título: deslocamento sutil de no máximo 3px
       const titleX = gsap.quickTo(titleWrap, 'x', { duration: 0.6, ease: 'power3.out' })
       const titleY = gsap.quickTo(titleWrap, 'y', { duration: 0.6, ease: 'power3.out' })
 
@@ -65,12 +68,14 @@ export default function Hero() {
     return () => ctx.revert()
   }, [])
 
-  // Herói líquido: cada palavra do título foge do cursor e incha de leve
-  // perto dele. Só x/scale — y e rotação pertencem à entrada do WordReveal.
   useEffect(() => {
     const titleWrap = titleWrapRef.current
     if (!titleWrap) return
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
+    if (
+      window.matchMedia(
+        '(max-width: 767px), (pointer: coarse), (prefers-reduced-motion: reduce)'
+      ).matches
+    ) return
 
     const words = Array.from(titleWrap.querySelectorAll<HTMLElement>('[data-word]'))
     if (!words.length) return
@@ -82,18 +87,18 @@ export default function Hero() {
       sy: gsap.quickTo(el, 'scaleY', { duration: 0.6, ease: 'power3.out' }),
     }))
 
-    const RADIUS = 220
+    const radius = 220
     const onMove = (e: MouseEvent) => {
       for (const it of setters) {
         const r = it.el.getBoundingClientRect()
         const dx = e.clientX - (r.left + r.width / 2)
         const dy = e.clientY - (r.top + r.height / 2)
-        const d = Math.hypot(dx, dy)
-        if (d < RADIUS) {
-          const f = 1 - d / RADIUS
-          it.x(-dx * 0.14 * f)
-          it.sx(1 + 0.07 * f)
-          it.sy(1 + 0.07 * f)
+        const distance = Math.hypot(dx, dy)
+        if (distance < radius) {
+          const force = 1 - distance / radius
+          it.x(-dx * 0.14 * force)
+          it.sx(1 + 0.07 * force)
+          it.sy(1 + 0.07 * force)
         } else {
           it.x(0)
           it.sx(1)
@@ -102,7 +107,6 @@ export default function Hero() {
       }
     }
 
-    // Espera a entrada do título terminar para não brigar com ela.
     const tid = setTimeout(() => window.addEventListener('mousemove', onMove), 2200)
     return () => {
       clearTimeout(tid)
@@ -112,55 +116,52 @@ export default function Hero() {
 
   return (
     <section ref={sectionRef} className="hero stack-card">
-      {/* Tudo que encolhe no efeito de cartas vive dentro de hero__inner:
-          a seção fica preta full-bleed, então as frestas laterais durante
-          o encolhimento não revelam o fundo claro da página. */}
       <div data-stack-inner className="hero__inner">
         <HeroBlob />
         <HeroParticles />
         <div className="container hero__container">
-        <FadeIn
-          as="div"
-          className="hero__meta"
-          trigger="load"
-          y={12}
-          duration={0.9}
-          delay={0.15}
-        >
-          <span>GANDRA / TECH</span>
-          <span>ESTÚDIO DE SOFTWARE DIGITAL</span>
-        </FadeIn>
-
-        <div ref={centerRef} className="hero__center">
-          <div ref={titleWrapRef} className="hero__title-wrap">
-            <WordReveal
-              as="h1"
-              className="hero__title"
-              trigger="load"
-              y={30}
-              blur={0}
-              rotation={0}
-              stagger={0.14}
-              duration={1.3}
-              delay={0.4}
-            >
-              Software que transforma negócios.
-            </WordReveal>
-          </div>
-
           <FadeIn
-            as="p"
-            className="hero__subtitle"
+            as="div"
+            className="hero__meta"
             trigger="load"
-            delay={1.8}
-            y={14}
-            duration={1}
+            y={12}
+            duration={0.9}
+            delay={0.15}
           >
-            Soluções inteligentes, sistemas corporativos e experiências digitais
-            desenvolvidas para empresas que querem evoluir.
+            <span>GANDRA / TECH</span>
+            <span>ESTÚDIO DE SOFTWARE DIGITAL</span>
           </FadeIn>
+
+          <div ref={centerRef} className="hero__center">
+            <div ref={titleWrapRef} className="hero__title-wrap">
+              <WordReveal
+                as="h1"
+                className="hero__title"
+                trigger="load"
+                y={30}
+                blur={0}
+                rotation={0}
+                stagger={0.14}
+                duration={1.3}
+                delay={0.4}
+              >
+                Software que transforma negócios.
+              </WordReveal>
+            </div>
+
+            <FadeIn
+              as="p"
+              className="hero__subtitle"
+              trigger="load"
+              delay={1.8}
+              y={14}
+              duration={1}
+            >
+              Soluções inteligentes, sistemas corporativos e experiências digitais
+              desenvolvidas para empresas que querem evoluir.
+            </FadeIn>
+          </div>
         </div>
-      </div>
 
         <div ref={lineRef} className="hero__line" />
       </div>
