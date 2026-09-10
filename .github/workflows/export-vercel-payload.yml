@@ -1,4 +1,4 @@
-name: Export Vercel Payload
+name: Temporary Visual Audit
 
 on:
   push:
@@ -10,47 +10,62 @@ permissions:
   contents: read
 
 jobs:
-  export:
+  visual-audit:
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Build deploy payload
-        shell: python
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: Build
+        run: npm run build
+
+      - name: Start production server
         run: |
-          from pathlib import Path
-          import json
+          mkdir -p .playwright-mcp
+          npm run start > /tmp/gandra-next.log 2>&1 &
+          echo $! > /tmp/gandra-next.pid
+          for i in {1..30}; do
+            if curl -fsS http://127.0.0.1:3000 >/dev/null; then
+              exit 0
+            fi
+            sleep 1
+          done
+          cat /tmp/gandra-next.log
+          exit 1
 
-          commit = "054e4045ddb5b56464bd00402a6bfbea00d6a974"
-          raw = f"https://raw.githubusercontent.com/wandersongandra/gandra-tech/{commit}/public/images/"
-          roots = [Path("app"), Path("components"), Path("lib")]
-          files = []
+      - name: Capture audit screenshots
+        run: node scripts-final-audit.cjs
 
-          for root in roots:
-              for path in sorted(root.rglob("*")):
-                  if not path.is_file():
-                      continue
-                  text = path.read_text(encoding="utf-8")
-                  text = text.replace("/images/", raw)
-                  files.append({"file": path.as_posix(), "data": text})
+      - name: Capture section screenshots
+        run: node scripts-shot-sections.cjs
 
-          for name in ["package.json", "package-lock.json", "tsconfig.json", "next.config.ts"]:
-              path = Path(name)
-              text = path.read_text(encoding="utf-8")
-              if name == "next.config.ts":
-                  text = text.replace(
-                      "qualities: [75, 95],",
-                      "qualities: [75, 95],\n    remotePatterns: [{ protocol: 'https', hostname: 'raw.githubusercontent.com', pathname: '/wandersongandra/gandra-tech/**' }],"
-                  )
-              files.append({"file": name, "data": text})
-
-          Path("deploy-files.json").write_text(json.dumps(files, ensure_ascii=False), encoding="utf-8")
-          print(f"Prepared {len(files)} files")
-
-      - name: Upload payload
+      - name: Upload screenshots
+        if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: vercel-deploy-files
-          path: deploy-files.json
+          name: gandra-visual-audit
+          path: .playwright-mcp/*.png
+          if-no-files-found: warn
+          retention-days: 1
+
+      - name: Upload server log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: gandra-server-log
+          path: /tmp/gandra-next.log
+          if-no-files-found: ignore
           retention-days: 1
