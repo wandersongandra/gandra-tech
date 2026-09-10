@@ -3,12 +3,9 @@ import { useRef, useEffect } from 'react'
 import gsap from 'gsap'
 
 /**
- * Envolve o conteúdo da página e o "entalha" sutilmente conforme a
- * velocidade do scroll: rolar rápido inclina, parar relaxa. O skew máximo
- * é pequeno de propósito — o efeito deve ser sentido, não lido como bug.
- *
- * Cortina, cursor e grão ficam FORA deste wrapper (no layout) para não
- * herdarem o transform.
+ * Envolve o conteúdo da página e o inclina sutilmente conforme a velocidade
+ * do scroll. O efeito fica restrito a desktop/fine pointer; em smartphones,
+ * scroll nativo sem transform é mais estável e mais barato para a GPU.
  */
 export default function VelocityWarp({ children }: { children: React.ReactNode }) {
   const ref = useRef<HTMLDivElement>(null)
@@ -16,7 +13,11 @@ export default function VelocityWarp({ children }: { children: React.ReactNode }
   useEffect(() => {
     const el = ref.current
     if (!el) return
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
+    if (
+      window.matchMedia(
+        '(max-width: 767px), (pointer: coarse), (prefers-reduced-motion: reduce)'
+      ).matches
+    ) return
 
     const skewTo = gsap.quickTo(el, 'skewY', { duration: 0.5, ease: 'power3.out' })
 
@@ -33,7 +34,6 @@ export default function VelocityWarp({ children }: { children: React.ReactNode }
       lastY = y
       velSmooth += (rawVel - velSmooth) * 0.12
 
-      // ~±0.4deg no máximo: cisalhamento de poucos pixels nas bordas.
       skewTo(gsap.utils.clamp(-0.4, 0.4, (velSmooth / 1000) * 0.45))
       raf = requestAnimationFrame(tick)
     })
