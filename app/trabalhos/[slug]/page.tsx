@@ -1,3 +1,4 @@
+import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
@@ -8,17 +9,30 @@ export function generateStaticParams() {
   return projects.map((p) => ({ slug: p.slug }))
 }
 
-export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params
   const project = getProject(slug)
   if (!project) return {}
+
+  const canonical = `/trabalhos/${project.slug}`
   return {
     title: project.name,
     description: project.headline,
+    alternates: {
+      canonical,
+    },
     openGraph: {
+      type: 'article',
+      url: canonical,
       title: project.name,
       description: project.headline,
-      images: [{ url: `/images/projects/${project.slug}/cover.png` }],
+      images: [{ url: project.coverImage, alt: `${project.name} — projeto Gandra Tech` }],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: project.name,
+      description: project.headline,
+      images: [project.coverImage],
     },
   }
 }
@@ -33,7 +47,7 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
   return (
     <>
       <Header />
-      <main>
+      <main id="main-content">
         <ProjectView project={project} next={next} />
       </main>
       <Footer />

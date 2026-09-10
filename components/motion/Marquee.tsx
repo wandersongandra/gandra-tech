@@ -29,15 +29,9 @@ function Group({ refProp }: { refProp?: React.Ref<HTMLSpanElement> }) {
 
 interface Props {
   inverted?: boolean
-  /** Segundos para um grupo cruzar a tela na velocidade de repouso. */
   speed?: number
 }
 
-/**
- * Marquee dirigido pelo scroll: a velocidade base é constante, mas rolar
- * rápido empurra a faixa — para baixo acelera num sentido, para cima freia
- * e até inverte. O mouse parado sobre a faixa a desacelera suavemente.
- */
 export default function Marquee({ inverted = false, speed = 32 }: Props) {
   const rootRef = useRef<HTMLDivElement>(null)
   const trackRef = useRef<HTMLDivElement>(null)
@@ -57,12 +51,15 @@ export default function Marquee({ inverted = false, speed = 32 }: Props) {
     window.addEventListener('resize', measure)
     document.fonts?.ready.then(measure)
 
-    // Estado do loop.
     let pos = 0
-    let velSmooth = 0 // velocidade do scroll suavizada (px/s)
-    let hoverFactor = 1 // 1 = andando, 0 = parado (hover)
+    let velSmooth = 0
+    let hoverFactor = 1
     let lastY = window.scrollY
     let lastT = performance.now()
+    let currentSpeedFactor = 1
+    let raf = 0
+    let active = false
+    let pageVisible = document.visibilityState === 'visible'
 
     const onEnter = () => {
       hoverFactor = 0
@@ -73,36 +70,65 @@ export default function Marquee({ inverted = false, speed = 32 }: Props) {
     root.addEventListener('mouseenter', onEnter)
     root.addEventListener('mouseleave', onLeave)
 
-    // Direção de repouso: normal para a esquerda, invertido para a direita.
     const dir = inverted ? 1 : -1
-    let currentSpeedFactor = 1
 
-    let raf = requestAnimationFrame(function tick(now) {
+    const tick = (now: number) => {
+      if (!active || !pageVisible) {
+        raf = 0
+        return
+      }
+
       const dt = Math.min((now - lastT) / 1000, 0.05)
       lastT = now
 
-      // Velocidade instantânea do scroll (o Lenis rola a window nativa).
       const y = window.scrollY
       const rawVel = dt > 0 ? (y - lastY) / dt : 0
       lastY = y
       velSmooth += (rawVel - velSmooth) * 0.1
-
-      // Aproxima o fator de velocidade do alvo (hover pausa com suavidade).
       currentSpeedFactor += (hoverFactor - currentSpeedFactor) * 0.08
 
-      const base = width / speed // px/s em repouso
-      // O scroll empurra a faixa: |vel| alta vira o próprio deslocamento,
-      // então rolar rápido para cima pode vencer a base e inverter o sentido.
+      const base = width / speed
       const push = velSmooth * 0.12 * (inverted ? -1 : 1)
       pos += (dir * base * currentSpeedFactor + push * currentSpeedFactor) * dt
       pos = gsap.utils.wrap(-width, 0, pos)
       track.style.transform = `translate3d(${pos}px, 0, 0)`
 
       raf = requestAnimationFrame(tick)
-    })
+    }
+
+    const stop = () => {
+      cancelAnimationFrame(raf)
+      raf = 0
+    }
+
+    const start = () => {
+      if (raf || !active || !pageVisible) return
+      lastY = window.scrollY
+      lastT = performance.now()
+      raf = requestAnimationFrame(tick)
+    }
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        active = entry.isIntersecting
+        if (active) start()
+        else stop()
+      },
+      { rootMargin: '45% 0px 45% 0px' }
+    )
+    observer.observe(root)
+
+    const onVisibilityChange = () => {
+      pageVisible = document.visibilityState === 'visible'
+      if (pageVisible) start()
+      else stop()
+    }
+    document.addEventListener('visibilitychange', onVisibilityChange)
 
     return () => {
-      cancelAnimationFrame(raf)
+      stop()
+      observer.disconnect()
+      document.removeEventListener('visibilitychange', onVisibilityChange)
       window.removeEventListener('resize', measure)
       root.removeEventListener('mouseenter', onEnter)
       root.removeEventListener('mouseleave', onLeave)

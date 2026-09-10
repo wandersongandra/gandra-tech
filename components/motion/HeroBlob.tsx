@@ -3,8 +3,6 @@ import { useRef, useEffect } from 'react'
 
 const VERT = 'attribute vec2 p;void main(){gl_Position=vec4(p,0.,1.);}'
 
-// Organismo de gradiente: fbm de 5 oitavas com domain warping, aceso em
-// periwinkle só nos picos do ruído. O cursor injeta brilho local.
 const FRAG = `
 precision highp float;
 uniform vec2 u_res;
@@ -42,25 +40,16 @@ void main(){
   vec2 m = u_mouse;
   m.x *= u_res.x / u_res.y;
 
-  // Domain warping: o ruído deforma o próprio ruído — daí o aspecto orgânico.
   float n = fbm(p * 1.6 + vec2(u_time * 0.04, -u_time * 0.025) + fbm(p * 2.2 - u_time * 0.03) * 0.8);
-  // Brilho suave ao redor do cursor.
   n += 0.35 * exp(-length(p - m) * 2.5);
 
-  vec3 glow = vec3(0.56, 0.59, 0.87); // --accent
+  vec3 glow = vec3(0.56, 0.59, 0.87);
   vec3 col = mix(vec3(0.0), glow, smoothstep(0.38, 0.85, n) * 0.42);
-
-  // Vinheta para afogar as bordas no preto.
   col *= mix(0.55, 1.0, smoothstep(1.2, 0.3, length(uv - 0.5)));
   gl_FragColor = vec4(col, 1.0);
 }
 `
 
-/**
- * Blob WebGL do hero: camada mais profunda do fundo (atrás das partículas
- * do nome). WebGL puro, sem dependências; se o contexto falhar, some
- * silenciosamente e o hero continua preto.
- */
 export default function HeroBlob() {
   const canvasRef = useRef<HTMLCanvasElement>(null)
 
@@ -74,22 +63,27 @@ export default function HeroBlob() {
     }
 
     const compile = (type: number, src: string) => {
-      const s = gl.createShader(type)!
-      gl.shaderSource(s, src)
-      gl.compileShader(s)
-      return s
+      const shader = gl.createShader(type)!
+      gl.shaderSource(shader, src)
+      gl.compileShader(shader)
+      return shader
     }
+
+    const vertexShader = compile(gl.VERTEX_SHADER, VERT)
+    const fragmentShader = compile(gl.FRAGMENT_SHADER, FRAG)
     const prog = gl.createProgram()!
-    gl.attachShader(prog, compile(gl.VERTEX_SHADER, VERT))
-    gl.attachShader(prog, compile(gl.FRAGMENT_SHADER, FRAG))
+    gl.attachShader(prog, vertexShader)
+    gl.attachShader(prog, fragmentShader)
     gl.linkProgram(prog)
     if (!gl.getProgramParameter(prog, gl.LINK_STATUS)) {
       canvas.remove()
+      gl.deleteShader(vertexShader)
+      gl.deleteShader(fragmentShader)
+      gl.deleteProgram(prog)
       return
     }
     gl.useProgram(prog)
 
-    // Triângulo fullscreen.
     const buf = gl.createBuffer()
     gl.bindBuffer(gl.ARRAY_BUFFER, buf)
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 3, -1, -1, 3]), gl.STATIC_DRAW)
@@ -101,7 +95,6 @@ export default function HeroBlob() {
     const uTime = gl.getUniformLocation(prog, 'u_time')
     const uMouse = gl.getUniformLocation(prog, 'u_mouse')
 
-    // DPR capado: o shader é o item mais caro do site em fill-rate.
     const dpr = Math.min(window.devicePixelRatio || 1, 1.25)
     const resize = () => {
       const parent = canvas.parentElement
@@ -124,6 +117,9 @@ export default function HeroBlob() {
 
     const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
     let raf = 0
+    let inViewport = false
+    let pageVisible = document.visibilityState === 'visible'
+
     const render = (t: number) => {
       mouse.x += (mouse.tx - mouse.x) * 0.05
       mouse.y += (mouse.ty - mouse.y) * 0.05
@@ -133,20 +129,54 @@ export default function HeroBlob() {
       gl.drawArrays(gl.TRIANGLES, 0, 3)
     }
 
-    if (reduced) {
-      render(8000) // frame estático, ainda bonito
-    } else {
-      const loop = (t: number) => {
-        render(t)
-        raf = requestAnimationFrame(loop)
+    const stop = () => {
+      cancelAnimationFrame(raf)
+      raf = 0
+    }
+
+    const loop = (t: number) => {
+      if (!inViewport || !pageVisible) {
+        raf = 0
+        return
       }
+      render(t)
       raf = requestAnimationFrame(loop)
     }
 
+    const start = () => {
+      if (reduced || raf || !inViewport || !pageVisible) return
+      raf = requestAnimationFrame(loop)
+    }
+
+    const visibilityObserver = new IntersectionObserver(
+      ([entry]) => {
+        inViewport = entry.isIntersecting
+        if (inViewport) start()
+        else stop()
+      },
+      { rootMargin: '25% 0px 25% 0px' }
+    )
+    visibilityObserver.observe(canvas)
+
+    const onVisibilityChange = () => {
+      pageVisible = document.visibilityState === 'visible'
+      if (pageVisible) start()
+      else stop()
+    }
+    document.addEventListener('visibilitychange', onVisibilityChange)
+
+    if (reduced) render(8000)
+
     return () => {
-      cancelAnimationFrame(raf)
+      stop()
+      visibilityObserver.disconnect()
+      document.removeEventListener('visibilitychange', onVisibilityChange)
       window.removeEventListener('resize', resize)
       window.removeEventListener('mousemove', onMove)
+      if (buf) gl.deleteBuffer(buf)
+      gl.deleteProgram(prog)
+      gl.deleteShader(vertexShader)
+      gl.deleteShader(fragmentShader)
     }
   }, [])
 

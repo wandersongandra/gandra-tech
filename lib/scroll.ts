@@ -1,16 +1,11 @@
-/**
- * Scroll suave centralizado: usa a instância global do Lenis quando ela
- * existe e cai para o scroll nativo como fallback. Único lugar que conhece
- * o `window.__lenis` — componentes não devem acessá-lo diretamente.
- */
+import type Lenis from 'lenis'
 
 declare global {
   interface Window {
-    __lenis?: { scrollTo: (target: unknown, options?: Record<string, unknown>) => void }
+    __lenis?: Lenis
   }
 }
 
-/** Distância do topo ao rolar para uma âncora (altura do header fixo). */
 const HEADER_OFFSET = -65
 
 export function scrollToSection(selector: string) {

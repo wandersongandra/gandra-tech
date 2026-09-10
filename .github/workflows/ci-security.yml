@@ -17,7 +17,7 @@ permissions:
 
 jobs:
   build:
-    name: Build and dependency audit
+    name: Build, browser quality and dependency audit
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -32,11 +32,37 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Typecheck
+        run: npm run typecheck
+
       - name: Build
         run: npm run build
 
       - name: Audit dependencies
         run: npm audit --audit-level=high
+
+      - name: Install Playwright Chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: Production E2E quality gate
+        shell: bash
+        run: |
+          npm run start -- -H 127.0.0.1 > /tmp/gandra-next.log 2>&1 &
+          SERVER_PID=$!
+          trap 'kill $SERVER_PID 2>/dev/null || true' EXIT
+
+          for attempt in {1..30}; do
+            if curl --fail --silent http://127.0.0.1:3000 > /dev/null; then
+              break
+            fi
+            if [ "$attempt" -eq 30 ]; then
+              cat /tmp/gandra-next.log
+              exit 1
+            fi
+            sleep 1
+          done
+
+          npm run test:e2e
 
   secret-scan:
     name: Gitleaks Secret Scan

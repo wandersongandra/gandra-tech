@@ -42,6 +42,11 @@ export default function FadeIn({
     const el = ref.current
     if (!el) return
 
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      gsap.set(el, { opacity: 1, x: 0, y: 0, scale: 1, rotation: 0, clearProps: 'transform' })
+      return
+    }
+
     const from = { opacity: 0, y, x, scale, rotation }
     const to = {
       opacity: 1,
@@ -69,12 +74,12 @@ export default function FadeIn({
     })
 
     return () => st.kill()
-  }, [])
+  }, [delay, duration, repeat, rotation, scale, start, trigger, x, y])
 
   const T = Tag as any
 
   return (
-    <T ref={ref} className={className} style={{ opacity: 0, ...style }}>
+    <T ref={ref} className={className} data-motion="fade" style={{ opacity: 0, ...style }}>
       {children}
     </T>
   )

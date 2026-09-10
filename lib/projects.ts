@@ -6,6 +6,8 @@ export type Project = {
   headline: string
   overview: string
   services: string[]
+  coverImage: string
+  mainImage: string
 }
 
 export const projects: Project[] = [
@@ -18,6 +20,8 @@ export const projects: Project[] = [
     overview:
       'Uma plataforma completa para empresas que precisam centralizar inspeções, APRs, permissões de trabalho, auditorias, indicadores, documentos e evidências. Desenvolvida para aumentar a produtividade, garantir conformidade e reduzir riscos operacionais.',
     services: ['Produto', 'UX / UI', 'Engenharia web', 'Mobile'],
+    coverImage: '/images/projects/sgs/cover.png',
+    mainImage: '/images/projects/sgs/main.png',
   },
   {
     slug: 'axiom-health',
@@ -28,6 +32,8 @@ export const projects: Project[] = [
     overview:
       'Sistema de gestão de saúde ocupacional pensado para times de RH e médicos do trabalho. Dashboards, prontuários digitais e fluxos de agendamento em uma interface sem ruído.',
     services: ['Produto', 'UX / UI', 'Engenharia web'],
+    coverImage: '/images/work/axiom-health.png',
+    mainImage: '/images/work/axiom-health.png',
   },
   {
     slug: 'norte-vivo',
@@ -38,6 +44,8 @@ export const projects: Project[] = [
     overview:
       'Desenvolvimento de sistema de marca completo para organização regional de desenvolvimento econômico. Identidade visual, direção de movimento e presença digital.',
     services: ['Identidade', 'Motion', 'Web'],
+    coverImage: '/images/work/norte-vivo.png',
+    mainImage: '/images/work/norte-vivo.png',
   },
   {
     slug: 'marea-finance',
@@ -48,6 +56,8 @@ export const projects: Project[] = [
     overview:
       'Redesign completo de plataforma de gestão financeira pessoal. Foco em clareza de dados, hierarquia visual e fluxos que reduzem fricção no dia a dia financeiro.',
     services: ['UX / UI', 'Design de produto', 'Protótipo'],
+    coverImage: '/images/work/marea-finance.png',
+    mainImage: '/images/work/marea-finance.png',
   },
   {
     slug: 'orbit-house',
@@ -58,6 +68,8 @@ export const projects: Project[] = [
     overview:
       'Site institucional para incorporadora premium com foco em experiência de scrollytelling. Cada seção comunica exclusividade através de movimento controlado e tipografia de impacto.',
     services: ['Web', 'Motion', 'Copywriting'],
+    coverImage: '/images/work/orbit-house.png',
+    mainImage: '/images/work/orbit-house.png',
   },
   {
     slug: 'vertice-open',
@@ -68,6 +80,8 @@ export const projects: Project[] = [
     overview:
       'Identidade digital e sistema de design para fintech de open banking. Criação de componentes, guia de tom de voz e templates de comunicação para canais digitais.',
     services: ['Identidade', 'Design system', 'Brand guidelines'],
+    coverImage: '/images/work/vertice-open.png',
+    mainImage: '/images/work/vertice-open.png',
   },
 ]
 

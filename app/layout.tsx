@@ -7,6 +7,8 @@ import VelocityWarp from '@/components/motion/VelocityWarp'
 import ChaosMode from '@/components/motion/ChaosMode'
 import { siteDescription, siteName, siteUrl } from '@/lib/site'
 import './globals.css'
+import './accessibility.css'
+import './responsive.css'
 
 const bodoni = Bodoni_Moda({
   subsets: ['latin'],
@@ -35,11 +37,19 @@ export const metadata: Metadata = {
     template: `%s — ${siteName}`,
   },
   description: siteDescription,
+  alternates: {
+    canonical: '/',
+  },
   openGraph: {
     type: 'website',
     locale: 'pt_BR',
     url: siteUrl,
     siteName,
+    title: `${siteName} — Estúdio de Software Digital`,
+    description: siteDescription,
+  },
+  twitter: {
+    card: 'summary',
     title: `${siteName} — Estúdio de Software Digital`,
     description: siteDescription,
   },
@@ -49,6 +59,9 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
   return (
     <html lang="pt-BR" className={`${bodoni.variable} ${cormorant.variable} ${inter.variable}`}>
       <body>
+        <a className="skip-link" href="#main-content">
+          Pular para o conteúdo
+        </a>
         <div className="grain" aria-hidden="true" />
         <PageCurtain />
         <CustomCursor />

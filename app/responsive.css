@@ -1,0 +1,27 @@
+/* Ajustes estruturais para viewports compactas.
+ * Mantém a composição e os efeitos, reduzindo apenas o gutter para preservar
+ * área útil suficiente em aparelhos de 320–640px. */
+
+@media (max-width: 640px) {
+  :root {
+    --px: 24px;
+  }
+
+  .featured__mockup,
+  .featured__content {
+    min-width: 0;
+    flex-basis: 100%;
+    width: 100%;
+  }
+}
+
+@media (max-width: 359px) {
+  .site-header__nav {
+    gap: 12px;
+  }
+
+  .site-header__logo,
+  .site-header__link {
+    font-size: 11px;
+  }
+}
