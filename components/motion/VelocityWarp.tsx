@@ -2,43 +2,70 @@
 import { useRef, useEffect } from 'react'
 import gsap from 'gsap'
 
-/**
- * Envolve o conteúdo da página e o "entalha" sutilmente conforme a
- * velocidade do scroll: rolar rápido inclina, parar relaxa. O skew máximo
- * é pequeno de propósito — o efeito deve ser sentido, não lido como bug.
- *
- * Cortina, cursor e grão ficam FORA deste wrapper (no layout) para não
- * herdarem o transform.
- */
 export default function VelocityWarp({ children }: { children: React.ReactNode }) {
   const ref = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     const el = ref.current
     if (!el) return
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
+
+    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)')
+    if (reducedMotion.matches) return
 
     const skewTo = gsap.quickTo(el, 'skewY', { duration: 0.5, ease: 'power3.out' })
-
     let lastY = window.scrollY
     let lastT = performance.now()
-    let velSmooth = 0
+    let velocity = 0
+    let raf = 0
 
-    let raf = requestAnimationFrame(function tick(now) {
-      const dt = Math.min((now - lastT) / 1000, 0.05)
+    const relax = () => {
+      velocity *= 0.82
+      skewTo(gsap.utils.clamp(-0.4, 0.4, (velocity / 1000) * 0.45))
+
+      if (Math.abs(velocity) < 4) {
+        velocity = 0
+        skewTo(0)
+        raf = 0
+        return
+      }
+      raf = requestAnimationFrame(relax)
+    }
+
+    const onScroll = () => {
+      const now = performance.now()
+      const dt = Math.max((now - lastT) / 1000, 1 / 240)
+      const currentY = window.scrollY
+      const rawVelocity = (currentY - lastY) / dt
+
+      velocity += (rawVelocity - velocity) * 0.24
+      lastY = currentY
       lastT = now
+      skewTo(gsap.utils.clamp(-0.4, 0.4, (velocity / 1000) * 0.45))
 
-      const y = window.scrollY
-      const rawVel = dt > 0 ? (y - lastY) / dt : 0
-      lastY = y
-      velSmooth += (rawVel - velSmooth) * 0.12
+      if (!raf) raf = requestAnimationFrame(relax)
+    }
 
-      // ~±0.4deg no máximo: cisalhamento de poucos pixels nas bordas.
-      skewTo(gsap.utils.clamp(-0.4, 0.4, (velSmooth / 1000) * 0.45))
-      raf = requestAnimationFrame(tick)
-    })
+    const onVisibilityChange = () => {
+      if (document.visibilityState === 'hidden') {
+        cancelAnimationFrame(raf)
+        raf = 0
+        velocity = 0
+        skewTo(0)
+      } else {
+        lastY = window.scrollY
+        lastT = performance.now()
+      }
+    }
 
-    return () => cancelAnimationFrame(raf)
+    window.addEventListener('scroll', onScroll, { passive: true })
+    document.addEventListener('visibilitychange', onVisibilityChange)
+
+    return () => {
+      window.removeEventListener('scroll', onScroll)
+      document.removeEventListener('visibilitychange', onVisibilityChange)
+      cancelAnimationFrame(raf)
+      gsap.killTweensOf(el)
+    }
   }, [])
 
   return (
