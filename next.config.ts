@@ -21,7 +21,6 @@ const contentSecurityPolicy = [
   connectSource,
   "media-src 'self'",
   "worker-src 'self' blob:",
-  'upgrade-insecure-requests',
 ].join('; ')
 
 const securityHeaders = [
