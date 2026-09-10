@@ -13,7 +13,7 @@ export default function Contato() {
   return (
     <>
       <Header />
-      <main>
+      <main id="main-content">
         <ContactPage />
       </main>
       <Footer />
