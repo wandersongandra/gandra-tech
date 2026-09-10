@@ -10,6 +10,14 @@
     scroll-behavior: auto;
   }
 
+  [data-motion="fade"],
+  [data-motion="page-transition"],
+  [data-motion="word-reveal"] [data-word] {
+    opacity: 1 !important;
+    transform: none !important;
+    filter: none !important;
+  }
+
   .magnetic-wrap,
   .featured__mockup-hover,
   .work-item__action span,
