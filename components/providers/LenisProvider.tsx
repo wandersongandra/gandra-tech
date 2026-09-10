@@ -5,27 +5,66 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger'
 
 export default function LenisProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
-    const lenis = new Lenis({
-      duration: 1.2,
-      easing: (t: number) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
-    })
+    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)')
+    let lenis: Lenis | null = null
+    let rafId = 0
 
-    ;(window as any).__lenis = lenis
-
-    // Mantém o ScrollTrigger em sincronia com o scroll suavizado do Lenis.
-    // Sem isso, animações com scrub (hero de vídeo) ficam atrasadas.
-    lenis.on('scroll', ScrollTrigger.update)
-
-    let rafId: number
-    function raf(time: number) {
-      lenis.raf(time)
-      rafId = requestAnimationFrame(raf)
+    const stopRaf = () => {
+      cancelAnimationFrame(rafId)
+      rafId = 0
     }
-    rafId = requestAnimationFrame(raf)
+
+    const frame = (time: number) => {
+      if (!lenis || document.visibilityState !== 'visible') {
+        rafId = 0
+        return
+      }
+      lenis.raf(time)
+      rafId = requestAnimationFrame(frame)
+    }
+
+    const startRaf = () => {
+      if (!lenis || rafId || document.visibilityState !== 'visible') return
+      rafId = requestAnimationFrame(frame)
+    }
+
+    const destroyLenis = () => {
+      stopRaf()
+      lenis?.destroy()
+      lenis = null
+      delete window.__lenis
+    }
+
+    const createLenis = () => {
+      if (lenis || reducedMotion.matches) return
+
+      lenis = new Lenis({
+        duration: 1.2,
+        easing: (t: number) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+      })
+      window.__lenis = lenis
+      lenis.on('scroll', ScrollTrigger.update)
+      startRaf()
+    }
+
+    const syncMotionPreference = () => {
+      if (reducedMotion.matches) destroyLenis()
+      else createLenis()
+    }
+
+    const onVisibilityChange = () => {
+      if (document.visibilityState === 'visible') startRaf()
+      else stopRaf()
+    }
+
+    createLenis()
+    reducedMotion.addEventListener('change', syncMotionPreference)
+    document.addEventListener('visibilitychange', onVisibilityChange)
 
     return () => {
-      cancelAnimationFrame(rafId)
-      lenis.destroy()
+      reducedMotion.removeEventListener('change', syncMotionPreference)
+      document.removeEventListener('visibilitychange', onVisibilityChange)
+      destroyLenis()
     }
   }, [])
 
