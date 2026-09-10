@@ -10,7 +10,7 @@ export default function LenisProvider({ children }: { children: React.ReactNode 
     ).matches
 
     if (useNativeScroll) {
-      ;(window as Window & { __lenis?: Lenis }).__lenis = undefined
+      ;(window as any).__lenis = undefined
       return
     }
 
@@ -19,8 +19,7 @@ export default function LenisProvider({ children }: { children: React.ReactNode 
       easing: (t: number) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
     })
 
-    ;(window as Window & { __lenis?: Lenis }).__lenis = lenis
-
+    ;(window as any).__lenis = lenis
     lenis.on('scroll', ScrollTrigger.update)
 
     let rafId = 0
@@ -33,7 +32,7 @@ export default function LenisProvider({ children }: { children: React.ReactNode 
     return () => {
       cancelAnimationFrame(rafId)
       lenis.destroy()
-      ;(window as Window & { __lenis?: Lenis }).__lenis = undefined
+      ;(window as any).__lenis = undefined
     }
   }, [])
 
