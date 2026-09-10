@@ -33,7 +33,7 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
   return (
     <>
       <Header />
-      <main>
+      <main id="main-content">
         <ProjectView project={project} next={next} />
       </main>
       <Footer />
