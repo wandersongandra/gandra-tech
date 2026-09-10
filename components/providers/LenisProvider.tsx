@@ -5,18 +5,25 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger'
 
 export default function LenisProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
+    const useNativeScroll = window.matchMedia(
+      '(max-width: 767px), (pointer: coarse), (prefers-reduced-motion: reduce)'
+    ).matches
+
+    if (useNativeScroll) {
+      ;(window as Window & { __lenis?: Lenis }).__lenis = undefined
+      return
+    }
+
     const lenis = new Lenis({
       duration: 1.2,
       easing: (t: number) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
     })
 
-    ;(window as any).__lenis = lenis
+    ;(window as Window & { __lenis?: Lenis }).__lenis = lenis
 
-    // Mantém o ScrollTrigger em sincronia com o scroll suavizado do Lenis.
-    // Sem isso, animações com scrub (hero de vídeo) ficam atrasadas.
     lenis.on('scroll', ScrollTrigger.update)
 
-    let rafId: number
+    let rafId = 0
     function raf(time: number) {
       lenis.raf(time)
       rafId = requestAnimationFrame(raf)
@@ -26,6 +33,7 @@ export default function LenisProvider({ children }: { children: React.ReactNode 
     return () => {
       cancelAnimationFrame(rafId)
       lenis.destroy()
+      ;(window as Window & { __lenis?: Lenis }).__lenis = undefined
     }
   }, [])
 
