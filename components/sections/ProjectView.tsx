@@ -13,18 +13,20 @@ import ScrambleText from '@/components/motion/ScrambleText'
 gsap.registerPlugin(ScrollTrigger)
 
 export default function ProjectView({ project, next }: { project: Project; next: Project }) {
-  // Zoom-através: a capa cresce continuamente conforme a página sobe,
-  // como se o scroll atravessasse a imagem. Só o <img> escala — o wrapper
-  // tem clip próprio (mancha de tinta) e o FadeIn cuida da entrada.
   useEffect(() => {
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
+    if (
+      window.matchMedia('(max-width: 767px), (prefers-reduced-motion: reduce)').matches
+    ) return
+
     const img = document.querySelector('.pv-hero__cover img')
     if (!img) return
+
     const tween = gsap.fromTo(img, { scale: 1 }, {
       scale: 1.18,
       ease: 'none',
       scrollTrigger: { trigger: '.pv-hero', start: 'top top', end: 'bottom top', scrub: true },
     })
+
     return () => {
       tween.scrollTrigger?.kill()
       tween.kill()
@@ -33,7 +35,6 @@ export default function ProjectView({ project, next }: { project: Project; next:
 
   return (
     <PageTransition>
-      {/* Hero */}
       <section className="pv-hero">
         <div className="container">
           <FadeIn as="div" className="pv-hero__meta" trigger="load" y={12} duration={0.5}>
@@ -69,7 +70,6 @@ export default function ProjectView({ project, next }: { project: Project; next:
         </FadeIn>
       </section>
 
-      {/* Overview */}
       <section className="pv-overview">
         <div className="container">
           <div className="pv-overview__grid">
@@ -80,8 +80,8 @@ export default function ProjectView({ project, next }: { project: Project; next:
             <div className="pv-overview__right">
               <div className="pv-overview__label">SERVIÇOS</div>
               <ul className="pv-overview__services">
-                {project.services.map((s) => (
-                  <li key={s}>{s}</li>
+                {project.services.map((service) => (
+                  <li key={service}>{service}</li>
                 ))}
               </ul>
               <div className="pv-overview__label" style={{ marginTop: 40 }}>ANO</div>
@@ -91,7 +91,6 @@ export default function ProjectView({ project, next }: { project: Project; next:
         </div>
       </section>
 
-      {/* Uma única tela do produto — o portfólio mostra o essencial. */}
       <section className="pv-content">
         <div className="container">
           <div className="pv-block pv-block--wide">
@@ -110,7 +109,6 @@ export default function ProjectView({ project, next }: { project: Project; next:
         </div>
       </section>
 
-      {/* Next project */}
       <section className="pv-next">
         <div className="container">
           <div className="pv-next__label">PRÓXIMO PROJETO</div>
