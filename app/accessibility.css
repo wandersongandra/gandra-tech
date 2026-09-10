@@ -1,0 +1,54 @@
+/* Acessibilidade progressiva sem empobrecer a experiência padrão. */
+
+:where(a, button, [tabindex]):focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 4px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  .magnetic-wrap,
+  .featured__mockup-hover,
+  .work-item__action span,
+  .pv-next__link,
+  .pv-next__arrow,
+  .windex__name,
+  .windex__thumb {
+    transition-duration: 0.01ms !important;
+  }
+}
+
+@media (min-width: 1024px) and (prefers-reduced-motion: reduce) {
+  .work-rail {
+    height: auto !important;
+  }
+
+  .work-rail__sticky {
+    position: static;
+    height: auto;
+    display: block;
+    overflow: visible;
+  }
+
+  .work-rail__track {
+    flex-direction: column;
+    align-items: stretch;
+    gap: clamp(72px, 8vw, 128px);
+    padding: 0 var(--px);
+    margin-top: 64px;
+    transform: none !important;
+    overflow: visible;
+  }
+
+  .work-rail__track > div {
+    width: 100%;
+  }
+
+  .work-rail__track .work-item {
+    width: min(100%, var(--container-max));
+    margin-inline: auto;
+  }
+}
