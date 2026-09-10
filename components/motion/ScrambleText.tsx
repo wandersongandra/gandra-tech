@@ -23,7 +23,20 @@ export default function ScrambleText({
   useEffect(() => {
     const el = ref.current
     if (!el) return
-    let raf: number
+
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      el.textContent = text
+      return
+    }
+
+    // Hover não é uma interação confiável em smartphones. Mantém o nome
+    // legível em vez de deixar um estado de scramble preso após o toque.
+    if (trigger === 'hover' && window.matchMedia('(max-width: 767px)').matches) {
+      el.textContent = text
+      return
+    }
+
+    let raf = 0
 
     const run = () => {
       const chars = text.split('')
@@ -33,13 +46,13 @@ export default function ScrambleText({
       const step = () => {
         frame++
         el.textContent = chars
-          .map((c, i) => {
-            if (c === ' ') return ' '
-            if (locked[i]) return c
+          .map((char, i) => {
+            if (char === ' ') return ' '
+            if (locked[i]) return char
             const lockAt = Math.floor((i + 1) * speed)
             if (frame >= lockAt) {
               locked[i] = true
-              return c
+              return char
             }
             return CHARS[Math.floor(Math.random() * CHARS.length)]
           })
@@ -59,9 +72,7 @@ export default function ScrambleText({
       }
     }
 
-    if (trigger === 'load') {
-      return run()
-    }
+    if (trigger === 'load') return run()
 
     if (trigger === 'hover') {
       let cleanup: (() => void) | undefined
