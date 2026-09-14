@@ -82,6 +82,12 @@ Projeto de portfólio desenvolvido para apresentar trabalho, identidade visual e
 Os dados dos projetos ficam em `lib/projects.ts`. Cada entrada declara explicitamente o
 `workImage` da lista e as imagens `coverImage` e `mainImage` da página de detalhe.
 
+## Páginas jurídicas
+
+As páginas internas de [Termos de Uso](/termos-de-uso) e [Política de Privacidade](/politica-de-privacidade)
+usam o componente compartilhado `components/LegalContainer.tsx`. Elas têm `noindex` e ficam
+fora do sitemap público por serem documentos legais internos.
+
 ## Como adicionar um novo projeto
 
 1. Confirme que o projeto é real e que os textos e imagens podem ser publicados.
