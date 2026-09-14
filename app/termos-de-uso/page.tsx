@@ -118,7 +118,7 @@ export default function TermosDeUso() {
             <h2 id="termos-contato">10. Dúvidas e contato</h2>
             <p>
               Dúvidas sobre estes termos podem ser encaminhadas para{' '}
-              <a href="mailto:contato@gandratech.com">contato@gandratech.com</a>.
+              <a href="mailto:contato@gandra.tech">contato@gandra.tech</a>.
             </p>
           </section>
         </LegalContainer>

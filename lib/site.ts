@@ -7,10 +7,10 @@
  */
 
 export const siteName = 'Gandra Tech'
-export const siteUrl = 'https://gandratech.com'
+export const siteUrl = 'https://gandra.tech'
 export const siteDescription = 'Interfaces, sistemas e experiências para o que vem a seguir.'
 
-export const contactEmail = 'contato@gandratech.com'
+export const contactEmail = 'contato@gandra.tech'
 
 /** Frases de princípio exibidas nas seções/página de contato. */
 export const contactNotes = [

@@ -43,7 +43,7 @@ export default function PoliticaDePrivacidade() {
             </p>
             <p>
               O canal de privacidade e contato do titular é{' '}
-              <a href="mailto:contato@gandratech.com">contato@gandratech.com</a>. O nome do
+              <a href="mailto:contato@gandra.tech">contato@gandra.tech</a>. O nome do
               encarregado, se houver designação formal, deverá ser preenchido em [NOME DO
               ENCARREGADO, SE APLICÁVEL].
             </p>
@@ -55,7 +55,7 @@ export default function PoliticaDePrivacidade() {
               Atualmente, o site não coleta dados por formulários próprios, cadastros ou área de
               login. O único dado fornecido voluntariamente pelo visitante é o conteúdo do email
               que ele decidir enviar por meio do link{' '}
-              <a href="mailto:contato@gandratech.com">contato@gandratech.com</a>.
+              <a href="mailto:contato@gandra.tech">contato@gandra.tech</a>.
             </p>
             <p>
               A infraestrutura de hospedagem pode registrar dados técnicos necessários à entrega e
@@ -101,7 +101,7 @@ export default function PoliticaDePrivacidade() {
             </p>
             <p>
               As solicitações devem ser enviadas para{' '}
-              <a href="mailto:contato@gandratech.com">contato@gandratech.com</a>. Poderemos
+              <a href="mailto:contato@gandra.tech">contato@gandra.tech</a>. Poderemos
               solicitar informações razoáveis para confirmar a identidade do solicitante e
               proteger os dados contra acesso indevido.
             </p>
@@ -142,7 +142,7 @@ export default function PoliticaDePrivacidade() {
             <p>
               Para dúvidas, solicitações de titulares ou assuntos relacionados à privacidade,
               entre em contato pelo email{' '}
-              <a href="mailto:contato@gandratech.com">contato@gandratech.com</a>. Este canal
+              <a href="mailto:contato@gandra.tech">contato@gandra.tech</a>. Este canal
               funciona como canal de privacidade enquanto não houver outro canal formalmente
               divulgado.
             </p>
