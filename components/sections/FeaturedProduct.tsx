@@ -21,6 +21,10 @@ export default function FeaturedProduct() {
     const section = sectionRef.current
     const wrap = mockupWrapRef.current
     if (!section || !wrap) return
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      gsap.set(wrap, { opacity: 1, y: 0, scale: 1, clearProps: 'transform' })
+      return
+    }
 
     const from = { opacity: 0, y: 60, scale: 0.94 }
     const entryTrigger = ScrollTrigger.create({

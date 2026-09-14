@@ -8,6 +8,10 @@ export default function PageTransition({ children }: { children: React.ReactNode
   useEffect(() => {
     const el = ref.current
     if (!el) return
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      gsap.set(el, { opacity: 1, y: 0, clearProps: 'transform' })
+      return
+    }
     gsap.fromTo(
       el,
       { opacity: 0, y: 28 },
@@ -16,7 +20,7 @@ export default function PageTransition({ children }: { children: React.ReactNode
   }, [])
 
   return (
-    <div ref={ref} style={{ opacity: 0 }}>
+    <div ref={ref} data-motion-hidden="true" style={{ opacity: 0 }}>
       {children}
     </div>
   )

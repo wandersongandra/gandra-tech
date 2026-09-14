@@ -44,6 +44,11 @@ export default function WordReveal({
     const spans = el.querySelectorAll<HTMLSpanElement>('[data-word]')
     const from = { opacity: 0, y, filter: `blur(${blur}px)`, rotation }
 
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      gsap.set(spans, { opacity: 1, y: 0, filter: 'none', rotation: 0, clearProps: 'transform,filter' })
+      return
+    }
+
     const animate = () =>
       gsap.fromTo(spans, from, {
         opacity: 1,
@@ -80,7 +85,7 @@ export default function WordReveal({
         // O espaço fica FORA do span: dentro de um inline-block ele é
         // colapsado e as palavras grudam.
         <span key={i}>
-          <span data-word="" style={{ display: 'inline-block', opacity: 0 }}>
+            <span data-word="" data-motion-hidden="true" style={{ display: 'inline-block', opacity: 0 }}>
             {word}
           </span>
           {i < words.length - 1 ? ' ' : ''}

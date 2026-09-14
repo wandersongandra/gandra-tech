@@ -10,6 +10,7 @@ export default function CustomCursor() {
     const dot = dotRef.current
     const ring = ringRef.current
     if (!dot || !ring) return
+    if (!window.matchMedia('(pointer: fine)').matches) return
 
     // Escondidos até o primeiro movimento do mouse — evita o anel parado
     // no canto superior esquerdo antes de qualquer interação.
@@ -63,28 +64,37 @@ export default function CustomCursor() {
     }
     window.addEventListener('mousemove', onMoveEcho)
 
-    const bindHover = () => {
-      document.querySelectorAll('a, button').forEach((el) => {
-        if (el.closest('.work-item')) return
-        el.addEventListener('mouseenter', grow)
-        el.addEventListener('mouseleave', shrink)
-      })
-      document.querySelectorAll('.work-item').forEach((el) => {
-        el.addEventListener('mouseenter', growBig)
-        el.addEventListener('mouseleave', shrink)
-      })
+    const interactiveAt = (target: EventTarget | null) => {
+      if (!(target instanceof Element)) return null
+      const workItem = target.closest('.work-item')
+      if (workItem) return { element: workItem, large: true }
+      const control = target.closest('a, button')
+      return control ? { element: control, large: false } : null
     }
 
-    bindHover()
+    const onOver = (e: MouseEvent) => {
+      const current = interactiveAt(e.target)
+      const previous = interactiveAt(e.relatedTarget)
+      if (!current || current.element === previous?.element) return
+      if (current.large) growBig()
+      else grow()
+    }
 
-    // Re-bind on route changes (SPA nav adds new elements)
-    const observer = new MutationObserver(bindHover)
-    observer.observe(document.body, { childList: true, subtree: true })
+    const onOut = (e: MouseEvent) => {
+      const current = interactiveAt(e.target)
+      const next = interactiveAt(e.relatedTarget)
+      if (current && current.element !== next?.element) shrink()
+    }
+
+    document.addEventListener('mouseover', onOver)
+    document.addEventListener('mouseout', onOut)
 
     return () => {
       window.removeEventListener('mousemove', onMove)
       window.removeEventListener('mousemove', onMoveEcho)
-      observer.disconnect()
+      document.removeEventListener('mouseover', onOver)
+      document.removeEventListener('mouseout', onOut)
+      gsap.killTweensOf([dot, ring])
     }
   }, [])
 

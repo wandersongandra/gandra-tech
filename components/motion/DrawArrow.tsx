@@ -35,6 +35,8 @@ export default function DrawArrow({
     if (!svg) return
 
     const paths = svg.querySelectorAll<SVGPathElement>('path')
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
+
     const from = { drawSVG: '0%' }
     gsap.set(paths, from)
 

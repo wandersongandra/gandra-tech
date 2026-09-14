@@ -25,7 +25,9 @@ export default function LenisProvider({ children }: { children: React.ReactNode 
 
     return () => {
       cancelAnimationFrame(rafId)
+      lenis.off('scroll', ScrollTrigger.update)
       lenis.destroy()
+      ;(window as Window & { __lenis?: Lenis }).__lenis = undefined
     }
   }, [])
 

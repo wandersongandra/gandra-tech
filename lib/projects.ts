@@ -6,6 +6,9 @@ export type Project = {
   headline: string
   overview: string
   services: string[]
+  workImage: string
+  coverImage: string
+  mainImage: string
 }
 
 export const projects: Project[] = [
@@ -18,56 +21,22 @@ export const projects: Project[] = [
     overview:
       'Uma plataforma completa para empresas que precisam centralizar inspeções, APRs, permissões de trabalho, auditorias, indicadores, documentos e evidências. Desenvolvida para aumentar a produtividade, garantir conformidade e reduzir riscos operacionais.',
     services: ['Produto', 'UX / UI', 'Engenharia web', 'Mobile'],
+    workImage: '/images/work/sgs.png',
+    coverImage: '/images/projects/sgs/cover.png',
+    mainImage: '/images/projects/sgs/main.png',
   },
   {
-    slug: 'axiom-health',
-    name: 'Axiom Health',
-    category: 'Plataforma digital',
-    year: '2026',
-    headline: 'Saúde corporativa com clareza e eficiência.',
+    slug: 'telma-santos',
+    name: 'Portfólio Telma Santos',
+    category: 'Portfólio profissional',
+    year: 'Atual',
+    headline: 'Uma presença digital clara para apresentar trabalho e serviços.',
     overview:
-      'Sistema de gestão de saúde ocupacional pensado para times de RH e médicos do trabalho. Dashboards, prontuários digitais e fluxos de agendamento em uma interface sem ruído.',
-    services: ['Produto', 'UX / UI', 'Engenharia web'],
-  },
-  {
-    slug: 'norte-vivo',
-    name: 'Norte Vivo',
-    category: 'Sistema de marca',
-    year: '2025',
-    headline: 'Uma identidade viva para uma região em crescimento.',
-    overview:
-      'Desenvolvimento de sistema de marca completo para organização regional de desenvolvimento econômico. Identidade visual, direção de movimento e presença digital.',
-    services: ['Identidade', 'Motion', 'Web'],
-  },
-  {
-    slug: 'marea-finance',
-    name: 'Marea Finance',
-    category: 'Experiência de produto',
-    year: '2025',
-    headline: 'Finanças pessoais que fazem sentido na tela.',
-    overview:
-      'Redesign completo de plataforma de gestão financeira pessoal. Foco em clareza de dados, hierarquia visual e fluxos que reduzem fricção no dia a dia financeiro.',
-    services: ['UX / UI', 'Design de produto', 'Protótipo'],
-  },
-  {
-    slug: 'orbit-house',
-    name: 'Orbit House',
-    category: 'Experiência web',
-    year: '2024',
-    headline: 'Imóveis de alto padrão com presença editorial.',
-    overview:
-      'Site institucional para incorporadora premium com foco em experiência de scrollytelling. Cada seção comunica exclusividade através de movimento controlado e tipografia de impacto.',
-    services: ['Web', 'Motion', 'Copywriting'],
-  },
-  {
-    slug: 'vertice-open',
-    name: 'Vértice Open',
-    category: 'Identidade digital',
-    year: '2024',
-    headline: 'Open banking com a confiança de uma instituição sólida.',
-    overview:
-      'Identidade digital e sistema de design para fintech de open banking. Criação de componentes, guia de tom de voz e templates de comunicação para canais digitais.',
-    services: ['Identidade', 'Design system', 'Brand guidelines'],
+      'Projeto de portfólio desenvolvido para apresentar trabalho, identidade visual e serviços.',
+    services: ['Estratégia visual', 'Design de interface', 'Engenharia web'],
+    workImage: '/images/projects/telma-santos/work.webp',
+    coverImage: '/images/projects/telma-santos/cover.webp',
+    mainImage: '/images/projects/telma-santos/main.webp',
   },
 ]
 

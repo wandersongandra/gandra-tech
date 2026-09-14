@@ -35,6 +35,7 @@ export const metadata: Metadata = {
     template: `%s — ${siteName}`,
   },
   description: siteDescription,
+  alternates: { canonical: '/' },
   openGraph: {
     type: 'website',
     locale: 'pt_BR',
@@ -42,13 +43,47 @@ export const metadata: Metadata = {
     siteName,
     title: `${siteName} — Estúdio de Software Digital`,
     description: siteDescription,
+    images: [{ url: '/og-image.png', width: 1200, height: 630, alt: `${siteName} — Estúdio de Software Digital` }],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: `${siteName} — Estúdio de Software Digital`,
+    description: siteDescription,
+    images: ['/og-image.png'],
+  },
+  icons: {
+    icon: '/favicon.svg',
+    apple: '/apple-touch-icon.png',
   },
 }
+
+const structuredData = [
+  {
+    '@context': 'https://schema.org',
+    '@type': 'Organization',
+    name: siteName,
+    url: siteUrl,
+    description: siteDescription,
+  },
+  {
+    '@context': 'https://schema.org',
+    '@type': 'WebSite',
+    name: siteName,
+    url: siteUrl,
+    description: siteDescription,
+  },
+]
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="pt-BR" className={`${bodoni.variable} ${cormorant.variable} ${inter.variable}`}>
       <body>
+        {structuredData.map((data) => (
+          <script key={data['@type']} type="application/ld+json">
+            {JSON.stringify(data)}
+          </script>
+        ))}
+        <a className="skip-link" href="#main-content">Pular para o conteúdo principal</a>
         <div className="grain" aria-hidden="true" />
         <PageCurtain />
         <CustomCursor />

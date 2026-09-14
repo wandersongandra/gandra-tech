@@ -36,7 +36,7 @@ export default function Header() {
       <Link href="/" ref={logoRef} className="site-header__logo">
         GANDRA TECH<sup>®</sup>
       </Link>
-      <nav className="site-header__nav">
+      <nav className="site-header__nav" aria-label="Navegação principal">
         {isHome ? (
           <button onClick={() => scrollToSection('#trabalhos')} className="site-header__link">
             Trabalhos

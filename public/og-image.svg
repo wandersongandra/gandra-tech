@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+  <defs>
+    <radialGradient id="field" cx="50%" cy="48%" r="72%">
+      <stop offset="0" stop-color="#525977"/>
+      <stop offset="0.55" stop-color="#171925"/>
+      <stop offset="1" stop-color="#000"/>
+    </radialGradient>
+    <pattern id="grain" width="36" height="36" patternUnits="userSpaceOnUse">
+      <circle cx="4" cy="8" r="1" fill="#f5f4f1" opacity=".2"/>
+      <circle cx="21" cy="27" r="1" fill="#8f97dd" opacity=".25"/>
+      <circle cx="32" cy="14" r=".8" fill="#f5f4f1" opacity=".15"/>
+    </pattern>
+  </defs>
+  <rect width="1200" height="630" fill="#000"/>
+  <rect x="30" y="30" width="1140" height="570" fill="url(#field)"/>
+  <rect x="30" y="30" width="1140" height="570" fill="url(#grain)" opacity=".7"/>
+  <text x="84" y="104" fill="#f5f4f1" font-family="Arial, sans-serif" font-size="18" font-weight="700" letter-spacing="4">GANDRA / TECH</text>
+  <text x="1116" y="104" text-anchor="end" fill="#f5f4f1" font-family="Arial, sans-serif" font-size="15" font-weight="700" letter-spacing="3">ESTÚDIO DE SOFTWARE DIGITAL</text>
+  <text x="84" y="350" fill="#f5f4f1" font-family="Georgia, serif" font-size="76">Software que transforma</text>
+  <text x="84" y="438" fill="#f5f4f1" font-family="Georgia, serif" font-size="76">negócios.</text>
+  <line x1="84" y1="512" x2="1116" y2="512" stroke="#f5f4f1" stroke-opacity=".28"/>
+  <text x="84" y="552" fill="#f5f4f1" fill-opacity=".65" font-family="Arial, sans-serif" font-size="16" letter-spacing="2">INTERFACES · SISTEMAS · EXPERIÊNCIAS</text>
+</svg>

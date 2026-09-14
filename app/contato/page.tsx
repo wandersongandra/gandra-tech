@@ -3,17 +3,19 @@ import Footer from '@/components/Footer'
 import ContactPage from '@/components/sections/ContactPage'
 
 import { contactEmail } from '@/lib/site'
+import { createPageMetadata } from '@/lib/seo'
 
-export const metadata = {
+export const metadata = createPageMetadata({
   title: 'Contato',
   description: `Fale com a Gandra Tech: ${contactEmail}. Conta o que você tem em mente — respondemos com atenção.`,
-}
+  path: '/contato',
+})
 
 export default function Contato() {
   return (
     <>
       <Header />
-      <main>
+      <main id="main-content">
         <ContactPage />
       </main>
       <Footer />

@@ -33,6 +33,11 @@ export default function PageCurtain() {
     const path = pathRef.current
     const logo = logoRef.current
     if (!panel || !path || !logo) return
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      panel.style.transform = 'translateY(-100%)'
+      window.dispatchEvent(new Event('gt:curtain-open'))
+      return
+    }
 
     const sweep = sweepRef.current
     const drawExit = () => path.setAttribute('d', exitD(sweep.b))
@@ -98,12 +103,14 @@ export default function PageCurtain() {
     const panel = panelRef.current
     const path = pathRef.current
     if (!panel || !path) return
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
 
     const sweep = sweepRef.current
     const drawEnter = () => path.setAttribute('d', enterD(sweep.b))
 
     const onClick = (e: MouseEvent) => {
-      const a = (e.target as Element).closest('a[href]') as HTMLAnchorElement | null
+      if (!(e.target instanceof Element)) return
+      const a = e.target.closest('a[href]') as HTMLAnchorElement | null
       if (!a) return
 
       const href = a.getAttribute('href') ?? ''

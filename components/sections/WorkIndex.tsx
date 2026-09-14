@@ -54,7 +54,7 @@ export default function WorkIndex() {
                 </span>
                 <span className="windex__thumb" aria-hidden="true">
                   <ImageFill
-                    src={`/images/work/${p.slug}.png`}
+                    src={p.workImage}
                     alt=""
                     sizes="200px"
                     quality={80}

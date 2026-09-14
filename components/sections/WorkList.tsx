@@ -17,6 +17,7 @@ const works = projects.map((p) => ({
   category: p.category,
   year: p.year,
   headline: p.headline,
+  workImage: p.workImage,
 }))
 
 function WorkRow({
@@ -48,6 +49,8 @@ function WorkRow({
     const number = numberRef.current
     if (!row || !parallaxEl || !spin || !tilt || !curtain || !info) return
 
+    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+
     // No trilho horizontal (desktop largo) os efeitos atados ao scroll
     // vertical não fazem sentido: fica só a revelação por IntersectionObserver.
     const isRail = window.matchMedia('(min-width: 1024px)').matches
@@ -61,6 +64,13 @@ function WorkRow({
       gsap.set(curtain, { scaleX: 1, transformOrigin: flipped ? 'right center' : 'left center' })
       gsap.set(tilt, { rotationY: 18 * dir, rotationX: 6, scale: 1.06, opacity: 0 })
       gsap.set(infoParts, { opacity: 0, y: 26, filter: 'blur(6px)' })
+    }
+
+    if (reduced) {
+      gsap.set(tilt, { opacity: 1, rotationY: 0, rotationX: 0, scale: 1, clearProps: 'transform' })
+      gsap.set(curtain, { scaleX: 0, clearProps: 'transform' })
+      gsap.set(infoParts, { opacity: 1, y: 0, filter: 'none', clearProps: 'transform,filter' })
+      return
     }
     setInitial()
 
@@ -236,7 +246,7 @@ function WorkRow({
             <div ref={spinRef} className="work-item__spin">
               <div ref={tiltRef} className="work-item__tilt">
                 <ImageFill
-                  src={`/images/work/${work.slug}.png`}
+                  src={work.workImage}
                   alt={`Mockup do projeto ${work.name}`}
                   sizes="(min-width: 1200px) 560px, (min-width: 768px) 45vw, 85vw"
                   quality={95}

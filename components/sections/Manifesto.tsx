@@ -27,6 +27,13 @@ export default function Manifesto() {
     const caps = capsRef.current
     if (!photo || !section) return
 
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      gsap.set(photo, { opacity: 1, y: 0, scale: 1, clearProps: 'transform' })
+      if (text) gsap.set(text, { opacity: 1, y: 0, filter: 'none', clearProps: 'transform,filter' })
+      if (caps) gsap.set(caps.querySelectorAll('.capability-row'), { opacity: 1, x: 0, clearProps: 'transform' })
+      return
+    }
+
     const from = { opacity: 0, y: 32, scale: 0.97 }
     const entryTrigger = ScrollTrigger.create({
       trigger: photo,
@@ -145,7 +152,7 @@ export default function Manifesto() {
         <div ref={photoRef} className="manifesto__photo" style={{ opacity: 0 }}>
           <ImageFill
             src="/images/manifesto/campo.png"
-            alt="Operação em campo"
+            alt="Composição visual abstrata sobre operação e movimento"
             sizes="(min-width: 640px) 760px, 100vw"
             fallback={
               <div className="manifesto__photo-placeholder">

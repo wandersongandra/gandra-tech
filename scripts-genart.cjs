@@ -83,11 +83,6 @@ function paint(canvas, opts){
 `;
 
 const TARGETS = [
-  { file: 'public/images/work/axiom-health.png',  seed: 11, dark: true,  w: 1600, h: 1000 },
-  { file: 'public/images/work/norte-vivo.png',    seed: 23, dark: true,  w: 1600, h: 1000 },
-  { file: 'public/images/work/marea-finance.png', seed: 37, dark: true,  w: 1600, h: 1000 },
-  { file: 'public/images/work/orbit-house.png',   seed: 51, dark: true,  w: 1600, h: 1000 },
-  { file: 'public/images/work/vertice-open.png',  seed: 67, dark: true,  w: 1600, h: 1000 },
   { file: 'public/images/manifesto/campo.png',    seed: 83, dark: false, w: 1040, h: 650 },
 ];
 

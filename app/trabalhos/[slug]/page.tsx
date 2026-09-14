@@ -3,6 +3,7 @@ import Header from '@/components/Header'
 import Footer from '@/components/Footer'
 import ProjectView from '@/components/sections/ProjectView'
 import { getProject, getNextProject, projects } from '@/lib/projects'
+import { createPageMetadata } from '@/lib/seo'
 
 export function generateStaticParams() {
   return projects.map((p) => ({ slug: p.slug }))
@@ -12,15 +13,11 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const { slug } = await params
   const project = getProject(slug)
   if (!project) return {}
-  return {
+  return createPageMetadata({
     title: project.name,
     description: project.headline,
-    openGraph: {
-      title: project.name,
-      description: project.headline,
-      images: [{ url: `/images/projects/${project.slug}/cover.png` }],
-    },
-  }
+    path: `/trabalhos/${project.slug}`,
+  })
 }
 
 export default async function ProjectPage({ params }: { params: Promise<{ slug: string }> }) {
@@ -33,7 +30,7 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
   return (
     <>
       <Header />
-      <main>
+      <main id="main-content">
         <ProjectView project={project} next={next} />
       </main>
       <Footer />

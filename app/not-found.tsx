@@ -1,17 +1,20 @@
 import Link from 'next/link'
+import type { Metadata } from 'next'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
 import NotFoundLetters from '@/components/motion/NotFoundLetters'
 
-export const metadata = {
+export const metadata: Metadata = {
   title: 'Página não encontrada',
+  description: 'O endereço informado não corresponde a uma página publicada pela Gandra Tech.',
+  robots: { index: false, follow: false },
 }
 
 export default function NotFound() {
   return (
     <>
       <Header />
-      <main>
+      <main id="main-content">
         <section className="cp-hero">
           <div className="container">
             <div className="cp-hero__label">ERRO / PÁGINA NÃO ENCONTRADA</div>

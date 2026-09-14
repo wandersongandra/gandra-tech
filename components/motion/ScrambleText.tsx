@@ -23,6 +23,10 @@ export default function ScrambleText({
   useEffect(() => {
     const el = ref.current
     if (!el) return
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      el.textContent = text
+      return
+    }
     let raf: number
 
     const run = () => {

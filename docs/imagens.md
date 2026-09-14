@@ -3,20 +3,25 @@
 Todas opcionais: quando o arquivo não existe, o componente cai num
 placeholder listrado e o layout continua de pé.
 
-## Por projeto — 2 imagens
+## Por projeto — 3 imagens
 
-Em `projects/<slug>/`, onde `<slug>` vem de `lib/projects.ts`:
+Os projetos publicados são definidos em `lib/projects.ts`. Cada entrada declara os
+caminhos de imagem usados pela lista e pela página de detalhe.
 
-| arquivo | proporção | tamanho sugerido | onde aparece |
+Os assets de detalhe ficam em `images/projects/<slug>/`. O `workImage` pode apontar para
+outro caminho local, conforme declarado no catálogo:
+
+| campo | proporção | tamanho sugerido | onde aparece |
 |---|---|---|---|
-| `cover.png` | 21:9 | 2100×900 | topo da página do projeto |
-| `main.png` | 2:1 | 1920×960 | corpo da página do projeto |
+| `workImage` | — | — | lista da home e arquivo de trabalhos |
+| `coverImage` | 21:9 | 2100×900 | topo da página do projeto |
+| `mainImage` | 2:1 | 1920×960 | corpo da página do projeto |
 
 ## Home
 
 | arquivo | proporção | tamanho sugerido | onde aparece |
 |---|---|---|---|
-| `work/<slug>.png` | 3:4 (retrato) | 900×1200 | lista de trabalhos |
+| `workImage` | — | — | caminho declarado para a lista de trabalhos |
 | `featured/sgs-panel.png` | 4:3 | 900×675 | seção em destaque |
 | `manifesto/campo.png` | — | — | seção manifesto |
 
