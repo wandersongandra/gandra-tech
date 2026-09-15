@@ -133,8 +133,13 @@ fora do sitemap público por serem documentos legais internos.
 1. Confirme que o projeto é real e que os textos e imagens podem ser publicados.
 2. Adicione a entrada em `lib/projects.ts` com slug, conteúdo e os três caminhos de imagem.
 3. Coloque os assets válidos em `public/images/projects/<slug>/`.
-4. Execute `npm run lint`, `npm run typecheck`, `npm test` e `npm run build`.
-5. Verifique a página de trabalhos, a rota de detalhe, o sitemap e os principais viewports.
+4. Otimize os novos PNGs antes do commit com `npm run optimize:images` e confirme que as dimensões foram preservadas.
+5. Execute `npm run lint`, `npm run typecheck`, `npm test` e `npm run build`.
+6. Verifique a página de trabalhos, a rota de detalhe, o sitemap e os principais viewports.
+
+O script de otimização converte os assets SGS definidos em `scripts/optimize-images.mjs`
+para WebP com qualidade 84. Ao adicionar novos assets, atualize a lista do script,
+execute a conversão e aponte o catálogo para os arquivos WebP antes de criar o commit.
 
 ---
 

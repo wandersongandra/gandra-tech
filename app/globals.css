@@ -100,6 +100,8 @@ body {
   display: inline-flex;
   align-items: center;
   gap: 6px;
+  min-height: 44px;
+  padding: 8px 0;
   font-size: 14px;
   font-weight: 500;
   color: var(--ink);
@@ -150,6 +152,11 @@ body {
 }
 
 .breadcrumbs a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 8px 4px;
+  margin: -8px -4px;
   color: var(--dim);
   text-decoration: none;
 }
@@ -173,6 +180,9 @@ body {
 }
 
 .site-header__logo {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
   color: var(--paper);
   font-family: var(--font-sans);
   font-size: 13px;
@@ -195,10 +205,13 @@ body {
 
 /* nav button reset */
 .site-header__link {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
   background: none;
   border: none;
   cursor: pointer;
-  padding: 0;
+  padding: 0 4px;
   font-family: var(--font-sans);
   font-size: 13px;
   font-weight: 500;
@@ -209,6 +222,85 @@ body {
 
 .site-header__link:hover {
   color: #b0b6e8;
+}
+
+.site-header__menu-toggle {
+  position: relative;
+  z-index: 60;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 6px;
+  width: 44px;
+  min-width: 44px;
+  height: 44px;
+  min-height: 44px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--paper);
+  cursor: pointer;
+}
+
+.site-header__menu-toggle span {
+  display: block;
+  width: 19px;
+  height: 1px;
+  background: currentColor;
+  transition: transform 0.25s ease, opacity 0.25s ease;
+}
+
+.mobile-menu {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  display: flex;
+  align-items: flex-start;
+  padding: calc(var(--header-h) + 24px) 24px 32px;
+  background: var(--black);
+  color: var(--paper);
+}
+
+.mobile-menu__panel {
+  width: 100%;
+  padding: 24px 0 32px;
+  border-top: 1px solid rgba(245, 244, 241, 0.22);
+}
+
+.mobile-menu__link {
+  display: flex;
+  align-items: center;
+  min-height: 56px;
+  padding: 8px 0;
+  color: var(--paper);
+  font-family: var(--font-serif);
+  font-size: clamp(32px, 9vw, 52px);
+  font-weight: 400;
+  line-height: 1;
+  letter-spacing: -0.02em;
+  text-decoration: none;
+  transition: color 0.2s ease, padding-left 0.2s ease;
+}
+
+.mobile-menu__link:hover,
+.mobile-menu__link:focus-visible {
+  color: var(--accent);
+  padding-left: 8px;
+}
+
+@media (max-width: 767px) {
+  .site-header {
+    padding-inline: 24px;
+  }
+
+  .site-header__nav {
+    display: none;
+  }
+
+  .site-header__menu-toggle {
+    display: inline-flex;
+  }
 }
 
 /* Mobile: header em uma linha só, sem quebra de texto */
@@ -548,13 +640,15 @@ body {
 }
 
 .service-page__header h1 {
-  max-width: 900px;
+  max-width: 100%;
   margin-top: 24px;
   font-family: var(--font-serif);
   font-size: clamp(48px, 8vw, 104px);
   font-weight: 400;
   line-height: 0.98;
   letter-spacing: -0.035em;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
 }
 
 .service-page__intro {
@@ -632,6 +726,9 @@ body {
 .service-page__case,
 .service-page__cta {
   display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 8px 0;
   margin-top: 32px;
   color: var(--ink);
   font-family: var(--font-sans);
@@ -686,6 +783,10 @@ body {
 }
 
 .work-list__archive {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 8px 0;
   font-size: 11px;
   font-weight: 600;
   letter-spacing: 0.12em;
@@ -763,7 +864,7 @@ body {
   }
 
   .service-page__header h1 {
-    font-size: clamp(44px, 14vw, 72px);
+    font-size: clamp(30px, 9.3vw, 48px);
   }
 
   .service-page__intro {
@@ -1293,6 +1394,7 @@ body {
 
 .contact__email {
   display: block;
+  min-height: 46px;
   border-top: 1px solid rgba(245, 244, 241, 0.1);
   padding-top: 16px;
   font-family: var(--font-serif);
@@ -1326,6 +1428,10 @@ body {
 }
 
 .contact__social-link {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 8px 0;
   font-family: var(--font-sans);
   font-size: 15px;
   color: rgba(245, 244, 241, 0.65);
@@ -1370,6 +1476,10 @@ body {
 }
 
 .site-footer__legal a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 8px 4px;
   color: inherit;
   font-family: var(--font-sans);
   font-size: 11px;
@@ -1385,7 +1495,14 @@ body {
 .site-footer__top {
   background: none;
   border: 0;
-  padding: 4px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  min-width: 44px;
+  height: 44px;
+  min-height: 44px;
+  padding: 10px;
   font: inherit;
   font-size: 14px;
   color: inherit;
@@ -1432,7 +1549,9 @@ body {
   line-height: 1.06;
   letter-spacing: -0.025em;
   margin: 0 0 36px;
-  max-width: 900px;
+  max-width: 100%;
+  overflow-wrap: break-word;
+  word-wrap: break-word;
   color: var(--paper);
 }
 
@@ -1446,7 +1565,9 @@ body {
 }
 
 .cp-hero__email {
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
   max-width: 100%;
   overflow-wrap: anywhere;
   font-family: var(--font-serif);
@@ -1668,6 +1789,8 @@ body {
   letter-spacing: -0.035em;
   color: var(--ink);
   max-width: 820px;
+  overflow-wrap: break-word;
+  word-wrap: break-word;
 }
 
 .legal-page__intro {
@@ -1743,6 +1866,13 @@ body {
   text-underline-offset: 3px;
 }
 
+.legal-page__content a[href^='mailto:'] {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  vertical-align: middle;
+}
+
 .legal-page__content a:hover {
   color: var(--muted);
 }
@@ -1757,7 +1887,7 @@ body {
   }
 
   .legal-page__title {
-    font-size: clamp(42px, 14vw, 72px);
+    font-size: clamp(34px, 11vw, 64px);
   }
 
   .legal-page__notice {
@@ -1802,7 +1932,16 @@ body {
   letter-spacing: -0.025em;
   margin: 0;
   max-width: 900px;
+  overflow-wrap: break-word;
+  word-wrap: break-word;
   color: var(--paper);
+}
+
+@media (max-width: 640px) {
+  .pv-hero__title {
+    max-width: 100%;
+    font-size: clamp(34px, 10vw, 62px);
+  }
 }
 
 .pv-hero__cover {
@@ -2477,6 +2616,9 @@ main {
   line-height: 1.04;
   letter-spacing: -0.025em;
   margin: 24px 0 72px;
+  max-width: 100%;
+  overflow-wrap: break-word;
+  word-wrap: break-word;
 }
 
 .windex__rows {
@@ -2546,6 +2688,10 @@ main {
 }
 
 @media (max-width: 767px) {
+  .windex__title {
+    font-size: clamp(34px, 10vw, 64px);
+  }
+
   .windex__row {
     grid-template-columns: 40px minmax(0, 1fr) 24px;
     gap: 16px;

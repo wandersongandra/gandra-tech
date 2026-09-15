@@ -21,9 +21,9 @@ export const projects: Project[] = [
     overview:
       'Uma plataforma completa para empresas que precisam centralizar inspeções, APRs, permissões de trabalho, auditorias, indicadores, documentos e evidências. Desenvolvida para aumentar a produtividade, garantir conformidade e reduzir riscos operacionais.',
     services: ['Produto', 'UX / UI', 'Engenharia web', 'Mobile'],
-    workImage: '/images/work/sgs.png',
-    coverImage: '/images/projects/sgs/cover.png',
-    mainImage: '/images/projects/sgs/main.png',
+    workImage: '/images/work/sgs.webp',
+    coverImage: '/images/projects/sgs/cover.webp',
+    mainImage: '/images/projects/sgs/main.webp',
   },
   {
     slug: 'telma-santos',
