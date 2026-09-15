@@ -3,32 +3,40 @@ import { useRef, useEffect } from 'react'
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import WordReveal from '@/components/motion/WordReveal'
-import ImageFill from '@/components/motion/ImageFill'
 import DrawArrow from '@/components/motion/DrawArrow'
 
 gsap.registerPlugin(ScrollTrigger)
 
 const capabilities = [
-  'Estratégia / direção',
-  'Experiência / identidade',
-  'Engenharia / movimento',
+  {
+    title: 'Clareza para comunicar',
+    description: 'Sites e portfólios que organizam a mensagem e apresentam o trabalho.',
+  },
+  {
+    title: 'Processos para operar',
+    description: 'Sistemas sob medida alinhados às regras e rotinas da empresa.',
+  },
+  {
+    title: 'Produtos para evoluir',
+    description: 'Aplicações web construídas para uso recorrente e novas etapas.',
+  },
 ]
 
 export default function Manifesto() {
   const sectionRef = useRef<HTMLElement>(null)
-  const photoRef = useRef<HTMLDivElement>(null)
+  const statementRef = useRef<HTMLDivElement>(null)
   const textRef = useRef<HTMLParagraphElement>(null)
   const capsRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
-    const photo = photoRef.current
+    const statement = statementRef.current
     const section = sectionRef.current
     const text = textRef.current
     const caps = capsRef.current
-    if (!photo || !section) return
+    if (!statement || !section) return
 
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-      gsap.set(photo, { opacity: 1, y: 0, scale: 1, clearProps: 'transform' })
+      gsap.set(statement, { opacity: 1, y: 0, scale: 1, clearProps: 'transform' })
       if (text) gsap.set(text, { opacity: 1, y: 0, filter: 'none', clearProps: 'transform,filter' })
       if (caps) gsap.set(caps.querySelectorAll('.capability-row'), { opacity: 1, x: 0, clearProps: 'transform' })
       return
@@ -36,14 +44,14 @@ export default function Manifesto() {
 
     const from = { opacity: 0, y: 32, scale: 0.97 }
     const entryTrigger = ScrollTrigger.create({
-      trigger: photo,
+      trigger: statement,
       start: 'top 85%',
       onEnter: () =>
-        gsap.fromTo(photo, from, { opacity: 1, y: 0, scale: 1, duration: 0.9, ease: 'power2.out' }),
-      onLeaveBack: () => gsap.set(photo, from),
+        gsap.fromTo(statement, from, { opacity: 1, y: 0, scale: 1, duration: 0.9, ease: 'power2.out' }),
+      onLeaveBack: () => gsap.set(statement, from),
     })
 
-    const parallax = gsap.fromTo(photo, { yPercent: 3 }, {
+    const parallax = gsap.fromTo(statement, { yPercent: 3 }, {
       yPercent: -5,
       ease: 'none',
       scrollTrigger: { trigger: section, start: 'top bottom', end: 'bottom top', scrub: true },
@@ -146,34 +154,40 @@ export default function Manifesto() {
           stagger={0.05}
           duration={0.9}
         >
-          Design e código são apenas ferramentas de expressão. A sensação é o produto.
+          Produtos digitais que fazem sentido para o negócio.
         </WordReveal>
 
-        <div ref={photoRef} className="manifesto__photo" style={{ opacity: 0 }}>
-          <ImageFill
-            src="/images/manifesto/campo.png"
-            alt="Composição visual abstrata sobre operação e movimento"
-            sizes="(min-width: 640px) 760px, 100vw"
-            fallback={
-              <div className="manifesto__photo-placeholder">
-                <span className="placeholder-label">foto — operação em campo</span>
-              </div>
-            }
-          />
+        <div ref={statementRef} className="manifesto__statement" style={{ opacity: 0 }}>
+          <div className="manifesto__statement-head">
+            <span>DA IDEIA AO PRODUTO NO AR</span>
+            <span>GANDRA / TECH</span>
+          </div>
+          <p className="manifesto__statement-lead">
+            A Gandra Tecnologia transforma objetivos de negócio em sites institucionais,
+            portfólios profissionais, sistemas sob medida e aplicações web.
+          </p>
+          <div className="manifesto__statement-foot">
+            <span>CADA PROJETO COMEÇA PELO CONTEXTO</span>
+            <span>ATENDIMENTO REMOTO / BRASIL</span>
+          </div>
         </div>
 
         <p ref={textRef} className="manifesto__text">
-          Criamos produtos digitais para pessoas que estão indo a algum lugar. Cada interface
-          é uma escolha sobre atenção, confiança e movimento. Tornamos essas escolhas visíveis.
+          Antes de escolher a tecnologia, entendemos o que precisa ser comunicado, simplificado
+          ou colocado para funcionar melhor. A solução nasce desse contexto e evolui com o negócio.
         </p>
 
         <div ref={capsRef} className="manifesto__capabilities">
-          {capabilities.map((label, i) => (
+          {capabilities.map((capability, i) => (
             <div
-              key={label}
+              key={capability.title}
               className={`capability-row${i === capabilities.length - 1 ? ' capability-row--last' : ''}`}
             >
-              <span>{label}</span>
+              <span className="capability-row__index">{String(i + 1).padStart(2, '0')}</span>
+              <span className="capability-row__copy">
+                <strong>{capability.title}</strong>
+                <span>{capability.description}</span>
+              </span>
               <span className="capability-row__arrow">
                 <DrawArrow size={13} delay={0.3 + i * 0.12} />
               </span>

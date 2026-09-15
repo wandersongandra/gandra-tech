@@ -22,7 +22,6 @@ outro caminho local, conforme declarado no catálogo:
 | arquivo | proporção | tamanho sugerido | onde aparece |
 |---|---|---|---|
 | `workImage` | — | — | caminho declarado para a lista de trabalhos |
-| `manifesto/campo.png` | — | — | seção manifesto |
 
 ## Regras que evitam retrabalho
 
