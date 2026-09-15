@@ -1,11 +1,13 @@
-export const razaoSocial = ''
-export const cnpj = ''
-export const endereco = ''
-export const foro = ''
-export const encarregado = ''
+export const legalData = {
+  razaoSocial: '66.342.391 WANDERSON RODRIGUES GANDRA',
+  cnpj: '66.342.391/0001-30',
+  endereco: 'Rua Irmãos Kennedy, 165, APT 302, Cidade Nova, Belo Horizonte - MG, CEP 31.170-130',
+  foro: 'Belo Horizonte, MG',
+  encarregado: '',
+  dataAtualizacao: '15/09/2026',
+} as const
 
-// Data da execução desta revisão de conteúdo.
-export const dataAtualizacao = '15/09/2026'
+export const { razaoSocial, cnpj, endereco, foro, encarregado, dataAtualizacao } = legalData
 
 export const identificacaoLegal =
   razaoSocial && cnpj && endereco
