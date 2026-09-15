@@ -19,7 +19,7 @@ export default function Breadcrumbs({ items }: { items: BreadcrumbItem[] }) {
                 {isCurrent ? (
                   <span aria-current="page">{item.name}</span>
                 ) : (
-                  <Link href={item.href}>{item.name}</Link>
+                  <Link href={item.href} prefetch={false}>{item.name}</Link>
                 )}
               </li>
             )

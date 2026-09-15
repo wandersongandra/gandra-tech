@@ -45,7 +45,7 @@ export default function ServicesPage() {
                     </div>
                   </div>
                   {relatedProject && (
-                    <Link href={`/trabalhos/${relatedProject.slug}`} className="service-page__case">
+                    <Link href={`/trabalhos/${relatedProject.slug}`} prefetch={false} className="service-page__case">
                       Ver projeto relacionado: {relatedProject.name} ↗
                     </Link>
                   )}
@@ -63,7 +63,7 @@ export default function ServicesPage() {
             ser resolvido. A partir disso, definimos o escopo, as etapas e a melhor forma de construir
             a solução.
           </p>
-          <Link href="/contato" className="link-arrow service-page__cta">
+          <Link href="/contato" prefetch={false} className="link-arrow service-page__cta">
             Falar sobre um projeto ↗
           </Link>
         </section>

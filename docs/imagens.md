@@ -22,7 +22,6 @@ outro caminho local, conforme declarado no catálogo:
 | arquivo | proporção | tamanho sugerido | onde aparece |
 |---|---|---|---|
 | `workImage` | — | — | caminho declarado para a lista de trabalhos |
-| `featured/sgs-panel.png` | 4:3 | 900×675 | seção em destaque |
 | `manifesto/campo.png` | — | — | seção manifesto |
 
 ## Regras que evitam retrabalho
@@ -31,7 +30,7 @@ outro caminho local, conforme declarado no catálogo:
 tela retina vira ~920px reais. Exportar abaixo disso borra — não há como
 recuperar resolução depois.
 
-**Fundo transparente** nos mockups de `work/` e `featured/`: eles são
+**Fundo transparente** nos mockups de `work/`: eles são
 compostos sobre o papel bege da seção. Um fundo opaco aparece como retângulo
 recortado.
 

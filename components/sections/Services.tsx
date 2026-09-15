@@ -88,7 +88,7 @@ export default function Services() {
         <ul ref={listRef} className="services__list">
           {services.map((service, index) => (
             <li key={service.title} className="services__item">
-              <Link href={`/servicos#${service.slug}`} className="services__item-link">
+              <Link href={`/servicos#${service.slug}`} prefetch={false} className="services__item-link">
                 <span className="services__index">{String(index + 1).padStart(2, '0')}</span>
                 <div className="services__item-copy">
                   <h3>{service.title}</h3>
@@ -107,14 +107,14 @@ export default function Services() {
             Precisa tirar um projeto do papel?
           </FadeIn>
           <div className="services__cta-group">
-            <Link href="/servicos" className="link-arrow services__cta">
+            <Link href="/servicos" prefetch={false} className="link-arrow services__cta">
               Conheça cada serviço{' '}
               <span>
                 <DrawArrow size={14} delay={0.5} />
               </span>
             </Link>
             <MagneticButton>
-              <Link href="/contato" className="link-arrow services__cta">
+              <Link href="/contato" prefetch={false} className="link-arrow services__cta">
                 Vamos conversar{' '}
                 <span>
                   <DrawArrow size={14} delay={0.6} />

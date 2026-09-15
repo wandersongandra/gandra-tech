@@ -8,8 +8,8 @@ export default function Footer() {
       <div className="site-footer__copy">© {new Date().getFullYear()} Gandra Tech</div>
       <div className="site-footer__icons">
         <nav className="site-footer__legal" aria-label="Informações legais">
-          <Link href="/termos-de-uso">Termos de Uso</Link>
-          <Link href="/politica-de-privacidade">Privacidade</Link>
+          <Link href="/termos-de-uso" prefetch={false}>Termos de Uso</Link>
+          <Link href="/politica-de-privacidade" prefetch={false}>Privacidade</Link>
         </nav>
         <button
           type="button"

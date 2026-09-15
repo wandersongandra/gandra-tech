@@ -113,7 +113,7 @@ export default function ProjectView({ project, next }: { project: Project; next:
       <section className="pv-contact">
         <div className="container">
           <p className="pv-contact__label">TEM UM PROJETO EM MENTE?</p>
-          <Link href="/contato" className="pv-contact__link">
+          <Link href="/contato" prefetch={false} className="pv-contact__link">
             Vamos conversar sobre o seu próximo projeto ↗
           </Link>
         </div>
@@ -123,7 +123,7 @@ export default function ProjectView({ project, next }: { project: Project; next:
       <section className="pv-next">
         <div className="container">
           <div className="pv-next__label">PRÓXIMO PROJETO</div>
-          <Link href={`/trabalhos/${next.slug}`} className="pv-next__link">
+          <Link href={`/trabalhos/${next.slug}`} prefetch={false} className="pv-next__link">
             <span className="pv-next__name">
               <ScrambleText text={next.name} trigger="hover" speed={1.4} />
             </span>

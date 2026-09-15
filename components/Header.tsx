@@ -33,11 +33,11 @@ export default function Header() {
 
   return (
     <header className="site-header">
-      <Link href="/" ref={logoRef} className="site-header__logo">
+      <Link href="/" prefetch={false} ref={logoRef} className="site-header__logo">
         GANDRA TECH<sup>®</sup>
       </Link>
       <nav className="site-header__nav" aria-label="Navegação principal">
-        <Link href="/servicos" className="site-header__link">
+        <Link href="/servicos" prefetch={false} className="site-header__link">
           Serviços
         </Link>
         {isHome ? (
@@ -45,11 +45,11 @@ export default function Header() {
             Trabalhos
           </button>
         ) : (
-          <Link href="/#trabalhos" className="site-header__link">
+          <Link href="/#trabalhos" prefetch={false} className="site-header__link">
             Trabalhos
           </Link>
         )}
-        <Link href="/contato" className="site-header__link">
+        <Link href="/contato" prefetch={false} className="site-header__link">
           Contato
         </Link>
       </nav>

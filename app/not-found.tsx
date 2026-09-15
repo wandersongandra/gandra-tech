@@ -24,7 +24,7 @@ export default function NotFound() {
               O endereço não corresponde a nenhuma página do site. Volte para a página inicial
               ou conheça os projetos.
             </p>
-            <Link href="/" className="link-arrow cp-hero__email">
+            <Link href="/" prefetch={false} className="link-arrow cp-hero__email">
               Voltar ao início ↗
             </Link>
           </div>

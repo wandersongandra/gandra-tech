@@ -40,7 +40,7 @@ export default function WorkIndex() {
               y={24}
               duration={0.7}
             >
-              <Link href={`/trabalhos/${p.slug}`} className="windex__row">
+              <Link href={`/trabalhos/${p.slug}`} prefetch={false} className="windex__row">
                 <span className="windex__num" aria-hidden="true">
                   {String(i + 1).padStart(2, '0')}
                 </span>

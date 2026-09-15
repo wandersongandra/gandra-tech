@@ -227,6 +227,7 @@ function WorkRow({
     <div ref={rowRef}>
       <Link
         href={`/trabalhos/${work.slug}`}
+        prefetch={false}
         className={`work-item${flipped ? ' work-item--flipped' : ''}`}
       >
         {/* Título fantasma: nome do projeto em escala editorial, ao fundo. */}
@@ -329,7 +330,7 @@ export default function WorkList() {
           <ScrambleText text="TRABALHOS SELECIONADOS" speed={2.5} />
           <span className="work-list__aside">
             <span className="work-list__count">({String(works.length).padStart(2, '0')})</span>
-            <Link href="/trabalhos" className="work-list__archive">
+            <Link href="/trabalhos" prefetch={false} className="work-list__archive">
               ver arquivo completo ↗
             </Link>
           </span>

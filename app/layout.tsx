@@ -13,6 +13,7 @@ const bodoni = Bodoni_Moda({
   variable: '--font-bodoni',
   weight: ['400', '500', '600', '700'],
   style: ['normal', 'italic'],
+  preload: false,
 })
 
 const cormorant = Cormorant_Garamond({
@@ -20,12 +21,14 @@ const cormorant = Cormorant_Garamond({
   variable: '--font-cormorant',
   weight: ['300', '400'],
   style: ['normal', 'italic'],
+  preload: false,
 })
 
 const inter = Inter({
   subsets: ['latin'],
   variable: '--font-inter',
   weight: ['400', '500', '600', '700'],
+  preload: false,
 })
 
 export const metadata: Metadata = {
