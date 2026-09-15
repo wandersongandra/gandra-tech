@@ -2,7 +2,8 @@
 import WordReveal from '@/components/motion/WordReveal'
 import FadeIn from '@/components/motion/FadeIn'
 import PageTransition from '@/components/motion/PageTransition'
-import { activeSocialLinks, contactEmail, contactNotes } from '@/lib/site'
+import CopyEmailButton from '@/components/CopyEmailButton'
+import { activeSocialLinks, contactEmail, contactMailto, contactNotes } from '@/lib/site'
 import { faqItems } from '@/lib/faq'
 
 export default function ContactPage() {
@@ -30,10 +31,11 @@ export default function ContactPage() {
             sem promessa vazia.
           </FadeIn>
           <FadeIn trigger="load" delay={0.5} y={16} duration={0.7}>
-            <a href={`mailto:${contactEmail}`} className="cp-hero__email">
+            <a href={contactMailto} className="cp-hero__email">
               {contactEmail} ↗
             </a>
           </FadeIn>
+          <CopyEmailButton email={contactEmail} />
         </div>
       </section>
 
@@ -44,7 +46,7 @@ export default function ContactPage() {
 
             <div className="cp-grid__col cp-grid__col--main">
               <div className="cp-grid__label">CONTATO DIRETO</div>
-              <a href={`mailto:${contactEmail}`} className="cp-grid__email-link">
+              <a href={contactMailto} className="cp-grid__email-link">
                 {contactEmail}
               </a>
               {activeSocialLinks.length > 0 && (
@@ -91,6 +93,29 @@ export default function ContactPage() {
             </div>
 
           </div>
+        </div>
+      </section>
+
+      <section className="cp-process" aria-labelledby="cp-process-title">
+        <div className="container">
+          <div className="cp-process__intro">
+            <div className="cp-grid__label">DEPOIS DO PRIMEIRO CONTATO</div>
+            <h2 id="cp-process-title">O que acontece depois do contato.</h2>
+          </div>
+          <ol className="cp-process__steps">
+            <li>
+              <span>01</span>
+              <p>Você envia o contexto e o objetivo do projeto.</p>
+            </li>
+            <li>
+              <span>02</span>
+              <p>Retornamos com perguntas de alinhamento de escopo.</p>
+            </li>
+            <li>
+              <span>03</span>
+              <p>Você recebe uma proposta com escopo, etapas e investimento.</p>
+            </li>
+          </ol>
         </div>
       </section>
 

@@ -5,7 +5,7 @@ export type Service = {
   description: string
   idealFor: string
   deliverables: string[]
-  relatedProjectSlug: string
+  relatedProjectSlug?: string
 }
 
 export const services: Service[] = [
@@ -42,9 +42,9 @@ export const services: Service[] = [
   {
     slug: 'sistemas-sob-medida',
     title: 'Sistemas sob medida',
-    shortDescription: 'Software alinhado aos processos reais da empresa, sem forçar o negócio a caber em um molde.',
+    shortDescription: 'Software para organizar a operação interna, dashboards, fluxos de trabalho e regras de negócio.',
     description:
-      'A Gandra Tecnologia desenvolve sistemas sob medida para centralizar informações, apoiar operações e transformar processos específicos em fluxos digitais mais claros.',
+      'A Gandra Tecnologia desenvolve sistemas sob medida para a operação interna de empresas, organizando gestão, dashboards, fluxos de trabalho e regras de negócio em experiências web alinhadas ao processo real.',
     idealFor: 'Empresas com processos próprios, regras de negócio específicas ou necessidade de integrar operação e informação.',
     deliverables: [
       'Entendimento do processo e definição do escopo do produto.',
@@ -57,9 +57,9 @@ export const services: Service[] = [
   {
     slug: 'aplicacoes-web',
     title: 'Aplicações web',
-    shortDescription: 'Produtos digitais acessíveis pelo navegador, com interface pensada para uso recorrente.',
+    shortDescription: 'Produtos e experiências acessados pelo navegador por clientes, equipes ou usuários finais.',
     description:
-      'A Gandra Tecnologia cria aplicações web que combinam interface, lógica de produto e engenharia para entregar experiências úteis a clientes, equipes e operações.',
+      'A Gandra Tecnologia cria aplicações web para entregar produtos e experiências acessadas pelo navegador, com interface voltada a clientes ou usuários finais.',
     idealFor: 'Negócios que precisam oferecer uma ferramenta digital, uma área de trabalho ou uma experiência interativa na web.',
     deliverables: [
       'Definição da jornada principal e das informações necessárias.',
@@ -68,5 +68,19 @@ export const services: Service[] = [
       'Base técnica preparada para manutenção e novas etapas.',
     ],
     relatedProjectSlug: 'sgs',
+  },
+  {
+    slug: 'automacao-de-processos-e-integracoes',
+    title: 'Automação de processos e integrações',
+    shortDescription: 'Conexão de ferramentas e sistemas para automatizar rotinas e sincronizar dados entre etapas.',
+    description:
+      'A Gandra Tecnologia conecta ferramentas e sistemas para eliminar tarefas manuais repetitivas e sincronizar dados entre etapas do negócio.',
+    idealFor: 'Empresas que usam diferentes ferramentas e precisam conectar rotinas, informações e etapas operacionais.',
+    deliverables: [
+      'Integrações via API e webhooks.',
+      'Automação de rotinas administrativas e operacionais.',
+      'Sincronização entre sistemas e planilhas.',
+      'Pipelines de dados e relatórios automáticos.',
+    ],
   },
 ]

@@ -6,6 +6,7 @@ import WordReveal from '@/components/motion/WordReveal'
 import FadeIn from '@/components/motion/FadeIn'
 import HeroParticles from '@/components/motion/HeroParticles'
 import HeroBlob from '@/components/motion/HeroBlob'
+import { contactMailto } from '@/lib/site'
 
 gsap.registerPlugin(ScrollTrigger)
 
@@ -156,9 +157,17 @@ export default function Hero() {
             y={14}
             duration={1}
           >
-            Desenvolvimento de sites institucionais, portfólios profissionais, sistemas sob medida
-            e aplicações web para empresas e profissionais em todo o Brasil.
+            Desenvolvimento de sites institucionais, portfólios profissionais, sistemas sob medida,
+            automações e aplicações web para empresas e profissionais em todo o Brasil.
           </FadeIn>
+          <div className="hero__actions">
+            <a href={contactMailto} className="link-arrow hero__cta hero__cta--primary">
+              Solicitar orçamento ↗
+            </a>
+            <a href="#servicos" className="link-arrow hero__cta hero__cta--secondary">
+              Ver serviços ↓
+            </a>
+          </div>
         </div>
       </div>
 

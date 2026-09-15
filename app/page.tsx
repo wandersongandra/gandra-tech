@@ -21,7 +21,7 @@ export default function Home() {
           {
             '@context': 'https://schema.org',
             '@type': 'WebPage',
-            name: 'Gandra Tecnologia — Desenvolvimento de sites e sistemas sob medida',
+            name: 'Gandra Tecnologia — Sites, sistemas e automações sob medida',
             url: siteUrl,
             description: siteDescription,
             inLanguage: 'pt-BR',

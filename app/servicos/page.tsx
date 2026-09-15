@@ -9,7 +9,7 @@ import { createPageMetadata, createServiceJsonLd } from '@/lib/seo'
 export const metadata = createPageMetadata({
   title: 'Serviços de desenvolvimento web',
   description:
-    'Conheça os serviços da Gandra Tecnologia: sites institucionais, portfólios profissionais, sistemas sob medida e aplicações web para todo o Brasil.',
+    'Conheça os serviços da Gandra Tecnologia: sites institucionais, portfólios profissionais, sistemas sob medida, automações e aplicações web para todo o Brasil.',
   path: '/servicos',
 })
 
@@ -24,7 +24,7 @@ export default function Servicos() {
             name: 'Serviços de desenvolvimento web',
             url: 'https://gandra.tech/servicos',
             description:
-              'Sites institucionais, portfólios profissionais, sistemas sob medida e aplicações web para empresas e profissionais em todo o Brasil.',
+              'Sites institucionais, portfólios profissionais, sistemas sob medida, automações e aplicações web para empresas e profissionais em todo o Brasil.',
             inLanguage: 'pt-BR',
             hasPart: services.map(createServiceJsonLd),
           },

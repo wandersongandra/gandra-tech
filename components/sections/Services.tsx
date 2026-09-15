@@ -9,6 +9,7 @@ import MagneticButton from '@/components/motion/MagneticButton'
 import ScrambleText from '@/components/motion/ScrambleText'
 import DrawArrow from '@/components/motion/DrawArrow'
 import { services } from '@/lib/services'
+import { contactMailto } from '@/lib/site'
 
 gsap.registerPlugin(ScrollTrigger)
 
@@ -76,12 +77,12 @@ export default function Services() {
               stagger={0.07}
               duration={0.8}
             >
-              Sites, sistemas e aplicações web para colocar negócios em movimento.
+              Sites, sistemas, automações e aplicações web para colocar negócios em movimento.
             </WordReveal>
           </div>
           <FadeIn as="p" className="services__desc" y={24} duration={0.65} delay={0.16}>
-            A Gandra Tecnologia desenvolve sites institucionais, portfólios profissionais,
-            sistemas sob medida e aplicações web para empresas e profissionais em todo o Brasil.
+            A Gandra Tecnologia desenvolve sites institucionais, portfólios profissionais, sistemas
+            sob medida, automações e aplicações web para empresas e profissionais em todo o Brasil.
           </FadeIn>
         </div>
 
@@ -92,7 +93,7 @@ export default function Services() {
                 <span className="services__index">{String(index + 1).padStart(2, '0')}</span>
                 <div className="services__item-copy">
                   <h3>{service.title}</h3>
-                  <p>{service.description}</p>
+                  <p>{service.shortDescription}</p>
                 </div>
                 <span className="services__item-arrow" aria-hidden="true">
                   <DrawArrow size={14} delay={0.25 + index * 0.08} />
@@ -114,12 +115,12 @@ export default function Services() {
               </span>
             </Link>
             <MagneticButton>
-              <Link href="/contato" prefetch={false} className="link-arrow services__cta">
+              <a href={contactMailto} className="link-arrow services__cta">
                 Vamos conversar{' '}
                 <span>
                   <DrawArrow size={14} delay={0.6} />
                 </span>
-              </Link>
+              </a>
             </MagneticButton>
           </div>
         </div>

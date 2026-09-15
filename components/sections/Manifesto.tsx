@@ -164,7 +164,7 @@ export default function Manifesto() {
           </div>
           <p className="manifesto__statement-lead">
             A Gandra Tecnologia transforma objetivos de negócio em sites institucionais,
-            portfólios profissionais, sistemas sob medida e aplicações web.
+            portfólios profissionais, sistemas sob medida, automações e aplicações web.
           </p>
           <div className="manifesto__statement-foot">
             <span>CADA PROJETO COMEÇA PELO CONTEXTO</span>

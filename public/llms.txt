@@ -1,6 +1,6 @@
 # Gandra Tecnologia
 
-> A Gandra Tecnologia desenvolve sites institucionais, portfólios profissionais, sistemas sob medida e aplicações web para empresas, profissionais e empreendedores em todo o Brasil, com atendimento remoto.
+> A Gandra Tecnologia desenvolve sites institucionais, portfólios profissionais, sistemas sob medida, automações e aplicações web para empresas, profissionais e empreendedores em todo o Brasil, com atendimento remoto.
 
 ## Sobre a empresa
 
@@ -15,8 +15,9 @@
 
 - Sites institucionais: presença digital profissional para apresentar a empresa, organizar sua mensagem e facilitar o contato.
 - Portfólios profissionais: apresentação digital de trabalhos, trajetória e serviços de profissionais liberais, especialistas e criadores.
-- Sistemas sob medida: software alinhado a processos, regras de negócio e necessidades específicas de uma empresa.
-- Aplicações web: produtos e ferramentas digitais acessíveis pelo navegador, com interface pensada para uso recorrente.
+- Sistemas sob medida: software para organizar a operação interna, dashboards, fluxos de trabalho e regras de negócio.
+- Aplicações web: produtos e experiências acessados pelo navegador por clientes, equipes ou usuários finais.
+- Automação de processos e integrações: conexão de ferramentas e sistemas para automatizar rotinas e sincronizar dados entre etapas do negócio.
 
 ## Projetos públicos
 

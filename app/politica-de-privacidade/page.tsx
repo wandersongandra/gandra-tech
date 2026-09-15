@@ -3,6 +3,7 @@ import Header from '@/components/Header'
 import Footer from '@/components/Footer'
 import LegalContainer from '@/components/LegalContainer'
 import { createPageMetadata } from '@/lib/seo'
+import { dataAtualizacao, encarregadoLegal, identificacaoLegal } from '@/lib/legal'
 
 export const metadata: Metadata = {
   ...createPageMetadata({
@@ -23,7 +24,7 @@ export default function PoliticaDePrivacidade() {
           eyebrow="INFORMAÇÕES LEGAIS"
           title="Política de Privacidade"
           intro="Como o site institucional da Gandra Tecnologia trata dados pessoais e informações técnicas."
-          updatedAt="[DATA DA ÚLTIMA ATUALIZAÇÃO]"
+          updatedAt={dataAtualizacao}
         >
           <section aria-labelledby="privacidade-introducao">
             <h2 id="privacidade-introducao">1. Compromisso com a privacidade</h2>
@@ -38,14 +39,11 @@ export default function PoliticaDePrivacidade() {
           <section aria-labelledby="privacidade-controlador">
             <h2 id="privacidade-controlador">2. Controlador dos dados</h2>
             <p>
-              O controlador é a Gandra Tecnologia, inscrita no CNPJ sob [CNPJ DA GANDRA
-              TECNOLOGIA], com endereço em [ENDEREÇO COMPLETO].
+              {identificacaoLegal}
             </p>
             <p>
               O canal de privacidade e contato do titular é{' '}
-              <a href="mailto:contato@gandra.tech">contato@gandra.tech</a>. O nome do
-              encarregado, se houver designação formal, deverá ser preenchido em [NOME DO
-              ENCARREGADO, SE APLICÁVEL].
+              <a href="mailto:contato@gandra.tech">contato@gandra.tech</a>. {encarregadoLegal}
             </p>
           </section>
 

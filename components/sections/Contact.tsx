@@ -4,7 +4,7 @@ import WordReveal from '@/components/motion/WordReveal'
 import FadeIn from '@/components/motion/FadeIn'
 import MagneticButton from '@/components/motion/MagneticButton'
 import ScrambleText from '@/components/motion/ScrambleText'
-import { activeSocialLinks, contactEmail, contactNotes } from '@/lib/site'
+import { activeSocialLinks, contactEmail, contactMailto, contactNotes } from '@/lib/site'
 
 export default function Contact() {
   const sectionRef = useRef<HTMLElement>(null)
@@ -53,7 +53,7 @@ export default function Contact() {
                 com mais presença que o resto. */}
             <FadeIn y={30} scale={0.96} duration={0.85} delay={0.12}>
               <MagneticButton>
-                <a href={`mailto:${contactEmail}`} className="contact__email">
+                <a href={contactMailto} className="contact__email">
                   {contactEmail} ↗
                 </a>
               </MagneticButton>

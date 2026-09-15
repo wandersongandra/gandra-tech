@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import { services } from '@/lib/services'
 import { getProject } from '@/lib/projects'
+import { contactMailto } from '@/lib/site'
 
 export default function ServicesPage() {
   return (
@@ -23,7 +24,9 @@ export default function ServicesPage() {
 
         <div className="service-page__list">
           {services.map((service, index) => {
-            const relatedProject = getProject(service.relatedProjectSlug)
+            const relatedProject = service.relatedProjectSlug
+              ? getProject(service.relatedProjectSlug)
+              : undefined
             return (
               <article className="service-page__item" id={service.slug} key={service.slug}>
                 <div className="service-page__number">{String(index + 1).padStart(2, '0')}</div>
@@ -63,9 +66,9 @@ export default function ServicesPage() {
             ser resolvido. A partir disso, definimos o escopo, as etapas e a melhor forma de construir
             a solução.
           </p>
-          <Link href="/contato" prefetch={false} className="link-arrow service-page__cta">
+          <a href={contactMailto} className="link-arrow service-page__cta">
             Falar sobre um projeto ↗
-          </Link>
+          </a>
         </section>
       </div>
     </section>

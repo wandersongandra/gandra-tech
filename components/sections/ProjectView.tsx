@@ -9,6 +9,7 @@ import FadeIn from '@/components/motion/FadeIn'
 import PageTransition from '@/components/motion/PageTransition'
 import ImageFill from '@/components/motion/ImageFill'
 import ScrambleText from '@/components/motion/ScrambleText'
+import { contactMailto } from '@/lib/site'
 
 gsap.registerPlugin(ScrollTrigger)
 
@@ -74,10 +75,34 @@ export default function ProjectView({ project, next }: { project: Project; next:
         <div className="container">
           <div className="pv-overview__grid">
             <div className="pv-overview__left">
-              <div className="pv-overview__label">VISÃO GERAL</div>
-              <p className="pv-overview__text">{project.overview}</p>
+              <div className="pv-overview__block">
+                <div className="pv-overview__label">CONTEXTO</div>
+                <p className="pv-overview__text">{project.contexto}</p>
+              </div>
+              <div className="pv-overview__block">
+                <div className="pv-overview__label">DESAFIO</div>
+                <p className="pv-overview__text">{project.desafio}</p>
+              </div>
+              <div className="pv-overview__block">
+                <div className="pv-overview__label">SOLUÇÃO</div>
+                <p className="pv-overview__text">{project.solucao}</p>
+              </div>
             </div>
             <div className="pv-overview__right">
+              <div className="pv-overview__block">
+                <div className="pv-overview__label">RESULTADO</div>
+                <p className="pv-overview__text">{project.resultado}</p>
+              </div>
+              <div className="pv-overview__block">
+                <div className="pv-overview__label">PAPEL DA GANDRA</div>
+                <p className="pv-overview__text">{project.papel}</p>
+              </div>
+              {project.stack && (
+                <div className="pv-overview__block">
+                  <div className="pv-overview__label">STACK</div>
+                  <p className="pv-overview__text">{project.stack}</p>
+                </div>
+              )}
               <div className="pv-overview__label">SERVIÇOS</div>
               <ul className="pv-overview__services">
                 {project.services.map((s) => (
@@ -113,9 +138,12 @@ export default function ProjectView({ project, next }: { project: Project; next:
       <section className="pv-contact">
         <div className="container">
           <p className="pv-contact__label">TEM UM PROJETO EM MENTE?</p>
-          <Link href="/contato" prefetch={false} className="pv-contact__link">
+          <a href={contactMailto} className="pv-contact__link">
             Vamos conversar sobre o seu próximo projeto ↗
-          </Link>
+          </a>
+          <a href={contactMailto} className="link-arrow pv-contact__cta">
+            Solicitar orçamento ↗
+          </a>
         </div>
       </section>
 

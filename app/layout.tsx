@@ -34,7 +34,7 @@ const inter = Inter({
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: {
-    default: `${siteName} — Desenvolvimento de sites e sistemas sob medida`,
+    default: `${siteName} — Sites, sistemas e automações sob medida`,
     template: `%s — ${siteName}`,
   },
   description: siteDescription,
@@ -45,13 +45,13 @@ export const metadata: Metadata = {
     locale: 'pt_BR',
     url: siteUrl,
     siteName,
-    title: `${siteName} — Desenvolvimento de sites e sistemas sob medida`,
+    title: `${siteName} — Sites, sistemas e automações sob medida`,
     description: siteDescription,
-    images: [{ url: '/og-image.png', width: 1200, height: 630, alt: `${siteName} — Desenvolvimento de sites e sistemas sob medida` }],
+    images: [{ url: '/og-image.png', width: 1200, height: 630, alt: `${siteName} — Sites, sistemas e automações sob medida` }],
   },
   twitter: {
     card: 'summary_large_image',
-    title: `${siteName} — Desenvolvimento de sites e sistemas sob medida`,
+    title: `${siteName} — Sites, sistemas e automações sob medida`,
     description: siteDescription,
     images: ['/og-image.png'],
   },

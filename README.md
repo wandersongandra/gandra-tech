@@ -9,7 +9,7 @@ O projeto utiliza **Next.js 16**, **React 19** e **TypeScript**, com animações
 A página principal é organizada em blocos independentes e reutilizáveis:
 
 - `Hero` — apresentação principal da marca;
-- `Services` — sites institucionais, portfólios profissionais, sistemas sob medida e aplicações web;
+- `Services` — sites institucionais, portfólios profissionais, sistemas sob medida, automações e aplicações web;
 - `WorkList` — trabalhos e soluções em evidência;
 - `Manifesto` — posicionamento e visão da marca;
 - `Contact` — contato e conversão;
@@ -22,8 +22,8 @@ O portfólio publicado atualmente contém somente dois projetos reais:
 
 O SGS é apresentado como um dos trabalhos selecionados, com página própria e detalhes do produto.
 
-A página `/servicos` detalha os quatro serviços públicos da empresa: sites institucionais,
-portfólios profissionais, sistemas sob medida e aplicações web. O site também publica
+A página `/servicos` detalha os cinco serviços públicos da empresa: sites institucionais,
+portfólios profissionais, sistemas sob medida, automações e aplicações web. O site também publica
 `/robots.txt`, `/sitemap.xml` e `/llms.txt` com o domínio canônico `https://gandra.tech`.
 
 ## Stack
