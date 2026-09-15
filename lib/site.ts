@@ -11,7 +11,7 @@ export const brandName = 'Gandra Tech'
 export const siteUrl = 'https://gandra.tech'
 export const siteDescription =
   'Desenvolvimento de sites institucionais, portfólios profissionais, sistemas sob medida, automações e aplicações web para empresas e profissionais em todo o Brasil.'
-export const siteLastModified = '2026-09-14'
+export const siteLastModified = '2026-09-15'
 
 export const contactEmail = 'contato@gandra.tech'
 export const contactSubject = 'Novo projeto - Gandra Tecnologia'
