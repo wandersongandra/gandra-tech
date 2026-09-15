@@ -26,7 +26,7 @@ export default function ChaosMode() {
       busy = true
 
       const els = document.querySelectorAll(
-        'h1, h2, h3, .work-item__mockup, .site-header__logo, .featured__mockup'
+        'h1, h2, h3, .work-item__mockup, .site-header__logo, .services__item'
       )
       els.forEach((el) => {
         gsap.to(el, {

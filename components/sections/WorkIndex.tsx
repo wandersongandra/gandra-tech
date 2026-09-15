@@ -27,7 +27,7 @@ export default function WorkIndex() {
           stagger={0.06}
           duration={0.9}
         >
-          Todos os trabalhos.
+          Portfólio de sites e sistemas desenvolvidos.
         </WordReveal>
 
         <div className="windex__rows">

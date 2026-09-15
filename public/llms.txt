@@ -1,0 +1,39 @@
+# Gandra Tecnologia
+
+> A Gandra Tecnologia desenvolve sites institucionais, portfólios profissionais, sistemas sob medida e aplicações web para empresas, profissionais e empreendedores em todo o Brasil, com atendimento remoto.
+
+## Sobre a empresa
+
+- Nome: Gandra Tecnologia
+- Marca usada no site: Gandra Tech
+- Site oficial: https://gandra.tech
+- Idioma principal: português do Brasil
+- Área de atendimento: Brasil inteiro, com atendimento remoto
+- Contato comercial: mailto:contato@gandra.tech
+
+## Serviços
+
+- Sites institucionais: presença digital profissional para apresentar a empresa, organizar sua mensagem e facilitar o contato.
+- Portfólios profissionais: apresentação digital de trabalhos, trajetória e serviços de profissionais liberais, especialistas e criadores.
+- Sistemas sob medida: software alinhado a processos, regras de negócio e necessidades específicas de uma empresa.
+- Aplicações web: produtos e ferramentas digitais acessíveis pelo navegador, com interface pensada para uso recorrente.
+
+## Projetos públicos
+
+- SGS Segurança: plataforma digital para centralizar inspeções, APRs, permissões de trabalho, auditorias, indicadores, documentos e evidências. https://gandra.tech/trabalhos/sgs
+- Portfólio Telma Santos: portfólio profissional para apresentar trabalho, identidade visual e serviços. https://gandra.tech/trabalhos/telma-santos
+
+## Páginas principais
+
+- Início: https://gandra.tech/
+- Serviços: https://gandra.tech/servicos
+- Trabalhos: https://gandra.tech/trabalhos
+- Contato: https://gandra.tech/contato
+- Sitemap: https://gandra.tech/sitemap.xml
+
+## Processo comercial
+
+- O orçamento começa pela compreensão do objetivo, público, escopo e contexto do projeto.
+- Prazo, investimento, etapas e condições são definidos conforme cada projeto.
+- Titularidade, licenciamento e entrega do código são definidos no contrato ou na proposta.
+- Manutenção e evolução podem ser combinadas conforme a necessidade e as condições do contrato.

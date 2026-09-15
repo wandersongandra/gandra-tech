@@ -5,7 +5,7 @@ import CustomCursor from '@/components/motion/CustomCursor'
 import PageCurtain from '@/components/motion/PageCurtain'
 import VelocityWarp from '@/components/motion/VelocityWarp'
 import ChaosMode from '@/components/motion/ChaosMode'
-import { siteDescription, siteName, siteUrl } from '@/lib/site'
+import { contactEmail, brandName, siteDescription, siteName, siteUrl } from '@/lib/site'
 import './globals.css'
 
 const bodoni = Bodoni_Moda({
@@ -31,23 +31,24 @@ const inter = Inter({
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: {
-    default: `${siteName} — Estúdio de Software Digital`,
+    default: `${siteName} — Desenvolvimento de sites e sistemas sob medida`,
     template: `%s — ${siteName}`,
   },
   description: siteDescription,
+  robots: { index: true, follow: true },
   alternates: { canonical: '/' },
   openGraph: {
     type: 'website',
     locale: 'pt_BR',
     url: siteUrl,
     siteName,
-    title: `${siteName} — Estúdio de Software Digital`,
+    title: `${siteName} — Desenvolvimento de sites e sistemas sob medida`,
     description: siteDescription,
-    images: [{ url: '/og-image.png', width: 1200, height: 630, alt: `${siteName} — Estúdio de Software Digital` }],
+    images: [{ url: '/og-image.png', width: 1200, height: 630, alt: `${siteName} — Desenvolvimento de sites e sistemas sob medida` }],
   },
   twitter: {
     card: 'summary_large_image',
-    title: `${siteName} — Estúdio de Software Digital`,
+    title: `${siteName} — Desenvolvimento de sites e sistemas sob medida`,
     description: siteDescription,
     images: ['/og-image.png'],
   },
@@ -61,16 +62,30 @@ const structuredData = [
   {
     '@context': 'https://schema.org',
     '@type': 'Organization',
+    '@id': `${siteUrl}#organization`,
     name: siteName,
+    alternateName: brandName,
     url: siteUrl,
     description: siteDescription,
+    logo: `${siteUrl}/apple-touch-icon.png`,
+    areaServed: { '@type': 'Country', name: 'Brasil' },
+    availableLanguage: 'pt-BR',
+    contactPoint: {
+      '@type': 'ContactPoint',
+      email: contactEmail,
+      contactType: 'sales',
+      availableLanguage: 'pt-BR',
+    },
   },
   {
     '@context': 'https://schema.org',
     '@type': 'WebSite',
+    '@id': `${siteUrl}#website`,
     name: siteName,
     url: siteUrl,
     description: siteDescription,
+    inLanguage: 'pt-BR',
+    publisher: { '@id': `${siteUrl}#organization` },
   },
 ]
 

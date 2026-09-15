@@ -60,7 +60,7 @@ export default function PoliticaDePrivacidade() {
             <p>
               A infraestrutura de hospedagem pode registrar dados técnicos necessários à entrega e
               à segurança do serviço, como endereço IP, User-Agent e cookies estritamente
-              necessários, conforme a configuração do provedor utilizado, por exemplo a Vercel.
+              necessários, conforme a configuração do provedor utilizado.
               No momento, não há rastreamento comercial ativo no site.
             </p>
           </section>

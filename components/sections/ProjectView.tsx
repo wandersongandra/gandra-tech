@@ -110,6 +110,15 @@ export default function ProjectView({ project, next }: { project: Project; next:
         </div>
       </section>
 
+      <section className="pv-contact">
+        <div className="container">
+          <p className="pv-contact__label">TEM UM PROJETO EM MENTE?</p>
+          <Link href="/contato" className="pv-contact__link">
+            Vamos conversar sobre o seu próximo projeto ↗
+          </Link>
+        </div>
+      </section>
+
       {/* Next project */}
       <section className="pv-next">
         <div className="container">

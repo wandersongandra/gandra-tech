@@ -37,6 +37,9 @@ export default function Header() {
         GANDRA TECH<sup>®</sup>
       </Link>
       <nav className="site-header__nav" aria-label="Navegação principal">
+        <Link href="/servicos" className="site-header__link">
+          Serviços
+        </Link>
         {isHome ? (
           <button onClick={() => scrollToSection('#trabalhos')} className="site-header__link">
             Trabalhos
@@ -47,7 +50,7 @@ export default function Header() {
           </Link>
         )}
         <Link href="/contato" className="site-header__link">
-          Vamos conversar
+          Contato
         </Link>
       </nav>
     </header>

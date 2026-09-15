@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import type { Service } from '@/lib/services'
 import { siteDescription, siteName, siteUrl } from '@/lib/site'
 
 const defaultImage = '/og-image.png'
@@ -23,6 +24,7 @@ export function createPageMetadata({
   return {
     title,
     description,
+    robots: { index: true, follow: true },
     alternates: { canonical },
     openGraph: {
       type: 'website',
@@ -39,5 +41,33 @@ export function createPageMetadata({
       description,
       images: [imageUrl],
     },
+  }
+}
+
+export function createServiceJsonLd(service: Service) {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'Service',
+    '@id': `${siteUrl}/servicos#${service.slug}`,
+    name: service.title,
+    serviceType: service.title,
+    description: service.description,
+    url: `${siteUrl}/servicos#${service.slug}`,
+    provider: { '@id': `${siteUrl}#organization` },
+    areaServed: { '@type': 'Country', name: 'Brasil' },
+    availableLanguage: 'pt-BR',
+  }
+}
+
+export function createBreadcrumbJsonLd(items: { name: string; href: string }[]) {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: items.map((item, index) => ({
+      '@type': 'ListItem',
+      position: index + 1,
+      name: item.name,
+      item: new URL(item.href, siteUrl).toString(),
+    })),
   }
 }

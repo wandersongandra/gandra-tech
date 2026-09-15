@@ -144,7 +144,7 @@ export default function Hero() {
               duration={1.3}
               delay={0.4}
             >
-              Software que transforma negócios.
+              Sites e sistemas sob medida para negócios que querem evoluir.
             </WordReveal>
           </div>
 
@@ -156,8 +156,8 @@ export default function Hero() {
             y={14}
             duration={1}
           >
-            Soluções inteligentes, sistemas corporativos e experiências digitais
-            desenvolvidas para empresas que querem evoluir.
+            Desenvolvimento de sites institucionais, portfólios profissionais, sistemas sob medida
+            e aplicações web para empresas e profissionais em todo o Brasil.
           </FadeIn>
         </div>
       </div>

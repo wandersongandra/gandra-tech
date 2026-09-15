@@ -6,9 +6,12 @@
  * mostrar do que mostrar um link que não leva a lugar nenhum.
  */
 
-export const siteName = 'Gandra Tech'
+export const siteName = 'Gandra Tecnologia'
+export const brandName = 'Gandra Tech'
 export const siteUrl = 'https://gandra.tech'
-export const siteDescription = 'Interfaces, sistemas e experiências para o que vem a seguir.'
+export const siteDescription =
+  'Desenvolvimento de sites institucionais, portfólios profissionais, sistemas sob medida e aplicações web para empresas e profissionais em todo o Brasil.'
+export const siteLastModified = '2026-09-14'
 
 export const contactEmail = 'contato@gandra.tech'
 

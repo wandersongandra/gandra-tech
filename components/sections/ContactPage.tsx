@@ -3,6 +3,7 @@ import WordReveal from '@/components/motion/WordReveal'
 import FadeIn from '@/components/motion/FadeIn'
 import PageTransition from '@/components/motion/PageTransition'
 import { activeSocialLinks, contactEmail, contactNotes } from '@/lib/site'
+import { faqItems } from '@/lib/faq'
 
 export default function ContactPage() {
   return (
@@ -79,17 +80,35 @@ export default function ContactPage() {
             <div className="cp-grid__col">
               <div className="cp-grid__label">LOCALIZAÇÃO</div>
               <p className="cp-grid__location">
-                Teresina, Piauí<br />
-                Brasil — GMT−3
+                Atendimento remoto<br />
+                Todo o Brasil
               </p>
               <div className="cp-grid__label" style={{ marginTop: 40 }}>DISPONIBILIDADE</div>
               <p className="cp-grid__location">
-                Aceitando projetos<br />
-                para 2026
+                Novos projetos<br />
+                sob consulta
               </p>
             </div>
 
           </div>
+        </div>
+      </section>
+
+      <section className="cp-faq" aria-labelledby="faq-title">
+        <div className="container">
+          <div className="cp-faq__intro">
+            <div className="cp-grid__label">ANTES DE COMEÇAR</div>
+            <h2 id="faq-title">Perguntas frequentes sobre projetos digitais.</h2>
+            <p>Estas são as respostas diretas para as dúvidas mais comuns antes do primeiro contato.</p>
+          </div>
+          <dl className="cp-faq__list">
+            {faqItems.map((item) => (
+              <div className="cp-faq__item" key={item.question}>
+                <dt>{item.question}</dt>
+                <dd>{item.answer}</dd>
+              </div>
+            ))}
+          </dl>
         </div>
       </section>
     </PageTransition>
