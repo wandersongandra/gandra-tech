@@ -111,3 +111,5 @@ Código disponível para consulta, sem licença de uso comercial.
 ## Contato
 
 <contato@gandra.tech>
+
+<!-- verificação operacional da integração Git do Cloudflare Pages -->
