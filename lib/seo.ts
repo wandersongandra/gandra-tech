@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 import type { Service } from '@/lib/services'
 import { siteDescription, siteName, siteUrl } from '@/lib/site'
 
-const defaultImage = '/og-image.png'
+const defaultImage = '/og/home.png'
 
 type PageMetadataOptions = {
   title: string

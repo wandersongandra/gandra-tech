@@ -12,6 +12,7 @@ export const metadata = createPageMetadata({
     .map((p) => p.name)
     .join(', ')}.`,
   path: '/trabalhos',
+  image: '/og/trabalhos.png',
 })
 
 export default function Trabalhos() {

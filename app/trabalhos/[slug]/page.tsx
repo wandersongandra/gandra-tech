@@ -21,7 +21,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
       project.slug === 'sgs'
         ? 'Sistema sob medida para centralizar inspeções, APRs, permissões de trabalho, auditorias, indicadores, documentos e evidências.'
         : 'Portfólio profissional desenvolvido para apresentar trabalho, identidade visual e serviços com clareza.',
-    image: project.coverImage,
+    image: `/og/${project.slug}.png`,
     path: `/trabalhos/${project.slug}`,
   })
 }

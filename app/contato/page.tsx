@@ -12,6 +12,7 @@ export const metadata = createPageMetadata({
   title: 'Contato',
   description: `Solicite um orçamento para site ou sistema à Gandra Tecnologia: ${contactEmail}. Atendimento remoto em todo o Brasil.`,
   path: '/contato',
+  image: '/og/contato.png',
 })
 
 export default function Contato() {

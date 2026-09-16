@@ -11,6 +11,7 @@ export const metadata = createPageMetadata({
   description:
     'Conheça os serviços da Gandra Tecnologia: sites institucionais, portfólios profissionais, sistemas sob medida, automações e aplicações web para todo o Brasil.',
   path: '/servicos',
+  image: '/og/servicos.png',
 })
 
 export default function Servicos() {
