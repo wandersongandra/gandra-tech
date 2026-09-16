@@ -7,12 +7,12 @@ Documento de referência do hardening do site estático `gandra.tech`. Ele separ
 | Área | Estado | Evidência ou limite |
 |---|---|---|
 | Static Export | IMPLEMENTADO | `next.config.ts` usa `output: 'export'` e imagens não otimizadas pelo servidor. |
-| Headers de segurança | IMPLEMENTADO NO REPOSITÓRIO | `public/_headers` contém os headers básicos, os de isolamento e CORS restrito à origem canônica. Entrega em produção depende do próximo deployment. |
+| Headers de segurança | VALIDADO EM PRODUÇÃO | `public/_headers` contém os headers básicos, os de isolamento, CSP em enforcement e CORS restrito à origem canônica; a entrega foi confirmada no deployment `d19c65d8`. |
 | CSP | IMPLEMENTADO | `Content-Security-Policy` em enforcement, sem `unsafe-eval`; a política foi conferida contra os recursos locais do export. |
 | Política de crawlers | IMPLEMENTADO NO REPOSITÓRIO | `app/robots.ts` permite os 12 crawlers de descoberta aprovados e bloqueia os 8 crawlers de treinamento definidos pelo projeto. |
 | Integridade do export | IMPLEMENTADO | `npm run validate:build-security` verifica rotas, arquivos públicos, headers, source maps e extensões sensíveis. |
-| CI e CodeQL | IMPLEMENTADO NO REPOSITÓRIO | Build, lint, typecheck, testes, validação do export, audit moderado, Gitleaks e análise CodeQL pinada por SHA. |
-| Proteção da `main` | IMPLEMENTADO NO GITHUB | Branch protection ativa com PR, uma aprovação, checks estritos, resolução de conversas e bloqueio de force-push/exclusão. Os workflows novos ainda precisam chegar ao remoto. |
+| CI e CodeQL | VALIDADO NO GITHUB | Build, lint, typecheck, testes, validação do export, audit moderado, Gitleaks e CodeQL passaram no PR de publicação. |
+| Proteção da `main` | IMPLEMENTADO NO GITHUB | Branch protection ativa com PR, zero aprovações exigidas para o fluxo solo, checks estritos, resolução de conversas e bloqueio de force-push/exclusão. |
 | Alertas nativos do GitHub | HABILITADO | Dependabot alerts, automated security fixes, Secret Scanning e Push Protection estão habilitados; não há alertas atuais. |
 | Environment `production` | IMPLEMENTADO NO GITHUB | Reviewer configurado para o proprietário, wait timer de 5 minutos e deploy limitado a branches protegidas. Isso só afeta jobs GitHub Actions que referenciem esse environment; o Pages continua com seu próprio fluxo. |
 | DDoS padrão Cloudflare | NÃO VERIFICADO NO PAINEL | A proteção padrão e o plano contratado não foram confirmados nesta execução. |
@@ -41,7 +41,7 @@ Documento de referência do hardening do site estático `gandra.tech`. Ele separ
 - O environment `production` foi criado com reviewer do proprietário, wait timer de 5 minutos e política para branches protegidas.
 - Dependabot alerts e automated security fixes foram habilitados via API em 15/09/2026.
 - Secret Scanning e Push Protection estão habilitados; não há alertas atuais.
-- O workflow CodeQL foi criado localmente, mas ainda depende de push e execução remota para gerar análise.
+- O workflow CodeQL foi executado remotamente no PR de publicação e passou.
 - O token usado pela sessão GitHub não é armazenado nem documentado neste arquivo.
 - O Wrangler está autenticado para a conta Cloudflare, mas a sessão expõe somente leitura de zona; não há permissão de escrita suficiente para aplicar WAF, DNSSEC, cache ou TLS por API.
 
@@ -192,7 +192,7 @@ Cadastre alertas de indisponibilidade sustentada, tempo acima de 3 segundos e ex
 
 No Cloudflare, revisar Security Events, Analytics e alterações de regras. No GitHub, manter Dependabot, Secret Scanning e Code Scanning conforme a disponibilidade do plano/conta. Os workflows do repositório executam Gitleaks, CodeQL, OSV Scanner, audit moderado e os gates de qualidade; a ativação dos recursos nativos de alertas ainda precisa ser confirmada no painel.
 
-Na configuração do repositório GitHub, a branch `main` está protegida: exige Pull Request, uma aprovação, resolução de conversas e os checks `lint`, `typecheck`, `test`, `build`, `audit`, `gitleaks` e `codeql`; force-push e exclusão estão bloqueados. A API autenticada confirmou esses controles em 15/09/2026.
+Na configuração do repositório GitHub, a branch `main` está protegida: exige Pull Request, zero aprovações para o fluxo solo, resolução de conversas e os checks `lint`, `typecheck`, `test`, `build`, `audit`, `gitleaks` e `codeql`; force-push e exclusão estão bloqueados. A API autenticada confirmou esses controles em 15/09/2026.
 
 ## 6. Testes de resiliência
 
