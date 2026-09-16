@@ -1,6 +1,6 @@
 import type { Metadata } from 'next'
 import type { Service } from '@/lib/services'
-import { siteDescription, siteName, siteUrl } from '@/lib/site'
+import { assetBaseUrl, siteDescription, siteName, siteUrl } from '@/lib/site'
 
 const defaultImage = '/og/home.png'
 
@@ -19,7 +19,7 @@ export function createPageMetadata({
 }: PageMetadataOptions): Metadata {
   const fullTitle = `${title} — ${siteName}`
   const canonical = new URL(path, siteUrl).toString()
-  const imageUrl = new URL(image, siteUrl).toString()
+  const imageUrl = new URL(image, assetBaseUrl).toString()
 
   return {
     title,

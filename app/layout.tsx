@@ -6,7 +6,7 @@ import PageCurtain from '@/components/motion/PageCurtain'
 import VelocityWarp from '@/components/motion/VelocityWarp'
 import ChaosMode from '@/components/motion/ChaosMode'
 import ServiceWorkerRegister from '@/components/ServiceWorkerRegister'
-import { contactEmail, brandName, siteDescription, siteName, siteUrl } from '@/lib/site'
+import { assetBaseUrl, contactEmail, brandName, siteDescription, siteName, siteUrl } from '@/lib/site'
 import './globals.css'
 
 const bodoni = Bodoni_Moda({
@@ -48,13 +48,13 @@ export const metadata: Metadata = {
     siteName,
     title: `${siteName} — Sites, sistemas e automações sob medida`,
     description: siteDescription,
-    images: [{ url: '/og/home.png', width: 1200, height: 630, alt: `${siteName} — Sites, sistemas e automações sob medida` }],
+    images: [{ url: `${assetBaseUrl}/og/home.png`, width: 1200, height: 630, alt: `${siteName} — Sites, sistemas e automações sob medida` }],
   },
   twitter: {
     card: 'summary_large_image',
     title: `${siteName} — Sites, sistemas e automações sob medida`,
     description: siteDescription,
-    images: ['/og/home.png'],
+    images: [`${assetBaseUrl}/og/home.png`],
   },
   icons: {
     icon: '/favicon.svg',
