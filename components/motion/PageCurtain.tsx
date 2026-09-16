@@ -2,6 +2,7 @@
 import { useEffect, useRef } from 'react'
 import { useRouter, usePathname } from 'next/navigation'
 import gsap from 'gsap'
+import { getReducedMotionQuery } from './reducedMotion'
 
 /**
  * Cortina de página em blob: um path SVG cobre a viewport e a borda
@@ -33,8 +34,20 @@ export default function PageCurtain() {
     const path = pathRef.current
     const logo = logoRef.current
     if (!panel || !path || !logo) return
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    const motionQuery = getReducedMotionQuery()
+    let tl: gsap.core.Timeline | null = null
+
+    const hidePanel = () => {
+      tl?.kill()
+      gsap.killTweensOf([panel, path, logo, countRef.current, sweepRef.current])
+      panel.style.visibility = 'hidden'
       panel.style.transform = 'translateY(-100%)'
+      panel.inert = true
+      path.setAttribute('d', FLAT)
+    }
+
+    if (motionQuery.matches) {
+      hidePanel()
       window.dispatchEvent(new Event('gt:curtain-open'))
       return
     }
@@ -47,7 +60,13 @@ export default function PageCurtain() {
     const sweepOut = (delay = 0) => {
       sweep.b = 0
       drawExit()
-      gsap.timeline({ delay, onStart: () => window.dispatchEvent(new Event('gt:curtain-open')) })
+      panel.style.visibility = 'visible'
+      panel.inert = true
+      tl = gsap.timeline({
+        delay,
+        onStart: () => window.dispatchEvent(new Event('gt:curtain-open')),
+        onComplete: hidePanel,
+      })
         .fromTo(
           panel,
           { yPercent: 0 },
@@ -60,42 +79,23 @@ export default function PageCurtain() {
 
     if (!didMount.current) {
       didMount.current = true
-      const isFirstVisit = !sessionStorage.getItem('gt-loaded')
-
-      if (isFirstVisit) {
-        sessionStorage.setItem('gt-loaded', '1')
-        const count = countRef.current
-        const counter = { v: 0 }
-        // Preloader: contador 0→100 enquanto o logo entra (com glitch RGB
-        // no CSS), depois os dois saem e a cortina varre para cima.
-        gsap.timeline()
-          .fromTo(logo,
-            { opacity: 0, y: 18 },
-            { opacity: 1, y: 0, duration: 0.65, ease: 'power3.out', delay: 0.2 })
-          .fromTo(count,
-            { opacity: 0 },
-            { opacity: 1, duration: 0.4, ease: 'power2.out' }, '<')
-          .to(counter, {
-            v: 100,
-            duration: 1.15,
-            ease: 'power2.inOut',
-            onUpdate: () => {
-              if (count) count.textContent = String(Math.round(counter.v)).padStart(3, '0')
-            },
-          }, '<0.1')
-          .to(logo,
-            { opacity: 0, y: -14, duration: 0.4, ease: 'power3.in', delay: 0.15 })
-          .to(count, { opacity: 0, duration: 0.3, ease: 'power2.in' }, '<')
-          .add(() => sweepOut())
-      } else {
-        // Returning user or came via navigation — reveal fast
-        sweepOut(0.05)
-      }
+      hidePanel()
+      window.dispatchEvent(new Event('gt:curtain-open'))
       return
     }
 
     // Subsequent pathname changes: panel is at yPercent:0 (was animated in), sweep out
     sweepOut(0.05)
+
+    const handleMotionChange = () => {
+      if (motionQuery.matches) hidePanel()
+    }
+    motionQuery.addEventListener('change', handleMotionChange)
+
+    return () => {
+      motionQuery.removeEventListener('change', handleMotionChange)
+      hidePanel()
+    }
   }, [pathname])
 
   // Global link click interception → animate panel in, then navigate
@@ -103,13 +103,15 @@ export default function PageCurtain() {
     const panel = panelRef.current
     const path = pathRef.current
     if (!panel || !path) return
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
+    const motionQuery = getReducedMotionQuery()
+    if (motionQuery.matches) return
 
     const sweep = sweepRef.current
     const drawEnter = () => path.setAttribute('d', enterD(sweep.b))
 
     const onClick = (e: MouseEvent) => {
       if (!(e.target instanceof Element)) return
+      if (e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return
       const a = e.target.closest('a[href]') as HTMLAnchorElement | null
       if (!a) return
 
@@ -119,7 +121,9 @@ export default function PageCurtain() {
         href.startsWith('http') ||
         href.startsWith('//') ||
         href.startsWith('mailto:') ||
-        href.startsWith('#')
+        href.startsWith('#') ||
+        a.target ||
+        a.hasAttribute('download')
       ) return
 
       const targetPath = href.split('?')[0]
@@ -130,6 +134,8 @@ export default function PageCurtain() {
       gsap.killTweensOf(sweep)
       sweep.b = 0
       drawEnter()
+      panel.style.visibility = 'visible'
+      panel.inert = true
 
       // Varredura de entrada: a crista avança à frente do painel e assenta
       // quando ele cobre a tela — aí a navegação acontece por baixo.
@@ -154,7 +160,7 @@ export default function PageCurtain() {
   }, [pathname, router])
 
   return (
-    <div ref={panelRef} className="curtain">
+    <div ref={panelRef} className="curtain" aria-hidden="true" inert>
       <svg
         className="curtain__svg"
         viewBox="0 0 100 100"

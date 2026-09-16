@@ -8,6 +8,7 @@ import FadeIn from '@/components/motion/FadeIn'
 import MagneticButton from '@/components/motion/MagneticButton'
 import ScrambleText from '@/components/motion/ScrambleText'
 import DrawArrow from '@/components/motion/DrawArrow'
+import { getReducedMotionQuery } from '@/components/motion/reducedMotion'
 import { services } from '@/lib/services'
 import { contactMailto } from '@/lib/site'
 
@@ -23,32 +24,52 @@ export default function Services() {
     if (!section || !list) return
 
     const items = list.querySelectorAll<HTMLElement>('.services__item')
+    const motionQuery = getReducedMotionQuery()
+    let ctx: gsap.Context | null = null
 
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-      gsap.set(items, { opacity: 1, y: 0, clearProps: 'transform' })
-      return
+    const setFinal = () => {
+      ctx?.revert()
+      ctx = null
+      gsap.killTweensOf(items)
+      gsap.set(items, { opacity: 1, y: 0, clearProps: 'transform,opacity' })
     }
 
-    const ctx = gsap.context(() => {
-      gsap.fromTo(
-        items,
-        { opacity: 0, y: 24 },
-        {
-          opacity: 1,
-          y: 0,
-          duration: 0.7,
-          stagger: 0.08,
-          ease: 'power3.out',
-          scrollTrigger: {
-            trigger: list,
-            start: 'top 82%',
-            once: true,
-          },
-        }
-      )
-    }, section)
+    const setup = () => {
+      ctx?.revert()
+      ctx = null
 
-    return () => ctx.revert()
+      if (motionQuery.matches) {
+        setFinal()
+        return
+      }
+
+      ctx = gsap.context(() => {
+        gsap.fromTo(
+          items,
+          { opacity: 0, y: 24 },
+          {
+            opacity: 1,
+            y: 0,
+            duration: 0.7,
+            stagger: 0.08,
+            ease: 'power3.out',
+            scrollTrigger: {
+              trigger: list,
+              start: 'top 82%',
+              once: true,
+            },
+          }
+        )
+      }, section)
+    }
+
+    setup()
+    motionQuery.addEventListener('change', setup)
+
+    return () => {
+      motionQuery.removeEventListener('change', setup)
+      ctx?.revert()
+    }
   }, [])
 
   return (

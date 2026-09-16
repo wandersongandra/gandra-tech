@@ -5,6 +5,7 @@ import CustomCursor from '@/components/motion/CustomCursor'
 import PageCurtain from '@/components/motion/PageCurtain'
 import VelocityWarp from '@/components/motion/VelocityWarp'
 import ChaosMode from '@/components/motion/ChaosMode'
+import ServiceWorkerRegister from '@/components/ServiceWorkerRegister'
 import { contactEmail, brandName, siteDescription, siteName, siteUrl } from '@/lib/site'
 import './globals.css'
 
@@ -21,7 +22,7 @@ const cormorant = Cormorant_Garamond({
   variable: '--font-cormorant',
   weight: ['300', '400'],
   style: ['normal', 'italic'],
-  preload: false,
+  preload: true,
 })
 
 const inter = Inter({
@@ -108,6 +109,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
           </script>
         ))}
         <a className="skip-link" href="#main-content">Pular para o conteúdo principal</a>
+        <ServiceWorkerRegister />
         <div className="grain" aria-hidden="true" />
         <PageCurtain />
         <CustomCursor />

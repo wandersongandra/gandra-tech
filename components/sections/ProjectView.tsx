@@ -9,6 +9,7 @@ import FadeIn from '@/components/motion/FadeIn'
 import PageTransition from '@/components/motion/PageTransition'
 import ImageFill from '@/components/motion/ImageFill'
 import ScrambleText from '@/components/motion/ScrambleText'
+import { getReducedMotionQuery } from '@/components/motion/reducedMotion'
 import { contactMailto } from '@/lib/site'
 
 gsap.registerPlugin(ScrollTrigger)
@@ -18,7 +19,8 @@ export default function ProjectView({ project, next }: { project: Project; next:
   // como se o scroll atravessasse a imagem. Só o <img> escala — o wrapper
   // tem clip próprio (mancha de tinta) e o FadeIn cuida da entrada.
   useEffect(() => {
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
+    const motionQuery = getReducedMotionQuery()
+    if (motionQuery.matches) return
     const img = document.querySelector('.pv-hero__cover img')
     if (!img) return
     const tween = gsap.fromTo(img, { scale: 1 }, {
@@ -47,14 +49,15 @@ export default function ProjectView({ project, next }: { project: Project; next:
             trigger="load"
             y={44}
             blur={12}
-            stagger={0.07}
-            duration={0.95}
+            stagger={0.045}
+            duration={0.65}
+            animateOpacity={false}
           >
             {project.headline}
           </WordReveal>
         </div>
 
-        <FadeIn as="div" className="pv-hero__cover" trigger="load" delay={0.4} y={32} duration={0.9}>
+        <div className="pv-hero__cover">
           <ImageFill
             src={project.coverImage}
             alt={`${project.name} — capa do projeto`}
@@ -67,7 +70,7 @@ export default function ProjectView({ project, next }: { project: Project; next:
               </div>
             }
           />
-        </FadeIn>
+        </div>
       </section>
 
       {/* Overview */}

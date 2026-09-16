@@ -4,6 +4,7 @@ import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import WordReveal from '@/components/motion/WordReveal'
 import DrawArrow from '@/components/motion/DrawArrow'
+import { getReducedMotionQuery } from '@/components/motion/reducedMotion'
 
 gsap.registerPlugin(ScrollTrigger)
 
@@ -34,109 +35,135 @@ export default function Manifesto() {
     const text = textRef.current
     const caps = capsRef.current
     if (!statement || !section) return
+    const motionQuery = getReducedMotionQuery()
+    let cleanupMotion: (() => void) | null = null
 
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    const setFinal = () => {
+      cleanupMotion?.()
+      cleanupMotion = null
+      gsap.killTweensOf(statement)
+      if (text) gsap.killTweensOf(text)
+      if (caps) gsap.killTweensOf(caps.querySelectorAll('.capability-row, .capability-row__arrow'))
       gsap.set(statement, { opacity: 1, y: 0, scale: 1, clearProps: 'transform' })
       if (text) gsap.set(text, { opacity: 1, y: 0, filter: 'none', clearProps: 'transform,filter' })
       if (caps) gsap.set(caps.querySelectorAll('.capability-row'), { opacity: 1, x: 0, clearProps: 'transform' })
-      return
+      if (caps) gsap.set(caps.querySelectorAll('.capability-row__arrow'), { x: 0, clearProps: 'transform' })
     }
 
-    const from = { opacity: 0, y: 32, scale: 0.97 }
-    const entryTrigger = ScrollTrigger.create({
-      trigger: statement,
-      start: 'top 85%',
-      onEnter: () =>
-        gsap.fromTo(statement, from, { opacity: 1, y: 0, scale: 1, duration: 0.9, ease: 'power2.out' }),
-      onLeaveBack: () => gsap.set(statement, from),
-    })
+    const setup = () => {
+      cleanupMotion?.()
+      cleanupMotion = null
 
-    const parallax = gsap.fromTo(statement, { yPercent: 3 }, {
-      yPercent: -5,
-      ease: 'none',
-      scrollTrigger: { trigger: section, start: 'top bottom', end: 'bottom top', scrub: true },
-    })
+      if (motionQuery.matches) {
+        setFinal()
+        return
+      }
 
-    // Parágrafo entra com desfoque saindo, no mesmo vocabulário do WordReveal.
-    const textFrom = { opacity: 0, y: 24, filter: 'blur(8px)' }
-    let textTrigger: ScrollTrigger | null = null
-    if (text) {
-      gsap.set(text, textFrom)
-      textTrigger = ScrollTrigger.create({
-        trigger: text,
-        start: 'top 88%',
+      const from = { opacity: 0, y: 32, scale: 0.97 }
+      const entryTrigger = ScrollTrigger.create({
+        trigger: statement,
+        start: 'top 85%',
         onEnter: () =>
-          gsap.to(text, {
-            opacity: 1,
-            y: 0,
-            filter: 'blur(0px)',
-            duration: 0.9,
-            ease: 'power3.out',
-            clearProps: 'filter',
-          }),
-        onLeaveBack: () => gsap.set(text, textFrom),
+          gsap.fromTo(statement, from, { opacity: 1, y: 0, scale: 1, duration: 0.9, ease: 'power2.out' }),
+        onLeaveBack: () => gsap.set(statement, from),
       })
-    }
 
-    // As linhas de capacidade entram em cascata, cada uma deslizando da
-    // esquerda com a seta chegando depois.
-    let capsTrigger: ScrollTrigger | null = null
-    if (caps) {
-      const rows = caps.querySelectorAll<HTMLElement>('.capability-row')
-      // Só a posição da seta é animada — a opacidade dela pertence ao
-      // :hover do CSS, e dois donos para a mesma propriedade brigam.
-      const arrows = caps.querySelectorAll<HTMLElement>('.capability-row__arrow')
-      const rowsFrom = { opacity: 0, x: -28 }
-      const arrowsFrom = { x: -10 }
-      gsap.set(rows, rowsFrom)
-      gsap.set(arrows, arrowsFrom)
-
-      capsTrigger = ScrollTrigger.create({
-        trigger: caps,
-        start: 'top 88%',
-        onEnter: () => {
-          const tl = gsap.timeline({ defaults: { ease: 'power3.out' } })
-          tl.to(rows, { opacity: 1, x: 0, duration: 0.7, stagger: 0.12 })
-            .to(arrows, { x: 0, duration: 0.5, stagger: 0.12, clearProps: 'transform' }, 0.18)
-        },
-        onLeaveBack: () => {
-          gsap.set(rows, rowsFrom)
-          gsap.set(arrows, arrowsFrom)
-        },
+      const parallax = gsap.fromTo(statement, { yPercent: 3 }, {
+        yPercent: -5,
+        ease: 'none',
+        scrollTrigger: { trigger: section, start: 'top bottom', end: 'bottom top', scrub: true },
       })
-    }
 
-    // Intensidade progressiva: as palavras do título nascem quase
-    // fantasmas e ganham tinta conforme o scroll desce — medidor de
-    // intensidade. Só `color`, para não brigar com a entrada do WordReveal.
-    const title = section.querySelector('.manifesto__title')
-    const words = title?.querySelectorAll('[data-word]')
-    let wordsTrigger: ScrollTrigger | null = null
-    if (title && words?.length) {
-      const tween = gsap.fromTo(
-        words,
-        { color: 'rgba(17, 17, 17, 0.13)' },
-        {
-          color: '#111111',
-          stagger: 0.08,
-          ease: 'none',
-          scrollTrigger: {
-            trigger: title,
-            start: 'top 92%',
-            end: 'bottom 45%',
-            scrub: true,
+      // Parágrafo entra com desfoque saindo, no mesmo vocabulário do WordReveal.
+      const textFrom = { opacity: 0, y: 24, filter: 'blur(8px)' }
+      let textTrigger: ScrollTrigger | null = null
+      if (text) {
+        gsap.set(text, textFrom)
+        textTrigger = ScrollTrigger.create({
+          trigger: text,
+          start: 'top 88%',
+          onEnter: () =>
+            gsap.to(text, {
+              opacity: 1,
+              y: 0,
+              filter: 'blur(0px)',
+              duration: 0.9,
+              ease: 'power3.out',
+              clearProps: 'filter',
+            }),
+          onLeaveBack: () => gsap.set(text, textFrom),
+        })
+      }
+
+      // As linhas de capacidade entram em cascata, cada uma deslizando da
+      // esquerda com a seta chegando depois.
+      let capsTrigger: ScrollTrigger | null = null
+      if (caps) {
+        const rows = caps.querySelectorAll<HTMLElement>('.capability-row')
+        // Só a posição da seta é animada — a opacidade dela pertence ao
+        // :hover do CSS, e dois donos para a mesma propriedade brigam.
+        const arrows = caps.querySelectorAll<HTMLElement>('.capability-row__arrow')
+        const rowsFrom = { opacity: 0, x: -28 }
+        const arrowsFrom = { x: -10 }
+        gsap.set(rows, rowsFrom)
+        gsap.set(arrows, arrowsFrom)
+
+        capsTrigger = ScrollTrigger.create({
+          trigger: caps,
+          start: 'top 88%',
+          onEnter: () => {
+            const tl = gsap.timeline({ defaults: { ease: 'power3.out' } })
+            tl.to(rows, { opacity: 1, x: 0, duration: 0.7, stagger: 0.12 })
+              .to(arrows, { x: 0, duration: 0.5, stagger: 0.12, clearProps: 'transform' }, 0.18)
           },
-        }
-      )
-      wordsTrigger = tween.scrollTrigger ?? null
+          onLeaveBack: () => {
+            gsap.set(rows, rowsFrom)
+            gsap.set(arrows, arrowsFrom)
+          },
+        })
+      }
+
+      // Intensidade progressiva: as palavras do título nascem quase
+      // fantasmas e ganham tinta conforme o scroll desce — medidor de
+      // intensidade. Só `color`, para não brigar com a entrada do WordReveal.
+      const title = section.querySelector('.manifesto__title')
+      const words = title?.querySelectorAll('[data-word]')
+      let wordsTrigger: ScrollTrigger | null = null
+      if (title && words?.length) {
+        const tween = gsap.fromTo(
+          words,
+          { color: 'rgba(17, 17, 17, 0.13)' },
+          {
+            color: '#111111',
+            stagger: 0.08,
+            ease: 'none',
+            scrollTrigger: {
+              trigger: title,
+              start: 'top 92%',
+              end: 'bottom 45%',
+              scrub: true,
+            },
+          }
+        )
+        wordsTrigger = tween.scrollTrigger ?? null
+      }
+
+      cleanupMotion = () => {
+        entryTrigger.kill()
+        parallax.scrollTrigger?.kill()
+        parallax.kill()
+        textTrigger?.kill()
+        capsTrigger?.kill()
+        wordsTrigger?.kill()
+      }
     }
+
+    setup()
+    motionQuery.addEventListener('change', setup)
 
     return () => {
-      entryTrigger.kill()
-      parallax.scrollTrigger?.kill()
-      textTrigger?.kill()
-      capsTrigger?.kill()
-      wordsTrigger?.kill()
+      motionQuery.removeEventListener('change', setup)
+      cleanupMotion?.()
     }
   }, [])
 
