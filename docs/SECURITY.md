@@ -27,7 +27,7 @@ Dependências com vulnerabilidades de severidade alta ou crítica devem ser aval
 
 ## Hardening operacional
 
-O estado de headers, CSP, crawlers, validação do export, limites de Cloudflare e pendências de painel está em [SECURITY-CONFIG.md](SECURITY-CONFIG.md). Procedimentos de contenção e rollback estão em [INCIDENT-RESPONSE.md](INCIDENT-RESPONSE.md).
+O estado de headers, CSP, crawlers, validação do export, limites de Cloudflare e pendências de painel está em [configuration.md](security/configuration.md). Procedimentos de contenção e rollback estão em [incident-response.md](security/incident-response.md).
 
 ## Divulgação
 

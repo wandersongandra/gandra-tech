@@ -2708,24 +2708,6 @@ main {
   z-index: 1;
 }
 
-/* === DISSOLVE (desmaterialização) === */
-.dissolve {
-  position: absolute;
-  inset: 0;
-}
-
-.dissolve img {
-  transition: opacity 0.35s ease;
-}
-
-.dissolve__canvas {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  pointer-events: none;
-}
-
 /* === CARD STACK (cartas empilhadas) === */
 @media (min-width: 1024px) {
   .stack-card {

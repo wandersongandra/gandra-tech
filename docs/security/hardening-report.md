@@ -103,7 +103,7 @@ Modificados:
 - `.github/workflows/ci-security.yml`
 - `.gitignore`
 - `README.md`
-- `SECURITY.md`
+- `docs/SECURITY.md`
 - `app/robots.ts`
 - `next.config.ts`
 - `package.json`
@@ -112,10 +112,10 @@ Modificados:
 Criados:
 
 - `.github/workflows/codeql.yml`
-- `INCIDENT-RESPONSE.md`
-- `SECURITY-CHECKLIST.md`
-- `SECURITY-CONFIG.md`
-- `SECURITY-HARDENING-REPORT.md`
+- `docs/security/incident-response.md`
+- `docs/security/checklist.md`
+- `docs/security/configuration.md`
+- `docs/security/hardening-report.md`
 - `scripts/check-production.mjs`
 - `scripts/cloudflare-emergency.mjs`
 - `scripts/validate-build-security.mjs`
