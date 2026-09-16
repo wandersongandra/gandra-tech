@@ -60,14 +60,14 @@ O arquivo `public/_headers` é consumido pelo Cloudflare Pages e define:
 - CORS restrito a `https://gandra.tech`, sem origem curinga;
 - CSP em enforcement.
 
-O COEP `require-corp` deve ser validado no preview em todas as páginas e com cache limpo. Se um recurso de terceiro for adicionado no futuro, ele deverá ser hospedado localmente ou fornecer uma política CORP/CORS compatível. O CORS restrito foi adicionado porque o Pages fornece origem curinga por padrão, embora este site não exponha API pública.
+O COEP `require-corp` deve ser validado no preview em todas as páginas e com cache limpo. O Cloudflare Web Analytics injeta um beacon externo; por isso, a CSP permite somente `static.cloudflareinsights.com` para o script e `cloudflareinsights.com` para o envio de métricas. Se outro recurso de terceiro for adicionado no futuro, ele deverá ser hospedado localmente ou fornecer uma política CORP/CORS compatível. O CORS restrito foi adicionado porque o Pages fornece origem curinga por padrão, embora este site não exponha API pública.
 
 ### CSP
 
-Política aplicada:
+Política aplicada, incluindo o endpoint observado do Cloudflare Web Analytics:
 
 ```text
-default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self'; connect-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; object-src 'none'; frame-src 'none'; worker-src 'self'; manifest-src 'self'; upgrade-insecure-requests
+default-src 'self'; script-src 'self' 'unsafe-inline' https://static.cloudflareinsights.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self'; connect-src 'self' https://cloudflareinsights.com; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; object-src 'none'; frame-src 'none'; worker-src 'self'; manifest-src 'self'; upgrade-insecure-requests
 ```
 
 Procedimento para promover:
@@ -80,7 +80,7 @@ Procedimento para promover:
 
 ### SRI e informações de implementação
 
-Não há scripts externos carregados pela aplicação no momento. SRI, portanto, não é aplicável agora. Se analytics ou outro script de terceiro for incluído, ele deve ser hospedado de modo controlado e receber `integrity` e `crossorigin` quando o recurso tiver hash estável.
+A aplicação não carrega scripts externos diretamente. O Cloudflare Web Analytics pode injetar o beacon com SRI na borda; esse endpoint está explicitamente permitido na CSP. Se outro script de terceiro for incluído, ele deve ser hospedado de modo controlado e receber `integrity` e `crossorigin` quando o recurso tiver hash estável.
 
 `poweredByHeader: false` permanece em `next.config.ts`. O validador rejeita source maps, arquivos com extensões potencialmente sensíveis e CORS curinga no export.
 
