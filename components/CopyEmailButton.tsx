@@ -8,8 +8,26 @@ export default function CopyEmailButton({ email }: { email: string }) {
   const copyEmail = async () => {
     try {
       if (navigator.clipboard) {
-        await navigator.clipboard.writeText(email)
-      } else {
+        try {
+          await new Promise<void>((resolve, reject) => {
+            const timeout = window.setTimeout(() => reject(new Error('clipboard timeout')), 500)
+            navigator.clipboard.writeText(email).then(() => {
+              window.clearTimeout(timeout)
+              resolve()
+            }).catch((error) => {
+              window.clearTimeout(timeout)
+              reject(error)
+            })
+          })
+          setCopyState('copied')
+          window.setTimeout(() => setCopyState('idle'), 1800)
+          return
+        } catch {
+          // Fall through to the legacy copy path when permission is restricted.
+        }
+      }
+
+      {
         const input = document.createElement('textarea')
         input.value = email
         input.setAttribute('readonly', '')

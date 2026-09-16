@@ -38,6 +38,7 @@ export default function ImageFill({
       fill
       sizes={sizes}
       priority={priority}
+      fetchPriority={priority ? 'high' : 'auto'}
       quality={quality}
       style={{ objectFit, objectPosition }}
       onError={() => setMissing(true)}

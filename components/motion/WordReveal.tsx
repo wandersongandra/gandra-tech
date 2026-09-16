@@ -2,6 +2,7 @@
 import { useRef, useEffect, ElementType } from 'react'
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
+import { getReducedMotionQuery } from './reducedMotion'
 
 gsap.registerPlugin(ScrollTrigger)
 
@@ -18,6 +19,7 @@ interface Props {
   duration?: number
   start?: string
   repeat?: boolean
+  animateOpacity?: boolean
 }
 
 export default function WordReveal({
@@ -33,6 +35,7 @@ export default function WordReveal({
   duration = 0.8,
   start = 'top 85%',
   repeat = false,
+  animateOpacity = true,
 }: Props) {
   const ref = useRef<HTMLElement>(null)
   const words = children.split(' ')
@@ -42,15 +45,34 @@ export default function WordReveal({
     if (!el) return
 
     const spans = el.querySelectorAll<HTMLSpanElement>('[data-word]')
-    const from = { opacity: 0, y, filter: `blur(${blur}px)`, rotation }
+    const motionQuery = getReducedMotionQuery()
+    const from = { opacity: animateOpacity ? 0 : 1, y, filter: `blur(${blur}px)`, rotation }
+    let tween: gsap.core.Tween | null = null
+    let st: ScrollTrigger | null = null
+    let played = false
 
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-      gsap.set(spans, { opacity: 1, y: 0, filter: 'none', rotation: 0, clearProps: 'transform,filter' })
-      return
+    const setFinal = () => {
+      tween?.kill()
+      st?.kill()
+      gsap.killTweensOf(spans)
+      gsap.set(spans, {
+        opacity: 1,
+        y: 0,
+        filter: 'none',
+        rotation: 0,
+        clearProps: 'transform,filter,opacity',
+      })
     }
 
-    const animate = () =>
-      gsap.fromTo(spans, from, {
+    const setInitial = () => {
+      gsap.set(spans, from)
+    }
+
+    const animate = () => {
+      if (played && !repeat) return
+      played = true
+      tween?.kill()
+      tween = gsap.fromTo(spans, from, {
         opacity: 1,
         y: 0,
         filter: 'blur(0px)',
@@ -61,21 +83,55 @@ export default function WordReveal({
         delay,
         clearProps: 'filter',
       })
-
-    if (trigger === 'load') {
-      animate()
-      return
+      return tween
     }
 
-    const st = ScrollTrigger.create({
-      trigger: el,
-      start,
-      onEnter: animate,
-      onLeaveBack: repeat ? () => gsap.set(spans, from) : undefined,
-    })
+    const setup = () => {
+      tween?.kill()
+      st?.kill()
 
-    return () => st.kill()
-  }, [])
+      if (motionQuery.matches) {
+        setFinal()
+        return
+      }
+
+      if (trigger === 'load') {
+        animate()
+        return
+      }
+
+      if (!played || repeat) setInitial()
+
+      st = ScrollTrigger.create({
+        trigger: el,
+        start,
+        onEnter: animate,
+        onLeaveBack: repeat
+          ? () => {
+              played = false
+              setInitial()
+            }
+          : undefined,
+      })
+    }
+
+    const handleMotionChange = () => {
+      if (motionQuery.matches) {
+        setFinal()
+      } else if (!played || repeat) {
+        setup()
+      }
+    }
+
+    setup()
+    motionQuery.addEventListener('change', handleMotionChange)
+
+    return () => {
+      motionQuery.removeEventListener('change', handleMotionChange)
+      tween?.kill()
+      st?.kill()
+    }
+  }, [animateOpacity, blur, delay, duration, repeat, rotation, stagger, start, trigger, y])
 
   const T = Tag as any
 
@@ -85,7 +141,11 @@ export default function WordReveal({
         // O espaço fica FORA do span: dentro de um inline-block ele é
         // colapsado e as palavras grudam.
         <span key={i}>
-            <span data-word="" data-motion-hidden="true" style={{ display: 'inline-block', opacity: 0 }}>
+            <span
+              data-word=""
+              data-motion-hidden="true"
+              style={{ display: 'inline-block', opacity: animateOpacity ? 0 : 1 }}
+            >
             {word}
           </span>
           {i < words.length - 1 ? ' ' : ''}

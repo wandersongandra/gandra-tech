@@ -2,6 +2,7 @@
 import { useRef, useEffect, ElementType } from 'react'
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
+import { getReducedMotionQuery } from './reducedMotion'
 
 gsap.registerPlugin(ScrollTrigger)
 
@@ -19,6 +20,7 @@ interface Props {
   duration?: number
   start?: string
   repeat?: boolean
+  animateOpacity?: boolean
 }
 
 export default function FadeIn({
@@ -35,6 +37,7 @@ export default function FadeIn({
   duration = 0.7,
   start = 'top 85%',
   repeat = false,
+  animateOpacity = true,
 }: Props) {
   const ref = useRef<HTMLElement>(null)
 
@@ -42,12 +45,12 @@ export default function FadeIn({
     const el = ref.current
     if (!el) return
 
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-      gsap.set(el, { opacity: 1, y: 0, x: 0, scale: 1, rotation: 0, clearProps: 'transform,filter' })
-      return
-    }
+    const motionQuery = getReducedMotionQuery()
+    let tween: gsap.core.Tween | null = null
+    let st: ScrollTrigger | null = null
+    let played = false
 
-    const from = { opacity: 0, y, x, scale, rotation }
+    const from = { opacity: animateOpacity ? 0 : 1, y, x, scale, rotation }
     const to = {
       opacity: 1,
       y: 0,
@@ -59,27 +62,88 @@ export default function FadeIn({
       delay,
     }
 
-    const animate = () => gsap.fromTo(el, from, to)
-
-    if (trigger === 'load') {
-      animate()
-      return
+    const setFinal = () => {
+      tween?.kill()
+      st?.kill()
+      gsap.killTweensOf(el)
+      gsap.set(el, {
+        opacity: 1,
+        y: 0,
+        x: 0,
+        scale: 1,
+        rotation: 0,
+        clearProps: 'transform,filter,opacity',
+      })
     }
 
-    const st = ScrollTrigger.create({
-      trigger: el,
-      start,
-      onEnter: animate,
-      onLeaveBack: repeat ? () => gsap.set(el, from) : undefined,
-    })
+    const setInitial = () => {
+      gsap.set(el, from)
+    }
 
-    return () => st.kill()
-  }, [])
+    const animate = () => {
+      if (played && !repeat) return
+      played = true
+      tween?.kill()
+      tween = gsap.fromTo(el, from, to)
+      return tween
+    }
+
+    const setup = () => {
+      tween?.kill()
+      st?.kill()
+
+      if (motionQuery.matches) {
+        setFinal()
+        return
+      }
+
+      if (trigger === 'load') {
+        animate()
+        return
+      }
+
+      if (!played || repeat) setInitial()
+
+      st = ScrollTrigger.create({
+        trigger: el,
+        start,
+        onEnter: animate,
+        onLeaveBack: repeat
+          ? () => {
+              played = false
+              setInitial()
+            }
+          : undefined,
+      })
+    }
+
+    const handleMotionChange = () => {
+      if (motionQuery.matches) {
+        setFinal()
+      } else if (!played || repeat) {
+        setup()
+      }
+    }
+
+    setup()
+    motionQuery.addEventListener('change', handleMotionChange)
+
+    return () => {
+      motionQuery.removeEventListener('change', handleMotionChange)
+      tween?.kill()
+      st?.kill()
+    }
+  }, [animateOpacity, delay, duration, repeat, rotation, scale, start, trigger, x, y])
 
   const T = Tag as any
 
   return (
-    <T ref={ref} className={className} data-motion-hidden="true" style={{ opacity: 0, ...style }}>
+    <T
+      ref={ref}
+      className={className}
+      data-motion-hidden="true"
+      style={{ opacity: animateOpacity ? 0 : 1, ...style }}
+    >
       {children}
     </T>
   )

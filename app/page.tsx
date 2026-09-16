@@ -3,11 +3,8 @@ import Footer from '@/components/Footer'
 import Hero from '@/components/sections/Hero'
 import Services from '@/components/sections/Services'
 import WorkList from '@/components/sections/WorkList'
-import Manifesto from '@/components/sections/Manifesto'
 import Contact from '@/components/sections/Contact'
-import Marquee from '@/components/motion/Marquee'
-import ScrollThread from '@/components/motion/ScrollThread'
-import CardStack from '@/components/motion/CardStack'
+import { DeferredManifesto, DeferredMarquee, DeferredVisualEffects } from '@/components/sections/HomeDeferredMotion'
 import StructuredData from '@/components/StructuredData'
 import { createServiceJsonLd } from '@/lib/seo'
 import { services } from '@/lib/services'
@@ -31,14 +28,13 @@ export default function Home() {
       />
       <Header />
       <main id="main-content">
-        <ScrollThread />
-        <CardStack />
+        <DeferredVisualEffects />
         <Hero />
-        <Marquee />
+        <DeferredMarquee />
         <Services />
         <WorkList />
-        <Marquee inverted speed={40} />
-        <Manifesto />
+        <DeferredMarquee inverted speed={40} />
+        <DeferredManifesto />
         <Contact />
       </main>
       <Footer />

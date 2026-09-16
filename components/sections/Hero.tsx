@@ -6,6 +6,7 @@ import WordReveal from '@/components/motion/WordReveal'
 import FadeIn from '@/components/motion/FadeIn'
 import HeroParticles from '@/components/motion/HeroParticles'
 import HeroBlob from '@/components/motion/HeroBlob'
+import { getReducedMotionQuery } from '@/components/motion/reducedMotion'
 import { contactMailto } from '@/lib/site'
 
 gsap.registerPlugin(ScrollTrigger)
@@ -22,15 +23,31 @@ export default function Hero() {
     const titleWrap = titleWrapRef.current
     const line = lineRef.current
     if (!section || !center || !titleWrap || !line) return
+    const motionQuery = getReducedMotionQuery()
+    let ctx: gsap.Context | null = null
+    let removeHoverListeners: (() => void) | null = null
 
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
+    const setFinal = () => {
+      ctx?.revert()
+      ctx = null
+      removeHoverListeners?.()
+      removeHoverListeners = null
+      gsap.killTweensOf([line, center, titleWrap])
+      gsap.set(line, { scaleX: 1, clearProps: 'transform' })
+      gsap.set(center, { yPercent: 0, clearProps: 'transform' })
+      gsap.set(titleWrap, { opacity: 1, x: 0, y: 0, clearProps: 'transform,opacity' })
+    }
 
-    const ctx = gsap.context(() => {
+    const setup = () => {
+      setFinal()
+      if (motionQuery.matches) return
+
+      ctx = gsap.context(() => {
       // Linha inferior: expande da esquerda para a direita
       gsap.fromTo(
         line,
         { scaleX: 0 },
-        { scaleX: 1, duration: 1.4, delay: 1.8, ease: 'power3.inOut' }
+        { scaleX: 1, duration: 1.1, delay: 0.5, ease: 'power3.inOut' }
       )
 
       // Scroll: o bloco sobe lentamente e o título perde um pouco de opacidade
@@ -61,9 +78,21 @@ export default function Hero() {
 
       titleWrap.addEventListener('mousemove', onMove)
       titleWrap.addEventListener('mouseleave', onLeave)
-    }, section)
+      removeHoverListeners = () => {
+        titleWrap.removeEventListener('mousemove', onMove)
+        titleWrap.removeEventListener('mouseleave', onLeave)
+      }
+      }, section)
+    }
 
-    return () => ctx.revert()
+    setup()
+    motionQuery.addEventListener('change', setup)
+
+    return () => {
+      motionQuery.removeEventListener('change', setup)
+      ctx?.revert()
+      removeHoverListeners?.()
+    }
   }, [])
 
   // Herói líquido: cada palavra do título foge do cursor e incha de leve
@@ -71,7 +100,8 @@ export default function Hero() {
   useEffect(() => {
     const titleWrap = titleWrapRef.current
     if (!titleWrap) return
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
+    const motionQuery = getReducedMotionQuery()
+    if (motionQuery.matches) return
 
     const words = Array.from(titleWrap.querySelectorAll<HTMLElement>('[data-word]'))
     if (!words.length) return
@@ -104,9 +134,20 @@ export default function Hero() {
     }
 
     // Espera a entrada do título terminar para não brigar com ela.
-    const tid = setTimeout(() => window.addEventListener('mousemove', onMove), 2200)
+    const tid = setTimeout(() => {
+      if (!motionQuery.matches) window.addEventListener('mousemove', onMove)
+    }, 900)
+    const handleMotionChange = () => {
+      if (motionQuery.matches) {
+        window.removeEventListener('mousemove', onMove)
+        for (const it of setters) gsap.set(it.el, { x: 0, scaleX: 1, scaleY: 1, clearProps: 'transform' })
+      }
+    }
+    motionQuery.addEventListener('change', handleMotionChange)
+
     return () => {
       clearTimeout(tid)
+      motionQuery.removeEventListener('change', handleMotionChange)
       window.removeEventListener('mousemove', onMove)
     }
   }, [])
@@ -138,12 +179,13 @@ export default function Hero() {
               as="h1"
               className="hero__title"
               trigger="load"
-              y={30}
+              y={18}
               blur={0}
               rotation={0}
-              stagger={0.14}
-              duration={1.3}
-              delay={0.4}
+              stagger={0.05}
+              duration={0.75}
+              delay={0}
+              animateOpacity={false}
             >
               Sites e sistemas sob medida para negócios que querem evoluir.
             </WordReveal>
@@ -153,9 +195,10 @@ export default function Hero() {
             as="p"
             className="hero__subtitle"
             trigger="load"
-            delay={1.8}
-            y={14}
-            duration={1}
+            delay={0.08}
+            y={10}
+            duration={0.55}
+            animateOpacity={false}
           >
             Desenvolvimento de sites institucionais, portfólios profissionais, sistemas sob medida,
             automações e aplicações web para empresas e profissionais em todo o Brasil.

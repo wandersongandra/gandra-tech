@@ -1,4 +1,5 @@
 'use client'
+import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import FadeIn from '@/components/motion/FadeIn'
 import WordReveal from '@/components/motion/WordReveal'
@@ -11,6 +12,18 @@ import { projects } from '@/lib/projects'
 // miniatura que desperta no hover. Contrasta com o trilho cinematográfico
 // da home — aqui o foco é navegação rápida e indexação.
 export default function WorkIndex() {
+  const [renderThumbnails, setRenderThumbnails] = useState(false)
+
+  useEffect(() => {
+    const desktopQuery = window.matchMedia('(min-width: 768px)')
+    const sync = () => setRenderThumbnails(desktopQuery.matches)
+
+    sync()
+    desktopQuery.addEventListener('change', sync)
+
+    return () => desktopQuery.removeEventListener('change', sync)
+  }, [])
+
   return (
     <section className="windex">
       <div className="container">
@@ -26,6 +39,7 @@ export default function WorkIndex() {
           blur={10}
           stagger={0.06}
           duration={0.9}
+          animateOpacity={false}
         >
           Portfólio de sites e sistemas desenvolvidos.
         </WordReveal>
@@ -39,6 +53,7 @@ export default function WorkIndex() {
               delay={0.35 + i * 0.09}
               y={24}
               duration={0.7}
+              animateOpacity={false}
             >
               <Link href={`/trabalhos/${p.slug}`} prefetch={false} className="windex__row">
                 <span className="windex__num" aria-hidden="true">
@@ -53,14 +68,16 @@ export default function WorkIndex() {
                   </span>
                 </span>
                 <span className="windex__thumb" aria-hidden="true">
-                  <ImageFill
-                    src={p.workImage}
-                    alt=""
-                    sizes="200px"
-                    quality={80}
-                    objectFit="cover"
-                    fallback={<div className="work-item__mockup-fill" />}
-                  />
+                  {renderThumbnails ? (
+                    <ImageFill
+                      src={p.workImage}
+                      alt=""
+                      sizes="200px"
+                      quality={80}
+                      objectFit="cover"
+                      fallback={<div className="work-item__mockup-fill" />}
+                    />
+                  ) : null}
                 </span>
                 <span className="windex__arrow" aria-hidden="true">
                   <DrawArrow size={14} delay={0.5 + i * 0.09} />
