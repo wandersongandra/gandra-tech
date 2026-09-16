@@ -25,6 +25,10 @@ Exemplos de ambiente devem utilizar apenas placeholders claramente fictícios.
 
 Dependências com vulnerabilidades de severidade alta ou crítica devem ser avaliadas antes de mudanças serem promovidas para produção.
 
+## Hardening operacional
+
+O estado de headers, CSP, crawlers, validação do export, limites de Cloudflare e pendências de painel está em [SECURITY-CONFIG.md](SECURITY-CONFIG.md). Procedimentos de contenção e rollback estão em [INCIDENT-RESPONSE.md](INCIDENT-RESPONSE.md).
+
 ## Divulgação
 
 Detalhes técnicos de uma vulnerabilidade devem permanecer privados até que exista correção ou mitigação adequada.

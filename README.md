@@ -53,18 +53,26 @@ npm run lint
 npm run typecheck
 npm test
 npm run audit
+npm run build
+npm run validate:build-security
+```
+
+Para verificar o domínio publicado sem alterar nada:
+
+```bash
+npm run check:production
 ```
 
 ## Checklist de Lançamento (Ações Manuais)
 
 Estas etapas são executadas nos painéis da Cloudflare e do Google após o push para a branch `main`.
 
-### 1. Liberar robôs de IA no WAF da Cloudflare
+### 1. Revisar robôs de IA no WAF da Cloudflare
 
 1. Abra o painel da Cloudflare, selecione o domínio `gandra.tech` e entre em **Security > WAF > Custom rules**.
-2. Crie uma regra direcionada aos User-Agents `GPTBot`, `ClaudeBot`, `PerplexityBot` e `Google-Extended`. A interface pode permitir uma regra única com condições alternativas ou uma regra por robô.
-3. Defina a ação como **Skip** e selecione somente as verificações que precisam ser ignoradas para esses crawlers, conforme as opções exibidas no painel.
-4. Salve e confirme nos eventos do WAF que a regra está atingindo apenas esses User-Agents. Não use uma exceção ampla para todo o tráfego.
+2. Preserve o acesso dos crawlers de descoberta `Googlebot`, `Bingbot`, `OAI-SearchBot`, `PerplexityBot`, `Claude-SearchBot`, `Applebot`, `DuckAssistBot`, `ChatGPT-User`, `Perplexity-User`, `Claude-User`, `Manus Bot` e `MistralAI-User`, preferindo sinais de bot verificado quando disponíveis.
+3. Não libere `GPTBot`, `ClaudeBot`, `CCBot`, `Bytespider`, `Amazonbot`, `meta-externalagent`, `Google-Extended` ou `Applebot-Extended`: eles permanecem bloqueados pela política do projeto e pelo `robots.txt`.
+4. Salve somente regras específicas e confirme nos eventos do WAF que não há impacto em usuários legítimos. Não use uma exceção ampla para todo o tráfego.
 
 > A regra do WAF não substitui o `robots.txt`. Se a Cloudflare estiver gerenciando o arquivo para bloquear crawlers de IA, revise essa configuração separadamente em **Settings > Bots > Managed robots.txt** antes de considerar a liberação concluída.
 
@@ -97,6 +105,16 @@ Estas etapas são executadas nos painéis da Cloudflare e do Google após o push
 npm run build
 npm run start
 ```
+
+## Segurança e disponibilidade
+
+As configurações de segurança, disponibilidade, limites do plano e pendências de painel estão em [SECURITY-CONFIG.md](SECURITY-CONFIG.md). O procedimento de contenção, análise de eventos, rollback e uso controlado da API está em [INCIDENT-RESPONSE.md](INCIDENT-RESPONSE.md). A revisão mensal está em [SECURITY-CHECKLIST.md](SECURITY-CHECKLIST.md), e o relatório da execução está em [SECURITY-HARDENING-REPORT.md](SECURITY-HARDENING-REPORT.md).
+
+O código já contém headers de segurança, HSTS, CSP em enforcement, política de crawlers, validação do export, CI com audit moderado e workflow CodeQL. A proteção da `main`, Dependabot, Secret Scanning e Push Protection estão habilitados no GitHub. DDoS padrão, WAF, rate limiting, cache gerenciado, Always Online, DNSSEC, Email Routing e uptime externo ainda exigem confirmação no painel; não são considerados ativos apenas por estarem documentados.
+
+O script `scripts/cloudflare-emergency.mjs` não executa nada sem `CF_ZONE_ID`, `CF_API_TOKEN` e `--confirm`. Nunca versione tokens nem execute bloqueios sem evidência do incidente.
+
+Os workflows de CI usam `npm ci --ignore-scripts`, validam o export estático e executam lint, typecheck, testes, audit moderado, Gitleaks e CodeQL. Novos assets devem continuar sendo otimizados antes do commit com `npm run optimize:images`.
 
 ## Estrutura principal
 
