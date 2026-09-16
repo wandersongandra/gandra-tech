@@ -3,31 +3,64 @@ import { useEffect } from 'react'
 import Lenis from 'lenis'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 
+type LenisGlobal = { __lenis?: Lenis }
+
 export default function LenisProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
-    const lenis = new Lenis({
-      duration: 1.2,
-      easing: (t: number) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
-    })
+    const motionQuery = window.matchMedia('(prefers-reduced-motion: reduce)')
+    let lenis: Lenis | null = null
+    let rafId: number | null = null
 
-    ;(window as any).__lenis = lenis
+    const stopLenis = () => {
+      if (rafId !== null) {
+        cancelAnimationFrame(rafId)
+        rafId = null
+      }
 
-    // Mantém o ScrollTrigger em sincronia com o scroll suavizado do Lenis.
-    // Sem isso, animações com scrub (hero de vídeo) ficam atrasadas.
-    lenis.on('scroll', ScrollTrigger.update)
-
-    let rafId: number
-    function raf(time: number) {
-      lenis.raf(time)
-      rafId = requestAnimationFrame(raf)
-    }
-    rafId = requestAnimationFrame(raf)
-
-    return () => {
-      cancelAnimationFrame(rafId)
+      if (!lenis) return
       lenis.off('scroll', ScrollTrigger.update)
       lenis.destroy()
-      ;(window as Window & { __lenis?: Lenis }).__lenis = undefined
+      lenis = null
+      ;(window as unknown as LenisGlobal).__lenis = undefined
+    }
+
+    const startLenis = () => {
+      if (motionQuery.matches || lenis) return
+
+      const instance = new Lenis({
+        duration: 1.2,
+        easing: (t: number) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+      })
+      lenis = instance
+
+      ;(window as unknown as LenisGlobal).__lenis = instance
+
+      // Mantém o ScrollTrigger em sincronia com o scroll suavizado do Lenis.
+      // Sem isso, animações com scrub ficam atrasadas.
+      instance.on('scroll', ScrollTrigger.update)
+
+      const raf = (time: number) => {
+        if (!lenis) return
+        lenis.raf(time)
+        rafId = requestAnimationFrame(raf)
+      }
+      rafId = requestAnimationFrame(raf)
+    }
+
+    const handleMotionChange = () => {
+      if (motionQuery.matches) {
+        stopLenis()
+      } else {
+        startLenis()
+      }
+    }
+
+    handleMotionChange()
+    motionQuery.addEventListener('change', handleMotionChange)
+
+    return () => {
+      motionQuery.removeEventListener('change', handleMotionChange)
+      stopLenis()
     }
   }, [])
 

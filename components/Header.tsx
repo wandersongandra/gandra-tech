@@ -4,11 +4,21 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { scrollToSection } from '@/lib/scroll'
 
+const FOCUSABLE_SELECTOR = [
+  'a[href]',
+  'button:not([disabled])',
+  'input:not([disabled])',
+  'select:not([disabled])',
+  'textarea:not([disabled])',
+  '[tabindex]:not([tabindex="-1"])',
+].join(', ')
+
 export default function Header() {
   const pathname = usePathname()
   const isHome = pathname === '/'
   const logoRef = useRef<HTMLAnchorElement>(null)
   const menuButtonRef = useRef<HTMLButtonElement>(null)
+  const mobileMenuPanelRef = useRef<HTMLElement>(null)
   const firstMenuLinkRef = useRef<HTMLAnchorElement>(null)
   const [isMenuOpen, setIsMenuOpen] = useState(false)
 
@@ -55,9 +65,33 @@ export default function Header() {
     const focusTimer = window.setTimeout(() => firstMenuLinkRef.current?.focus(), 0)
 
     const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key !== 'Escape') return
-      event.preventDefault()
-      closeMenu()
+      if (event.key === 'Escape') {
+        event.preventDefault()
+        closeMenu()
+        return
+      }
+
+      if (event.key !== 'Tab') return
+
+      const panel = mobileMenuPanelRef.current
+      if (!panel) return
+
+      const focusable = Array.from(panel.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR)).filter(
+        (element) => element.getClientRects().length > 0,
+      )
+      if (!focusable.length) return
+
+      const first = focusable[0]
+      const last = focusable[focusable.length - 1]
+      const active = document.activeElement
+
+      if (event.shiftKey && (active === first || !panel.contains(active))) {
+        event.preventDefault()
+        last.focus()
+      } else if (!event.shiftKey && (active === last || !panel.contains(active))) {
+        event.preventDefault()
+        first.focus()
+      }
     }
 
     document.addEventListener('keydown', handleKeyDown)
@@ -125,7 +159,12 @@ export default function Header() {
             if (event.target === event.currentTarget) closeMenu()
           }}
         >
-          <nav id="mobile-menu" className="mobile-menu__panel" aria-label="Navegação mobile">
+          <nav
+            ref={mobileMenuPanelRef}
+            id="mobile-menu"
+            className="mobile-menu__panel"
+            aria-label="Navegação mobile"
+          >
             <Link
               ref={firstMenuLinkRef}
               href="/"

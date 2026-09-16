@@ -1,4 +1,4 @@
-import type { Metadata } from 'next'
+import type { Metadata, Viewport } from 'next'
 import { Bodoni_Moda, Cormorant_Garamond, Inter } from 'next/font/google'
 import LenisProvider from '@/components/providers/LenisProvider'
 import CustomCursor from '@/components/motion/CustomCursor'
@@ -59,6 +59,12 @@ export const metadata: Metadata = {
     icon: '/favicon.svg',
     apple: '/apple-touch-icon.png',
   },
+}
+
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  viewportFit: 'cover',
 }
 
 const structuredData = [

@@ -13,11 +13,15 @@ declare global {
 /** Distância do topo ao rolar para uma âncora (altura do header fixo). */
 const HEADER_OFFSET = -65
 
+function scrollBehavior(): ScrollBehavior {
+  return window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth'
+}
+
 export function scrollToSection(selector: string) {
   if (window.__lenis) {
     window.__lenis.scrollTo(selector, { offset: HEADER_OFFSET })
   } else {
-    document.querySelector(selector)?.scrollIntoView({ behavior: 'smooth' })
+    document.querySelector(selector)?.scrollIntoView({ behavior: scrollBehavior() })
   }
 }
 
@@ -25,6 +29,6 @@ export function scrollToTop() {
   if (window.__lenis) {
     window.__lenis.scrollTo(0)
   } else {
-    window.scrollTo({ top: 0, behavior: 'smooth' })
+    window.scrollTo({ top: 0, behavior: scrollBehavior() })
   }
 }
