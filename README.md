@@ -38,6 +38,7 @@ Para verificar o domínio publicado sem alterar nada:
 
     app/          rotas e composição da aplicação
     components/   seções, componentes e sistema de motion
+    docs/         documentação técnica, segurança e assets
     lib/          conteúdo e configuração (projects, services, faq, legal, seo)
     public/       imagens, ícones, llms.txt e _headers
     scripts/      utilitários de build
@@ -98,9 +99,11 @@ Commits seguem convenção semântica: feat, fix, chore, docs, refactor.
 
 Headers de segurança vivem em `public/_headers`. Políticas, procedimentos
 de contenção, análise de eventos, rollback e revisão mensal estão em
-`SECURITY.md`, `SECURITY-CONFIG.md`, `INCIDENT-RESPONSE.md` e
-`SECURITY-CHECKLIST.md`. Não versione segredos, tokens ou arquivos de
-ambiente. O push protection do GitHub bloqueia credenciais conhecidas.
+[docs/SECURITY.md](docs/SECURITY.md), [docs/security/configuration.md](docs/security/configuration.md),
+[docs/security/incident-response.md](docs/security/incident-response.md) e
+[docs/security/checklist.md](docs/security/checklist.md). Não versione segredos,
+tokens ou arquivos de ambiente. O push protection do GitHub bloqueia credenciais
+conhecidas.
 
 ## Licença e propriedade
 

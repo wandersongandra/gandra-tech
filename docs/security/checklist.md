@@ -47,7 +47,7 @@ Checklist operacional do site `gandra.tech`. Marque cada item somente depois de 
 
 ## Resposta a incidentes
 
-- [ ] Confirmar que `INCIDENT-RESPONSE.md` e os contatos privados estão atualizados.
+- [ ] Confirmar que `incident-response.md` e os contatos privados estão atualizados.
 - [ ] Revisar o procedimento de Under Attack Mode sem ativá-lo fora de incidente validado.
 - [ ] Confirmar que o rollback de Pages é conhecido e que existe um deployment estável identificável.
 - [ ] Fazer um exercício de tabletop sem tráfego ofensivo e registrar lacunas.

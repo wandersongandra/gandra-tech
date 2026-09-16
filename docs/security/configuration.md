@@ -32,7 +32,7 @@ Documento de referência do hardening do site estático `gandra.tech`. Ele separ
 | Code scanning | Nenhum workflow CodeQL no repositório | Workflow agendado para JavaScript/TypeScript com actions fixadas por SHA |
 | Pós-build | Não havia gate específico para arquivos exportados | Verificação de rotas, assets públicos, headers, source maps e extensões sensíveis |
 | Produção | Sem healthcheck versionado para as rotas críticas | `npm run check:production` verifica HTTP e headers sem alterar o domínio |
-| Emergência | Procedimento e script não versionados neste checkout | `INCIDENT-RESPONSE.md` e script com confirmação explícita para Under Attack/IP block |
+| Emergência | Procedimento e script não versionados neste checkout | `incident-response.md` e script com confirmação explícita para Under Attack/IP block |
 
 ## Estado confirmado no GitHub
 
@@ -160,7 +160,7 @@ Cloudflare Pages já documenta compressão Brotli/Gzip e ETags para conteúdo es
 
 ### DDoS e emergência
 
-A proteção DDoS padrão do Cloudflare, o nível de segurança, Managed Rules, Bot Management e rate limiting precisam ser confirmados no painel conforme o plano. O repositório fornece apenas o script controlado em `scripts/cloudflare-emergency.mjs` e o procedimento em `INCIDENT-RESPONSE.md`.
+A proteção DDoS padrão do Cloudflare, o nível de segurança, Managed Rules, Bot Management e rate limiting precisam ser confirmados no painel conforme o plano. O repositório fornece apenas o script controlado em `scripts/cloudflare-emergency.mjs` e o procedimento em `incident-response.md`.
 
 Não foram executados testes de flood, Slowloris, DDoS, desativação do Pages ou qualquer teste de ataque contra produção.
 
