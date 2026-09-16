@@ -8,19 +8,19 @@ Modo: implementação local, validação read-only em produção e alterações 
 
 ## 1. Resumo executivo
 
-O hardening de código, build e documentação foi implementado e passou pelos gates locais. O repositório agora é público, a proteção da `main` e o environment `production` foram configurados, e os controles GitHub disponíveis estão habilitados; CodeQL remoto, Cloudflare, DNSSEC, email e monitoramento externo ainda dependem de validação separada. Veredito: **PROTEGIDO**.
+O hardening de código, build e documentação foi implementado e passou pelos gates locais e remotos. O repositório é público, a proteção da `main`, o environment `production`, o CodeQL e o deployment do Pages foram confirmados; DNSSEC, email, WAF e monitoramento externo continuam pendentes. Veredito: **PROTEGIDO**.
 
 ## 2. Correções SEC-001 a SEC-007
 
 | Achado | Status | Evidência em 15/09/2026 |
 |---|---|---|
-| SEC-001 — `main` sem proteção | CORRIGIDO NO GITHUB | API confirmou branch protection ativa com PR, uma aprovação, checks estritos, resolução de conversas e bloqueio de force-push/exclusão. Os workflows novos ainda precisam ser publicados para os checks executarem. |
-| SEC-002 — CSP ausente | IMPLEMENTADO LOCALMENTE | CSP em enforcement adicionada em `public/_headers`, sem `unsafe-eval`; entrega em produção aguarda deployment. |
+| SEC-001 — `main` sem proteção | CORRIGIDO NO GITHUB | API confirmou branch protection ativa com PR, zero aprovações exigidas para o fluxo solo, checks estritos, resolução de conversas e bloqueio de force-push/exclusão. |
+| SEC-002 — CSP ausente | CORRIGIDO E VALIDADO | CSP em enforcement adicionada em `public/_headers`, sem `unsafe-eval`; entrega confirmada em produção. |
 | SEC-003 — CI incompleta | CORRIGIDO NO REPOSITÓRIO | CI separada em checks `lint`, `typecheck`, `test`, `build`, `audit` e `gitleaks`, com OSV Scanner e `npm ci --ignore-scripts`. |
 | SEC-004 — DNSSEC ausente | PENDENTE | Consulta DNS não encontrou DS publicado. Nenhuma alteração foi feita no registrador. |
 | SEC-005 — commits sem assinatura | PENDENTE | Ainda não há commit novo assinado e verificado no GitHub; o histórico existente não foi alterado. |
-| SEC-006 — CodeQL ausente | IMPLEMENTADO NO REPOSITÓRIO | Workflow CodeQL pinado por SHA criado; a execução remota depende do push e da disponibilidade de Code Scanning. |
-| SEC-007 — CORS curinga | VALIDADO NO PREVIEW | `public/_headers` sobrescreve o padrão do Pages com `Access-Control-Allow-Origin: https://gandra.tech`; a resposta do preview confirmou o valor canônico, sem curinga. A produção canônica ainda aguarda publicação. |
+| SEC-006 — CodeQL ausente | CORRIGIDO E VALIDADO | Workflow CodeQL pinado por SHA criado e executado com sucesso no PR de publicação. |
+| SEC-007 — CORS curinga | CORRIGIDO E VALIDADO EM PRODUÇÃO | `public/_headers` sobrescreve o padrão do Pages com `Access-Control-Allow-Origin: https://gandra.tech`; a produção confirmou o valor canônico, sem curinga. |
 
 ## 3. Hardening implementado
 
@@ -43,7 +43,7 @@ Headers via `_headers` são suportados pelo Cloudflare Pages: [documentação of
 | Automated security fixes | HABILITADO | API GitHub confirmou `enabled: true`. |
 | Branch protection | HABILITADA | API confirmou proteção da `main`, checks obrigatórios e bloqueio de force-push/exclusão. |
 | Secret Scanning | HABILITADO | API confirmou Secret Scanning e Push Protection; não há alertas atuais. |
-| Code Scanning | PENDENTE | Workflow criado localmente; ainda depende de push e primeira execução remota. |
+| Code Scanning | VALIDADO | Workflow CodeQL remoto passou no PR de publicação. |
 | 2FA e colaboradores | NÃO VERIFICADO | Exige painel GitHub e não foi alterado. |
 | Cloudflare WAF/Bot Management | NÃO APLICADO | Sessão Wrangler possui leitura de zona, não escrita de zona. |
 | Rate limiting | NÃO APLICADO | Regras documentadas para validação em painel e observação de falsos positivos. |
@@ -53,7 +53,7 @@ Headers via `_headers` são suportados pelo Cloudflare Pages: [documentação of
 | Email/MX/SPF/DKIM/DMARC | PENDENTE | MX e SPF ainda apontam para Hostinger; provedor não foi migrado. |
 | Uptime externo | NÃO CONFIGURADO | Monitores recomendados estão documentados, sem conta criada. |
 
-O deployment de produção observado foi `516d30e6-7226-4874-baa0-d4c13aae219e`, na branch `main`, source `4285a11`. As alterações deste relatório ainda não foram publicadas.
+O deployment de produção final observado foi `d19c65d8-5525-4217-9896-2711dce35f04`, na branch `main`, source `25aa095`. O domínio canônico respondeu com as alterações finais.
 
 ## 5. Testes realizados
 
@@ -69,9 +69,7 @@ Em cópia limpa fora do Google Drive:
 - Gitleaks: passou; 95 commits escaneados, nenhum vazamento.
 - Scripts `.mjs`: validação sintática passou.
 
-Contra produção, `npm run check:production` encontrou HTTP 200 nas rotas testadas, mas falhou porque o deployment atual não entrega COOP, CORP, COEP e CSP. Isso não é considerado falha de implementação local; é evidência de que o código ainda não foi publicado.
-
-Em preview Cloudflare do snapshot final (`security-hardening`), o mesmo healthcheck passou: nove URLs retornaram HTTP 200 com os headers de segurança esperados. Essa validação não substitui a confirmação no domínio canônico.
+Na primeira verificação, o deployment antigo falhou nos headers novos; após a publicação final, `npm run check:production` passou: nove URLs responderam 200 com headers de segurança. O teste de navegador em produção passou em 24 combinações de rota e viewport, sem overflow, erros de console ou requisições falhas; o menu mobile passou com ESC e bloqueio de scroll.
 
 Não foram executados load testing, flood, DDoS, Slowloris, failover destrutivo, ZAP ativo, Nikto ou Nmap contra produção.
 
@@ -136,7 +134,6 @@ Aplicado via GitHub API autenticada:
 
 Não aplicados:
 
-- Code Scanning nativo/primeira análise CodeQL remota;
 - Cloudflare WAF, rate limiting, cache, TLS, DNSSEC, Email Routing e monitor externo.
 
 ## 11. Veredito
