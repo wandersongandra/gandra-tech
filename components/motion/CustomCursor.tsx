@@ -42,13 +42,16 @@ export default function CustomCursor() {
     // Rastro: ecos que nascem do movimento e morrem em fade. Herdam o
     // mix-blend difference do cursor, então invertem cor em qualquer fundo.
     let lastSpawn = 0
+    const echoes = new Set<HTMLDivElement>()
     const onMoveEcho = (e: MouseEvent) => {
       const now = performance.now()
       if (now - lastSpawn < 80) return
       lastSpawn = now
-      if (document.querySelectorAll('.c-echo').length > 16) return
+      if (echoes.size > 16) return
       const echo = document.createElement('div')
       echo.className = 'c-echo'
+      echo.setAttribute('aria-hidden', 'true')
+      echoes.add(echo)
       document.body.appendChild(echo)
       gsap.fromTo(
         echo,
@@ -58,7 +61,10 @@ export default function CustomCursor() {
           opacity: 0,
           duration: 0.8,
           ease: 'power2.out',
-          onComplete: () => echo.remove(),
+          onComplete: () => {
+            echoes.delete(echo)
+            echo.remove()
+          },
         }
       )
     }
@@ -95,13 +101,16 @@ export default function CustomCursor() {
       document.removeEventListener('mouseover', onOver)
       document.removeEventListener('mouseout', onOut)
       gsap.killTweensOf([dot, ring])
+      gsap.killTweensOf(Array.from(echoes))
+      echoes.forEach((echo) => echo.remove())
+      echoes.clear()
     }
   }, [])
 
   return (
     <>
-      <div ref={dotRef} className="c-dot" />
-      <div ref={ringRef} className="c-ring" />
+      <div ref={dotRef} className="c-dot" aria-hidden="true" />
+      <div ref={ringRef} className="c-ring" aria-hidden="true" />
     </>
   )
 }
