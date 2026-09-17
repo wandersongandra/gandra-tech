@@ -133,7 +133,7 @@ export default function WordReveal({
     }
   }, [animateOpacity, blur, delay, duration, repeat, rotation, stagger, start, trigger, y])
 
-  const T = Tag as any
+  const T = Tag
 
   return (
     <T ref={ref} className={className}>

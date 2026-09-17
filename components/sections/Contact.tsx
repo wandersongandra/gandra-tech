@@ -41,6 +41,7 @@ export default function Contact() {
           blur={10}
           stagger={0.07}
           duration={0.9}
+          animateOpacity={false}
         >
           Trabalho bom deixa um rastro.
         </WordReveal>

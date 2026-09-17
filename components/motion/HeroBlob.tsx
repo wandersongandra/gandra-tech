@@ -74,16 +74,33 @@ export default function HeroBlob() {
     }
 
     const compile = (type: number, src: string) => {
-      const s = gl.createShader(type)!
+      const s = gl.createShader(type)
+      if (!s) return null
       gl.shaderSource(s, src)
       gl.compileShader(s)
+      if (!gl.getShaderParameter(s, gl.COMPILE_STATUS)) {
+        gl.deleteShader(s)
+        return null
+      }
       return s
     }
-    const prog = gl.createProgram()!
-    gl.attachShader(prog, compile(gl.VERTEX_SHADER, VERT))
-    gl.attachShader(prog, compile(gl.FRAGMENT_SHADER, FRAG))
+    const vertexShader = compile(gl.VERTEX_SHADER, VERT)
+    const fragmentShader = compile(gl.FRAGMENT_SHADER, FRAG)
+    const prog = gl.createProgram()
+    if (!vertexShader || !fragmentShader || !prog) {
+      if (vertexShader) gl.deleteShader(vertexShader)
+      if (fragmentShader) gl.deleteShader(fragmentShader)
+      if (prog) gl.deleteProgram(prog)
+      canvas.remove()
+      return
+    }
+    gl.attachShader(prog, vertexShader)
+    gl.attachShader(prog, fragmentShader)
     gl.linkProgram(prog)
     if (!gl.getProgramParameter(prog, gl.LINK_STATUS)) {
+      gl.deleteProgram(prog)
+      gl.deleteShader(vertexShader)
+      gl.deleteShader(fragmentShader)
       canvas.remove()
       return
     }
@@ -91,9 +108,24 @@ export default function HeroBlob() {
 
     // Triângulo fullscreen.
     const buf = gl.createBuffer()
+    if (!buf) {
+      gl.deleteProgram(prog)
+      gl.deleteShader(vertexShader)
+      gl.deleteShader(fragmentShader)
+      canvas.remove()
+      return
+    }
     gl.bindBuffer(gl.ARRAY_BUFFER, buf)
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 3, -1, -1, 3]), gl.STATIC_DRAW)
     const loc = gl.getAttribLocation(prog, 'p')
+    if (loc < 0) {
+      gl.deleteBuffer(buf)
+      gl.deleteProgram(prog)
+      gl.deleteShader(vertexShader)
+      gl.deleteShader(fragmentShader)
+      canvas.remove()
+      return
+    }
     gl.enableVertexAttribArray(loc)
     gl.vertexAttribPointer(loc, 2, gl.FLOAT, false, 0, 0)
 
@@ -147,6 +179,10 @@ export default function HeroBlob() {
       cancelAnimationFrame(raf)
       window.removeEventListener('resize', resize)
       window.removeEventListener('mousemove', onMove)
+      gl.deleteBuffer(buf)
+      gl.deleteProgram(prog)
+      gl.deleteShader(vertexShader)
+      gl.deleteShader(fragmentShader)
     }
   }, [])
 

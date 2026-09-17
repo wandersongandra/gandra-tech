@@ -1389,14 +1389,6 @@ body {
   z-index: 2;
 }
 
-.contact__count {
-  font-family: var(--font-serif);
-  font-size: 20px;
-  font-weight: 400;
-  font-style: italic;
-  letter-spacing: 0;
-}
-
 .contact__title {
   font-family: var(--font-serif);
   font-weight: 400;
@@ -2318,17 +2310,6 @@ body {
   aspect-ratio: 16 / 8;
 }
 
-.pv-block-row {
-  display: flex;
-  gap: 24px;
-  margin-bottom: 24px;
-}
-
-.pv-block--half {
-  flex: 1;
-  aspect-ratio: 4 / 3;
-}
-
 .pv-block__fill {
   background: repeating-linear-gradient(
     45deg,
@@ -2342,16 +2323,6 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-}
-
-.pv-block__fill--alt {
-  background: repeating-linear-gradient(
-    -45deg,
-    #e0ddd6,
-    #e0ddd6 10px,
-    #d5d1c8 10px,
-    #d5d1c8 20px
-  );
 }
 
 .pv-next {

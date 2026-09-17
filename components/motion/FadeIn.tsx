@@ -135,7 +135,7 @@ export default function FadeIn({
     }
   }, [animateOpacity, delay, duration, repeat, rotation, scale, start, trigger, x, y])
 
-  const T = Tag as any
+  const T = Tag
 
   return (
     <T

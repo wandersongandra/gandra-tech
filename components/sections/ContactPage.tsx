@@ -23,14 +23,15 @@ export default function ContactPage() {
             blur={12}
             stagger={0.07}
             duration={0.95}
+            animateOpacity={false}
           >
             Trabalho bom começa com uma conversa honesta.
           </WordReveal>
-          <FadeIn as="p" className="cp-hero__sub" trigger="load" delay={0.3} y={20} duration={0.7}>
+          <FadeIn as="p" className="cp-hero__sub" trigger="load" delay={0.3} y={20} duration={0.7} animateOpacity={false}>
             Conta o que você tem em mente. A gente responde com atenção — sem roteiro de vendas,
             sem promessa vazia.
           </FadeIn>
-          <FadeIn trigger="load" delay={0.5} y={16} duration={0.7}>
+          <FadeIn trigger="load" delay={0.5} y={16} duration={0.7} animateOpacity={false}>
             <a href={contactMailto} className="cp-hero__email">
               {contactEmail} ↗
             </a>
