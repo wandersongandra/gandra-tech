@@ -95,6 +95,16 @@ Pages, em Deployments, escolhendo a versão anterior estável.
 
 Commits seguem convenção semântica: feat, fix, chore, docs, refactor.
 
+## Segurança e Infraestrutura
+
+As políticas e procedimentos de segurança ficam separados das pendências que
+exigem configuração no GitHub, Cloudflare, registrador ou provedor de email:
+
+- [SECURITY.md — políticas gerais](docs/SECURITY.md)
+- [Configuração de segurança — SECURITY-CONFIG.md](docs/security/configuration.md)
+- [Resposta a incidentes — INCIDENT-RESPONSE.md](docs/security/incident-response.md)
+- [PANEL-TASKS.md — pendências de painel](PANEL-TASKS.md)
+
 ## Segurança
 
 Headers de segurança vivem em `public/_headers`. Políticas, procedimentos
