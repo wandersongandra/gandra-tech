@@ -13,6 +13,11 @@ export const assetBaseUrl =
   process.env.CF_PAGES_BRANCH && process.env.CF_PAGES_BRANCH !== 'main' && process.env.CF_PAGES_URL
     ? process.env.CF_PAGES_URL
     : siteUrl
+
+export function absoluteAssetUrl(path: string) {
+  return new URL(path, assetBaseUrl).toString()
+}
+
 export const siteDescription =
   'Desenvolvimento de sites institucionais, portfólios profissionais, sistemas sob medida, automações e aplicações web para empresas e profissionais em todo o Brasil.'
 export const siteLastModified = '2026-09-15'
