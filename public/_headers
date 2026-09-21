@@ -13,3 +13,9 @@
 /sw.js
   Cache-Control: no-store, max-age=0
   X-Content-Type-Options: nosniff
+
+https://gandra-tech.pages.dev/*
+  X-Robots-Tag: noindex, nofollow, noarchive
+
+https://:deployment.gandra-tech.pages.dev/*
+  X-Robots-Tag: noindex, nofollow, noarchive
