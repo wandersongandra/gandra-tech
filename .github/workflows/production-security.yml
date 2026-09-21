@@ -1,0 +1,51 @@
+name: Production Security Check
+
+on:
+  push:
+    branches: [main]
+  schedule:
+    - cron: "15 7 * * *"
+  workflow_dispatch:
+
+concurrency:
+  group: production-security-check
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  production-security:
+    name: production-security
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
+
+      - name: Setup Node.js
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
+        with:
+          node-version: "22"
+
+      - name: Validate production after propagation
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          for attempt in 1 2 3 4 5; do
+            echo "Production security check attempt ${attempt}/5"
+
+            if node scripts/check-production.mjs; then
+              exit 0
+            fi
+
+            if [ "${attempt}" -lt 5 ]; then
+              sleep 45
+            fi
+          done
+
+          echo "Production security checks failed after all retries."
+          exit 1
