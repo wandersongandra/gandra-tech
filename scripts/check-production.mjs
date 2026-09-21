@@ -9,6 +9,7 @@ const routes = [
   '/llms.txt',
   '/sitemap.xml',
   '/robots.txt',
+  '/.well-known/security.txt',
 ]
 const requiredHeaders = [
   'strict-transport-security',
