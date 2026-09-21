@@ -50,3 +50,9 @@ jobs:
 
       - name: Perform CodeQL analysis
         uses: github/codeql-action/analyze@7211b7c8077ea37d8641b6271f6a365a22a5fbfa
+        with:
+          output: codeql-results
+
+      - name: Summarize CodeQL results
+        if: always()
+        run: node scripts/summarize-codeql.mjs codeql-results
