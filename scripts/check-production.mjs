@@ -125,11 +125,18 @@ if (baseUrl === 'https://gandra.tech') {
       signal: AbortSignal.timeout(15_000),
     })
     const location = response.headers.get('location') || ''
+    let redirectOrigin = ''
+
+    try {
+      redirectOrigin = new URL(location, 'http://gandra.tech').origin
+    } catch {
+      failures.push(`HTTP sem TLS: Location inválido ${location || '(ausente)'}`)
+    }
 
     if (![301, 302, 307, 308].includes(response.status)) {
       failures.push(`HTTP sem TLS: esperado redirect, recebido ${response.status}`)
     }
-    if (!location.startsWith('https://gandra.tech')) {
+    if (redirectOrigin !== 'https://gandra.tech') {
       failures.push(`HTTP sem TLS: destino inesperado ${location || '(ausente)'}`)
     }
   } catch (error) {
