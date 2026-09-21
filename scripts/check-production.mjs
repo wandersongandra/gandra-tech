@@ -1,4 +1,4 @@
-const baseUrl = (process.env.PRODUCTION_URL || 'https://gandra.tech').replace(/\/$/, '')
+const baseUrl = 'https://gandra.tech'
 const routes = [
   '/',
   '/servicos',
