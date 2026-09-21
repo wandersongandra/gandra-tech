@@ -4,9 +4,17 @@
   Referrer-Policy: strict-origin-when-cross-origin
   Strict-Transport-Security: max-age=31536000; includeSubDomains; preload
   Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=()
-  X-XSS-Protection: 1; mode=block
   Cross-Origin-Opener-Policy: same-origin
   Cross-Origin-Resource-Policy: same-origin
   Cross-Origin-Embedder-Policy: require-corp
   Access-Control-Allow-Origin: https://gandra.tech
-  Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' https://static.cloudflareinsights.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self'; connect-src 'self' https://cloudflareinsights.com; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; object-src 'none'; frame-src 'none'; worker-src 'self'; manifest-src 'self'; upgrade-insecure-requests
+  X-Permitted-Cross-Domain-Policies: none
+  Origin-Agent-Cluster: ?1
+  Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' https://static.cloudflareinsights.com; script-src-attr 'none'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self' https://cloudflareinsights.com; media-src 'none'; object-src 'none'; frame-src 'none'; worker-src 'self'; manifest-src 'self'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'; upgrade-insecure-requests
+
+/sw.js
+  Service-Worker-Allowed: /
+  Cache-Control: no-cache, no-store, must-revalidate
+
+/.well-known/security.txt
+  Cache-Control: public, max-age=3600
