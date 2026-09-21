@@ -28,6 +28,6 @@
     "@types/react-dom": "^19",
     "playwright": "^1.62.1",
     "sharp": "^0.35.4",
-    "typescript": "^5"
+    "typescript": "^7"
   }
 }
