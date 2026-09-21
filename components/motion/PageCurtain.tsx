@@ -115,19 +115,20 @@ export default function PageCurtain() {
       const a = e.target.closest('a[href]') as HTMLAnchorElement | null
       if (!a) return
 
-      const href = a.getAttribute('href') ?? ''
-      if (
-        !href ||
-        href.startsWith('http') ||
-        href.startsWith('//') ||
-        href.startsWith('mailto:') ||
-        href.startsWith('#') ||
-        a.target ||
-        a.hasAttribute('download')
-      ) return
+      const rawHref = a.getAttribute('href') ?? ''
+      if (!rawHref || rawHref.startsWith('#') || a.target || a.hasAttribute('download')) return
 
-      const targetPath = href.split('?')[0]
-      if (targetPath === window.location.pathname) return
+      let target: URL
+      try {
+        target = new URL(rawHref, window.location.origin)
+      } catch {
+        return
+      }
+
+      if (target.origin !== window.location.origin) return
+
+      const href = `${target.pathname}${target.search}${target.hash}`
+      if (target.pathname === window.location.pathname && target.search === window.location.search) return
 
       e.preventDefault()
       gsap.killTweensOf(panel)

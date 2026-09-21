@@ -5,7 +5,8 @@ import CustomCursor from '@/components/motion/CustomCursor'
 import PageCurtain from '@/components/motion/PageCurtain'
 import VelocityWarp from '@/components/motion/VelocityWarp'
 import ChaosMode from '@/components/motion/ChaosMode'
-import ServiceWorkerRegister from '@/components/ServiceWorkerRegister'
+import ServiceWorkerRetire from '@/components/ServiceWorkerRetire'
+import { serializeStructuredData } from '@/components/StructuredData'
 import { contactEmail, brandName, siteDescription, siteName, siteUrl } from '@/lib/site'
 import './globals.css'
 
@@ -105,11 +106,11 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
       <body>
         {structuredData.map((data) => (
           <script key={data['@type']} type="application/ld+json">
-            {JSON.stringify(data)}
+            {serializeStructuredData(data)}
           </script>
         ))}
         <a className="skip-link" href="#main-content">Pular para o conteúdo principal</a>
-        <ServiceWorkerRegister />
+        <ServiceWorkerRetire />
         <div className="grain" aria-hidden="true" />
         <PageCurtain />
         <CustomCursor />

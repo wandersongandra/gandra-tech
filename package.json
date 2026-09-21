@@ -12,7 +12,8 @@
     "audit": "npm audit --audit-level=moderate",
     "optimize:images": "node scripts/optimize-images.mjs",
     "validate:build-security": "node scripts/validate-build-security.mjs",
-    "check:production": "node scripts/check-production.mjs"
+    "check:production": "node scripts/check-production.mjs",
+    "validate:supply-chain": "node scripts/validate-supply-chain.mjs"
   },
   "dependencies": {
     "gsap": "^3.15.0",

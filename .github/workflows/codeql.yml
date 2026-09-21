@@ -19,6 +19,7 @@ jobs:
   analyze:
     name: codeql
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     permissions:
       contents: read
       security-events: write
@@ -26,6 +27,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
 
       - name: Setup Node.js
         uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
@@ -40,9 +43,16 @@ jobs:
         uses: github/codeql-action/init@7211b7c8077ea37d8641b6271f6a365a22a5fbfa
         with:
           languages: javascript-typescript
+          queries: security-extended
 
       - name: Autobuild
         uses: github/codeql-action/autobuild@7211b7c8077ea37d8641b6271f6a365a22a5fbfa
 
       - name: Perform CodeQL analysis
         uses: github/codeql-action/analyze@7211b7c8077ea37d8641b6271f6a365a22a5fbfa
+        with:
+          output: codeql-results
+
+      - name: Summarize CodeQL results
+        if: always()
+        run: node scripts/summarize-codeql.mjs codeql-results

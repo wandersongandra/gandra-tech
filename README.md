@@ -104,10 +104,11 @@ exigem configuração no GitHub, Cloudflare, registrador ou provedor de email:
 - [Configuração de segurança — SECURITY-CONFIG.md](docs/security/configuration.md)
 - [Resposta a incidentes — INCIDENT-RESPONSE.md](docs/security/incident-response.md)
 - [PANEL-TASKS.md — pendências de painel](PANEL-TASKS.md)
+- [Auditoria reforçada de 21/09/2026](docs/security/extreme-hardening-2026-09-21.md)
 
 ## Segurança
 
-Headers de segurança vivem em `public/_headers`. Políticas, procedimentos
+Headers de segurança vivem em `public/_headers`. O CI também valida cadeia de suprimentos, pins de Actions, assinaturas/proveniência do npm, export estático e segurança de produção. Políticas, procedimentos
 de contenção, análise de eventos, rollback e revisão mensal estão em
 [docs/SECURITY.md](docs/SECURITY.md), [docs/security/configuration.md](docs/security/configuration.md),
 [docs/security/incident-response.md](docs/security/incident-response.md) e

@@ -4,7 +4,7 @@ const path = require('node:path')
 const root = __dirname
 const textExtensions = new Set(['.ts', '.tsx'])
 const sourceRoots = ['app', 'components', 'lib']
-const forbidden = /console\.log|debugger|@ts-ignore|dangerouslySetInnerHTML/
+const forbidden = /console\.log|debugger|@ts-ignore|dangerouslySetInnerHTML|\.innerHTML\s*=|document\.write\s*\(|\beval\s*\(|navigator\.serviceWorker\.register\s*\(/
 const failures = []
 function visit(current) {
   for (const entry of fs.readdirSync(current, { withFileTypes: true })) {
@@ -26,4 +26,4 @@ if (failures.length) {
   process.exit(1)
 }
 
-console.log('Lint estrutural passou: nenhuma saída de debug ou sink inseguro encontrado.')
+console.log('Lint estrutural passou: nenhuma saída de debug, sink inseguro ou registro de service worker encontrado.')
