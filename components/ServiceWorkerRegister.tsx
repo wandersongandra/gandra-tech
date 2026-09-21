@@ -8,7 +8,7 @@ export default function ServiceWorkerRegister() {
     if (!('serviceWorker' in navigator)) return
 
     const register = () => {
-      navigator.serviceWorker.register('/sw.js').catch(() => {
+      navigator.serviceWorker.register('/sw.js', { scope: '/', updateViaCache: 'none' }).catch(() => {
         // Sem log em produção: fallback offline é melhoria progressiva.
       })
     }
