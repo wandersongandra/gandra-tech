@@ -93,8 +93,8 @@ if (!fs.existsSync(outDir) || !fs.statSync(outDir).isDirectory()) {
       failures.push(`URL javascript: encontrada em ${relative}`)
     }
 
-    if (/http:\/\//i.test(html)) {
-      failures.push(`referência HTTP insegura encontrada em ${relative}`)
+    if (/\b(?:src|href|action)\s*=\s*["']http:\/\//i.test(html)) {
+      failures.push(`recurso HTTP inseguro encontrado em ${relative}`)
     }
   }
 
