@@ -40,7 +40,10 @@ export default function Header() {
   useEffect(() => {
     const logo = logoRef.current
     if (!logo) return
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    const compact = window.matchMedia('(max-width: 767px)').matches
+    const coarsePointer = window.matchMedia('(pointer: coarse)').matches
+    if (reduceMotion || compact || coarsePointer) return
 
     let raf = 0
     const onScroll = () => {
