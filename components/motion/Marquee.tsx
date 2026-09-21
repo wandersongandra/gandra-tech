@@ -48,7 +48,10 @@ export default function Marquee({ inverted = false, speed = 32 }: Props) {
     const track = trackRef.current
     const group = groupRef.current
     if (!root || !track || !group) return
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    const compact = window.matchMedia('(max-width: 767px)').matches
+    const coarsePointer = window.matchMedia('(pointer: coarse)').matches
+    if (reduceMotion || compact || coarsePointer) return
 
     let width = group.offsetWidth
     const measure = () => {
