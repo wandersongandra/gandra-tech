@@ -13,7 +13,7 @@ const expectedRoutes = [
   '/termos-de-uso',
   '/politica-de-privacidade',
 ]
-const expectedPublicFiles = ['_headers', 'robots.txt', 'sitemap.xml', 'llms.txt', 'sw.js']
+const expectedPublicFiles = ['_headers', 'robots.txt', 'sitemap.xml', 'llms.txt', 'sw.js', '.well-known/security.txt']
 const failures = []
 
 function exists(relativePath) {
