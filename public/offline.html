@@ -68,7 +68,7 @@
         line-height: 1.6;
       }
 
-      button {
+      .retry-link {
         min-width: 44px;
         min-height: 44px;
         margin-top: 18px;
@@ -77,10 +77,12 @@
         background: var(--ink);
         color: var(--paper);
         cursor: pointer;
+        display: inline-block;
         font: inherit;
+        text-decoration: none;
       }
 
-      button:focus-visible {
+      .retry-link:focus-visible {
         outline: 3px solid var(--accent);
         outline-offset: 4px;
       }
@@ -95,7 +97,7 @@
         conexão voltar.
       </p>
       <p>O email de contato volta a funcionar normalmente assim que houver conexão.</p>
-      <button type="button" onclick="window.location.reload()">Tentar novamente</button>
+      <a class="retry-link" href="/">Tentar novamente</a>
     </main>
   </body>
 </html>
