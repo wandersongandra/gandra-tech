@@ -5,6 +5,11 @@ const root = process.cwd()
 const failures = []
 
 const lock = JSON.parse(fs.readFileSync(path.join(root, 'package-lock.json'), 'utf8'))
+const npmrc = fs.readFileSync(path.join(root, '.npmrc'), 'utf8')
+
+if (!/^ignore-scripts=true$/m.test(npmrc)) {
+  failures.push('.npmrc precisa manter ignore-scripts=true')
+}
 
 if (lock.lockfileVersion !== 3) {
   failures.push(`package-lock.json usa lockfileVersion ${lock.lockfileVersion}; esperado: 3`)
