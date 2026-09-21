@@ -24,6 +24,8 @@ export default function Hero() {
     const line = lineRef.current
     if (!section || !center || !titleWrap || !line) return
     const motionQuery = getReducedMotionQuery()
+    const compactQuery = window.matchMedia('(max-width: 767px)')
+    const coarseQuery = window.matchMedia('(pointer: coarse)')
     let ctx: gsap.Context | null = null
     let removeHoverListeners: (() => void) | null = null
 
@@ -40,7 +42,7 @@ export default function Hero() {
 
     const setup = () => {
       setFinal()
-      if (motionQuery.matches) return
+      if (motionQuery.matches || compactQuery.matches || coarseQuery.matches) return
 
       ctx = gsap.context(() => {
       // Linha inferior: expande da esquerda para a direita
@@ -87,9 +89,13 @@ export default function Hero() {
 
     setup()
     motionQuery.addEventListener('change', setup)
+    compactQuery.addEventListener('change', setup)
+    coarseQuery.addEventListener('change', setup)
 
     return () => {
       motionQuery.removeEventListener('change', setup)
+      compactQuery.removeEventListener('change', setup)
+      coarseQuery.removeEventListener('change', setup)
       ctx?.revert()
       removeHoverListeners?.()
     }
@@ -101,7 +107,9 @@ export default function Hero() {
     const titleWrap = titleWrapRef.current
     if (!titleWrap) return
     const motionQuery = getReducedMotionQuery()
-    if (motionQuery.matches) return
+    const compact = window.matchMedia('(max-width: 767px)').matches
+    const coarsePointer = window.matchMedia('(pointer: coarse)').matches
+    if (motionQuery.matches || compact || coarsePointer) return
 
     const words = Array.from(titleWrap.querySelectorAll<HTMLElement>('[data-word]'))
     if (!words.length) return

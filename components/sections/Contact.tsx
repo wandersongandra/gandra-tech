@@ -14,6 +14,10 @@ export default function Contact() {
   useEffect(() => {
     const s = sectionRef.current
     if (!s) return
+    const compact = window.matchMedia('(max-width: 767px)').matches
+    const coarsePointer = window.matchMedia('(pointer: coarse)').matches
+    if (compact || coarsePointer) return
+
     const onMove = (e: MouseEvent) => {
       const r = s.getBoundingClientRect()
       s.style.setProperty('--mx', `${e.clientX - r.left}px`)

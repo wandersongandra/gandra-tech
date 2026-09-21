@@ -28,11 +28,14 @@ export default function HeroParticles() {
     const ctx = canvas.getContext('2d')
     if (!ctx) return
 
-    const dpr = Math.min(window.devicePixelRatio || 1, 2)
+    const compact = window.matchMedia('(max-width: 767px)').matches
+    const coarsePointer = window.matchMedia('(pointer: coarse)').matches
+    const lowPowerMode = compact || coarsePointer
+    const dpr = Math.min(window.devicePixelRatio || 1, lowPowerMode ? 1.25 : 2)
     let w = 0
     let h = 0
     let parts: Particle[] = []
-    const MAX_PARTS = 1600
+    const maxParts = lowPowerMode ? 420 : 1600
 
     // Nasce fora da tela, numa borda aleatória — a entrada é uma chegada
     // de todos os cantos, não um fade.
@@ -94,7 +97,7 @@ export default function HeroParticles() {
         const j = Math.floor(Math.random() * (i + 1))
         ;[pts[i], pts[j]] = [pts[j], pts[i]]
       }
-      const targets = pts.slice(0, MAX_PARTS)
+      const targets = pts.slice(0, maxParts)
 
       parts = targets.map((t) => {
         const accent = Math.random() < 0.3
@@ -108,7 +111,7 @@ export default function HeroParticles() {
           // Marca d'água: brilho baixo para não brigar com o título.
           a: accent ? 0.5 : 0.3,
           // Espera em frames antes de partir: a chegada acontece em ondas.
-          wait: Math.floor(Math.random() * 90),
+          wait: Math.floor(Math.random() * (lowPowerMode ? 54 : 90)),
         }
       })
     }
@@ -128,11 +131,20 @@ export default function HeroParticles() {
       mouse.x = -9999
       mouse.y = -9999
     }
-    window.addEventListener('mousemove', onMove)
-    window.addEventListener('mouseout', onOut)
+    if (!coarsePointer) {
+      window.addEventListener('mousemove', onMove)
+      window.addEventListener('mouseout', onOut)
+    }
 
     let raf = 0
-    const tick = () => {
+    let lastFrame = 0
+    const frameInterval = lowPowerMode ? 1000 / 30 : 0
+    const tick = (now: number) => {
+      if (frameInterval && now - lastFrame < frameInterval) {
+        raf = requestAnimationFrame(tick)
+        return
+      }
+      lastFrame = now
       // Rastro transparente: apagar uma fração do frame anterior em vez de
       // pintar preto por cima — um véu opaco cobriria o blob WebGL abaixo.
       ctx.globalCompositeOperation = 'destination-out'
@@ -189,7 +201,7 @@ export default function HeroParticles() {
       raf = requestAnimationFrame(tick)
     }
     window.addEventListener('gt:curtain-open', start, { once: true })
-    const fallback = setTimeout(start, 4200)
+    const fallback = setTimeout(start, lowPowerMode ? 2400 : 4200)
 
     return () => {
       cancelAnimationFrame(raf)

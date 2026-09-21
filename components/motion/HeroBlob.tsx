@@ -67,6 +67,9 @@ export default function HeroBlob() {
   useEffect(() => {
     const canvas = canvasRef.current
     if (!canvas) return
+    const compact = window.matchMedia('(max-width: 767px)').matches
+    const coarsePointer = window.matchMedia('(pointer: coarse)').matches
+    const lowPowerMode = compact || coarsePointer
     const gl = canvas.getContext('webgl', { antialias: false, alpha: false })
     if (!gl) {
       canvas.remove()
@@ -134,7 +137,7 @@ export default function HeroBlob() {
     const uMouse = gl.getUniformLocation(prog, 'u_mouse')
 
     // DPR capado: o shader é o item mais caro do site em fill-rate.
-    const dpr = Math.min(window.devicePixelRatio || 1, 1.25)
+    const dpr = Math.min(window.devicePixelRatio || 1, lowPowerMode ? 1 : 1.25)
     const resize = () => {
       const parent = canvas.parentElement
       if (!parent) return
@@ -152,7 +155,9 @@ export default function HeroBlob() {
       mouse.tx = (e.clientX - r.left) / r.width
       mouse.ty = 1 - (e.clientY - r.top) / r.height
     }
-    window.addEventListener('mousemove', onMove)
+    if (!coarsePointer) {
+      window.addEventListener('mousemove', onMove)
+    }
 
     const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
     let raf = 0
@@ -168,8 +173,13 @@ export default function HeroBlob() {
     if (reduced) {
       render(8000) // frame estático, ainda bonito
     } else {
+      let lastFrame = 0
+      const frameInterval = lowPowerMode ? 1000 / 30 : 0
       const loop = (t: number) => {
-        render(t)
+        if (!frameInterval || t - lastFrame >= frameInterval) {
+          lastFrame = t
+          render(t)
+        }
         raf = requestAnimationFrame(loop)
       }
       raf = requestAnimationFrame(loop)

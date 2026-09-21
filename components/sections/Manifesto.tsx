@@ -36,6 +36,9 @@ export default function Manifesto() {
     const caps = capsRef.current
     if (!statement || !section) return
     const motionQuery = getReducedMotionQuery()
+    const compact = window.matchMedia('(max-width: 767px)').matches
+    const coarsePointer = window.matchMedia('(pointer: coarse)').matches
+    const lowPowerMode = compact || coarsePointer
     let cleanupMotion: (() => void) | null = null
 
     const setFinal = () => {
@@ -54,7 +57,7 @@ export default function Manifesto() {
       cleanupMotion?.()
       cleanupMotion = null
 
-      if (motionQuery.matches) {
+      if (motionQuery.matches || lowPowerMode) {
         setFinal()
         return
       }

@@ -16,7 +16,10 @@ export default function VelocityWarp({ children }: { children: React.ReactNode }
   useEffect(() => {
     const el = ref.current
     if (!el) return
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    const compact = window.matchMedia('(max-width: 767px)').matches
+    const coarsePointer = window.matchMedia('(pointer: coarse)').matches
+    if (reduceMotion || compact || coarsePointer) return
 
     const skewTo = gsap.quickTo(el, 'skewY', { duration: 0.5, ease: 'power3.out' })
 

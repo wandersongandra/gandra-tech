@@ -8,8 +8,13 @@ type LenisGlobal = { __lenis?: Lenis }
 export default function LenisProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     const motionQuery = window.matchMedia('(prefers-reduced-motion: reduce)')
+    const compactQuery = window.matchMedia('(max-width: 767px)')
+    const coarseQuery = window.matchMedia('(pointer: coarse)')
     let lenis: Lenis | null = null
     let rafId: number | null = null
+
+    const shouldUseNativeScroll = () =>
+      motionQuery.matches || compactQuery.matches || coarseQuery.matches
 
     const stopLenis = () => {
       if (rafId !== null) {
@@ -25,7 +30,7 @@ export default function LenisProvider({ children }: { children: React.ReactNode 
     }
 
     const startLenis = () => {
-      if (motionQuery.matches || lenis) return
+      if (shouldUseNativeScroll() || lenis) return
 
       const instance = new Lenis({
         duration: 1.2,
@@ -35,8 +40,6 @@ export default function LenisProvider({ children }: { children: React.ReactNode 
 
       ;(window as unknown as LenisGlobal).__lenis = instance
 
-      // Mantém o ScrollTrigger em sincronia com o scroll suavizado do Lenis.
-      // Sem isso, animações com scrub ficam atrasadas.
       instance.on('scroll', ScrollTrigger.update)
 
       const raf = (time: number) => {
@@ -47,19 +50,23 @@ export default function LenisProvider({ children }: { children: React.ReactNode 
       rafId = requestAnimationFrame(raf)
     }
 
-    const handleMotionChange = () => {
-      if (motionQuery.matches) {
+    const syncScrollMode = () => {
+      if (shouldUseNativeScroll()) {
         stopLenis()
       } else {
         startLenis()
       }
     }
 
-    handleMotionChange()
-    motionQuery.addEventListener('change', handleMotionChange)
+    syncScrollMode()
+    motionQuery.addEventListener('change', syncScrollMode)
+    compactQuery.addEventListener('change', syncScrollMode)
+    coarseQuery.addEventListener('change', syncScrollMode)
 
     return () => {
-      motionQuery.removeEventListener('change', handleMotionChange)
+      motionQuery.removeEventListener('change', syncScrollMode)
+      compactQuery.removeEventListener('change', syncScrollMode)
+      coarseQuery.removeEventListener('change', syncScrollMode)
       stopLenis()
     }
   }, [])
