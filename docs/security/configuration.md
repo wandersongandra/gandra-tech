@@ -7,11 +7,11 @@ Documento de referência do hardening do site estático `gandra.tech`. Ele separ
 | Área | Estado | Evidência ou limite |
 |---|---|---|
 | Static Export | IMPLEMENTADO | `next.config.ts` usa `output: 'export'` e imagens não otimizadas pelo servidor. |
-| Headers de segurança | VALIDADO EM PRODUÇÃO | `public/_headers` contém os headers básicos, os de isolamento, CSP em enforcement e CORS restrito à origem canônica; a entrega foi confirmada no deployment `d19c65d8`. |
+| Headers de segurança | ENDURECIDO NO REPOSITÓRIO | `public/_headers` aplica isolamento de origem, HSTS de dois anos, Permissions-Policy restritiva, CSP em enforcement e não habilita CORS global. A validação em produção deve ser repetida após o deploy deste hardening. |
 | CSP | IMPLEMENTADO | `Content-Security-Policy` em enforcement, sem `unsafe-eval`; a política foi conferida contra os recursos locais do export. |
 | Política de crawlers | IMPLEMENTADO NO REPOSITÓRIO | `app/robots.ts` permite os 12 crawlers de descoberta aprovados e bloqueia os 8 crawlers de treinamento definidos pelo projeto. |
-| Integridade do export | IMPLEMENTADO | `npm run validate:build-security` verifica rotas, arquivos públicos, headers, source maps e extensões sensíveis. |
-| CI e CodeQL | VALIDADO NO GITHUB | Build, lint, typecheck, testes, validação do export, audit moderado, Gitleaks e CodeQL passaram no PR de publicação. |
+| Integridade do export | IMPLEMENTADO | `npm run validate:build-security` verifica rotas, arquivos públicos, headers, CSP, handlers inline, URLs `javascript:`, source maps, extensões sensíveis e a retirada do service worker legado. |
+| CI e CodeQL | ENDURECIDO | Build, lint, typecheck, testes, validação do export, auditoria de dependências, OSV, Gitleaks e CodeQL são gates. O CodeQL usa `security-extended`, Actions são fixadas por SHA e o checkout não persiste credenciais. |
 | Proteção da `main` | IMPLEMENTADO NO GITHUB | Branch protection ativa com PR, zero aprovações exigidas para o fluxo solo, checks estritos, resolução de conversas e bloqueio de force-push/exclusão. |
 | Alertas nativos do GitHub | HABILITADO | Dependabot alerts, automated security fixes, Secret Scanning e Push Protection estão habilitados; não há alertas atuais. |
 | Environment `production` | IMPLEMENTADO NO GITHUB | Reviewer configurado para o proprietário, wait timer de 5 minutos e deploy limitado a branches protegidas. Isso só afeta jobs GitHub Actions que referenciem esse environment; o Pages continua com seu próprio fluxo. |
@@ -20,7 +20,7 @@ Documento de referência do hardening do site estático `gandra.tech`. Ele separ
 | Cache e Always Online | NÃO VERIFICADO NO PAINEL | Não há mudança segura de cache aplicada às cegas. |
 | DNSSEC | PENDENTE | Deve ser habilitado na Cloudflare e publicado no registrador. |
 | Email Routing | NÃO CONFIGURADO | A configuração atual de MX/SPF precisa ser confirmada antes de qualquer migração. |
-| Monitor externo | NÃO CONFIGURADO | Os scripts locais existem, mas não substituem um monitor com alertas. |
+| Monitor externo | PARCIAL | O GitHub Actions executa `Production Security Check` após pushes na `main` e diariamente. Ainda é recomendado um monitor independente para disponibilidade e alertas fora do GitHub. |
 
 ## Antes e depois
 
@@ -57,8 +57,9 @@ O arquivo `public/_headers` é consumido pelo Cloudflare Pages e define:
 - `Referrer-Policy: strict-origin-when-cross-origin`;
 - `Permissions-Policy` sem câmera, microfone, geolocalização ou pagamentos;
 - COOP, CORP e COEP para isolamento de contexto;
-- CORS restrito a `https://gandra.tech`, sem origem curinga;
-- CSP em enforcement.
+- nenhum header CORS global, porque o site não oferece API pública cross-origin;
+- `X-XSS-Protection: 0`, evitando o filtro XSS legado e mantendo a CSP como controle moderno;
+- CSP em enforcement com bloqueio de event handlers inline.
 
 O COEP `require-corp` deve ser validado no preview em todas as páginas e com cache limpo. O Cloudflare Web Analytics injeta um beacon externo; por isso, a CSP permite somente `static.cloudflareinsights.com` para o script e `cloudflareinsights.com` para o envio de métricas. Se outro recurso de terceiro for adicionado no futuro, ele deverá ser hospedado localmente ou fornecer uma política CORP/CORS compatível. O CORS restrito foi adicionado porque o Pages fornece origem curinga por padrão, embora este site não exponha API pública.
 
@@ -67,7 +68,7 @@ O COEP `require-corp` deve ser validado no preview em todas as páginas e com ca
 Política aplicada, incluindo o endpoint observado do Cloudflare Web Analytics:
 
 ```text
-default-src 'self'; script-src 'self' 'unsafe-inline' https://static.cloudflareinsights.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self'; connect-src 'self' https://cloudflareinsights.com; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; object-src 'none'; frame-src 'none'; worker-src 'self'; manifest-src 'self'; upgrade-insecure-requests
+default-src 'self'; script-src 'self' 'unsafe-inline' https://static.cloudflareinsights.com; script-src-attr 'none'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self' https://cloudflareinsights.com; frame-ancestors 'none'; base-uri 'none'; form-action 'none'; object-src 'none'; frame-src 'none'; child-src 'none'; worker-src 'none'; media-src 'none'; manifest-src 'self'; upgrade-insecure-requests
 ```
 
 Procedimento para promover:
@@ -82,7 +83,7 @@ Procedimento para promover:
 
 A aplicação não carrega scripts externos diretamente. O Cloudflare Web Analytics pode injetar o beacon com SRI na borda; esse endpoint está explicitamente permitido na CSP. Se outro script de terceiro for incluído, ele deve ser hospedado de modo controlado e receber `integrity` e `crossorigin` quando o recurso tiver hash estável.
 
-`poweredByHeader: false` permanece em `next.config.ts`. O validador rejeita source maps, arquivos com extensões potencialmente sensíveis e CORS curinga no export.
+`poweredByHeader: false` permanece em `next.config.ts`. O validador rejeita source maps, arquivos com extensões potencialmente sensíveis, handlers inline, URLs `javascript:`, `unsafe-eval` e CORS global no export. O antigo service worker de cache foi convertido em worker de retirada e novas páginas não registram service worker.
 
 ### Validações locais
 
@@ -101,7 +102,7 @@ Para uma checagem HTTP após o deployment:
 npm run check:production
 ```
 
-Esse healthcheck não aceita credenciais, não modifica produção e falha se uma rota crítica ou header obrigatório estiver ausente.
+Esse healthcheck não aceita credenciais, não modifica produção e falha se uma rota crítica, 404, redirect HTTP→HTTPS, política CSP, header obrigatório ou worker de retirada estiver incorreto. O workflow `Production Security Check` executa essa validação após pushes na `main` e diariamente.
 
 ## 2. Política de crawlers e WAF
 
@@ -254,3 +255,26 @@ Nenhum custo novo foi contratado por esta alteração. Os limites e preços muda
 | Scanning open source | CI e auditoria periódica | Gitleaks, npm audit, OSV e ZAP passivo podem ser usados sem nova licença; esforço operacional continua existindo. |
 
 Para o porte atual, a recomendação é começar com o plano Cloudflare já contratado, monitor HTTP externo básico e os gates do GitHub; medir tráfego, incidentes e falsos positivos antes de upgrade.
+
+## Hardening reforçado de 21/09/2026
+
+A rodada reforçada reduziu a superfície de ataque do navegador e da cadeia de suprimentos sem adicionar serviços de terceiros ao runtime:
+
+- remove registro persistente de service worker e limpa caches legados `gandra-*`;
+- bloqueia novos workers pela CSP depois da migração;
+- remove CORS global do site estático;
+- restringe imagens a recursos próprios e `data:` necessários ao visual local;
+- bloqueia `script-src-attr`, `object`, `frame`, `child`, `media`, `form-action` e `base-uri`;
+- valida links da cortina de navegação por `URL` e aceita somente mesma origem;
+- publica `/.well-known/security.txt` para divulgação responsável;
+- mantém `npm` com lifecycle scripts desabilitados por padrão;
+- valida registry, hashes SHA-512, pins de GitHub Actions e instalação sem scripts;
+- verifica assinaturas/proveniência do registry com `npm audit signatures`;
+- executa auditoria de dependências de produção a partir de severidade baixa, além do gate moderado completo e OSV;
+- monitora atualizações de dependências npm e GitHub Actions via Dependabot;
+- executa CodeQL com consultas `security-extended`;
+- executa healthcheck de segurança de produção automaticamente e de forma diária.
+
+### Limitação deliberada da CSP
+
+A aplicação Next.js exportada ainda necessita de scripts inline gerados pelo framework para bootstrap/hidratação, portanto `script-src` mantém `'unsafe-inline'`. Isso não deve ser ampliado com `'unsafe-eval'`, hosts genéricos ou curingas. `script-src-attr 'none'` continua bloqueando handlers HTML inline. Remover `'unsafe-inline'` só deve ser feito após uma migração testada para nonces/hashes compatível com a arquitetura estática.
