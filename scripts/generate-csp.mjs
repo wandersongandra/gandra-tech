@@ -28,7 +28,7 @@ function hashInlineScripts(html) {
     const attributes = match[1] || ''
     const body = match[2] || ''
 
-    if (/\bsrc\s*=/.test(attributes)) continue
+    if (/\bsrc\s*=/i.test(attributes)) continue
     if (!body.trim()) continue
 
     const digest = crypto.createHash('sha256').update(body, 'utf8').digest('base64')
