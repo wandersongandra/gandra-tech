@@ -14,7 +14,10 @@ export default function ScrollThread() {
     const svg = svgRef.current
     const path = pathRef.current
     if (!svg || !path) return
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    const compact = window.matchMedia('(max-width: 767px)').matches
+    const coarsePointer = window.matchMedia('(pointer: coarse)').matches
+    if (reduceMotion || compact || coarsePointer) return
 
     let len = 0
 
