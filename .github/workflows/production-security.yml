@@ -26,6 +26,4 @@ jobs:
           node-version: "22"
 
       - name: Validate production surface
-        env:
-          PRODUCTION_URL: https://gandra.tech
         run: node scripts/check-production.mjs
