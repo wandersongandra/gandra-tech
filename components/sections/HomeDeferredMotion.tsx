@@ -5,8 +5,8 @@ import dynamic from 'next/dynamic'
 
 const CardStack = dynamic(() => import('@/components/motion/CardStack'), { ssr: false })
 const ScrollThread = dynamic(() => import('@/components/motion/ScrollThread'), { ssr: false })
-const Marquee = dynamic(() => import('@/components/motion/Marquee'), { ssr: false })
-const Manifesto = dynamic(() => import('@/components/sections/Manifesto'), { ssr: false })
+const Marquee = dynamic(() => import('@/components/motion/Marquee'))
+const Manifesto = dynamic(() => import('@/components/sections/Manifesto'))
 
 type IdleWindow = Window & {
   requestIdleCallback?: (callback: () => void, options?: { timeout?: number }) => number
@@ -54,17 +54,9 @@ export function DeferredVisualEffects() {
 }
 
 export function DeferredMarquee({ inverted = false, speed = 32 }: { inverted?: boolean; speed?: number }) {
-  const ready = useIdleReady(1000)
-
-  if (!ready) return null
-
   return <Marquee inverted={inverted} speed={speed} />
 }
 
 export function DeferredManifesto() {
-  const ready = useIdleReady(1400)
-
-  if (!ready) return null
-
   return <Manifesto />
 }
