@@ -51,6 +51,9 @@ function WorkRow({
     if (!row || !parallaxEl || !spin || !tilt || !curtain || !info) return
 
     const motionQuery = getReducedMotionQuery()
+    const compact = window.matchMedia('(max-width: 767px)').matches
+    const coarsePointer = window.matchMedia('(pointer: coarse)').matches
+    const lowPowerMode = compact || coarsePointer
 
     // No trilho horizontal (desktop largo) os efeitos atados ao scroll
     // vertical não fazem sentido: fica só a revelação por IntersectionObserver.
@@ -136,7 +139,7 @@ function WorkRow({
 
       setInitial()
 
-      if (!isRail) {
+      if (!isRail && !lowPowerMode) {
         st = ScrollTrigger.create({
           trigger: row,
           start: 'top 78%',
@@ -160,8 +163,9 @@ function WorkRow({
       )
       io.observe(row)
 
-      // Daqui em diante só efeitos de scroll vertical — pulados no trilho.
-      if (!isRail) {
+      // Daqui em diante só efeitos contínuos de scroll vertical — pulados no
+      // trilho e em touch/mobile, onde uma revelação única é suficiente.
+      if (!isRail && !lowPowerMode) {
         // Parallax sutil enquanto a linha atravessa a viewport — em camada
         // própria para não conflitar com o tilt nem com o hover.
         const parallax = gsap.fromTo(
