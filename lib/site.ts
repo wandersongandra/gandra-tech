@@ -10,7 +10,7 @@ export const siteName = 'Gandra Tecnologia'
 export const brandName = 'Gandra Tech'
 export const siteUrl = 'https://gandra.tech'
 export const siteDescription =
-  'Desenvolvimento de sites institucionais, portfólios profissionais, sistemas sob medida, automações e aplicações web para empresas e profissionais em todo o Brasil.'
+  'Desenvolvimento de sites, sistemas sob medida, aplicações web e automações para empresas e profissionais em todo o Brasil.'
 export const siteLastModified = '2026-10-05'
 
 export const contactEmail = 'contato@gandra.tech'

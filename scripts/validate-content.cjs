@@ -35,6 +35,11 @@ for (const project of projects) {
   }
   assert.ok(Array.isArray(project.services) && project.services.length > 0, `projeto ${project.slug}: services inválido`)
   assert.ok(Array.isArray(project.relatedServiceSlugs) && project.relatedServiceSlugs.length > 0, `projeto ${project.slug}: relatedServiceSlugs inválido`)
+  assert.ok(Array.isArray(project.details) && project.details.length >= 3, `projeto ${project.slug}: details inválido`)
+  for (const detail of project.details) {
+    assert.ok(detail.title?.trim(), `projeto ${project.slug}: detail sem título`)
+    assert.ok(detail.description?.trim(), `projeto ${project.slug}: detail sem descrição`)
+  }
   assert.equal(getProject(project.slug), project)
 }
 

@@ -128,6 +128,26 @@ export default function ProjectView({ project, next }: { project: Project; next:
         </div>
       </section>
 
+      <section className="pv-details" aria-labelledby="pv-details-title">
+        <div className="container">
+          <div className="pv-details__heading">
+            <div className="pv-overview__label">DECISÕES DE PROJETO</div>
+            <h2 id="pv-details-title">Como a solução foi estruturada.</h2>
+          </div>
+          <div className="pv-details__list">
+            {project.details.map((detail, index) => (
+              <article className="pv-details__item" key={detail.title}>
+                <span className="pv-details__number">{String(index + 1).padStart(2, '0')}</span>
+                <div>
+                  <h3>{detail.title}</h3>
+                  <p>{detail.description}</p>
+                </div>
+              </article>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* Uma única tela do produto — o portfólio mostra o essencial. */}
       <section className="pv-content">
         <div className="container">

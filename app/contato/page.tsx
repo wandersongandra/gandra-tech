@@ -9,7 +9,7 @@ import { faqItems } from '@/lib/faq'
 import { createPageMetadata } from '@/lib/seo'
 
 export const metadata = createPageMetadata({
-  title: 'Orçamento para Site, Sistema ou Automação',
+  title: 'Orçamento para Site, Sistema e Automação',
   description: `Fale com a Gandra Tecnologia sobre site institucional, sistema sob medida, aplicação web ou automação. Atendimento remoto em todo o Brasil: ${contactEmail}.`,
   path: '/contato',
 })
