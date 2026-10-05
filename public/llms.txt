@@ -13,11 +13,11 @@
 
 ## Serviços
 
-- Sites institucionais: presença digital profissional para apresentar a empresa, organizar sua mensagem e facilitar o contato.
-- Portfólios profissionais: apresentação digital de trabalhos, trajetória e serviços de profissionais liberais, especialistas e criadores.
-- Sistemas sob medida: software para organizar a operação interna, dashboards, fluxos de trabalho e regras de negócio.
-- Aplicações web: produtos e experiências acessados pelo navegador por clientes, equipes ou usuários finais.
-- Automação de processos e integrações: conexão de ferramentas e sistemas para automatizar rotinas e sincronizar dados entre etapas do negócio.
+- Sites institucionais: presença digital profissional para apresentar a empresa, organizar sua mensagem e facilitar o contato. https://gandra.tech/servicos/sites-institucionais
+- Portfólios profissionais: apresentação digital de trabalhos, trajetória e serviços de profissionais liberais, especialistas e criadores. https://gandra.tech/servicos/portfolios-profissionais
+- Sistemas sob medida: software para organizar a operação interna, dashboards, fluxos de trabalho e regras de negócio. https://gandra.tech/servicos/sistemas-sob-medida
+- Aplicações web: produtos e experiências acessados pelo navegador por clientes, equipes ou usuários finais. https://gandra.tech/servicos/aplicacoes-web
+- Automação de processos e integrações: conexão de ferramentas e sistemas para automatizar rotinas e sincronizar dados entre etapas do negócio. https://gandra.tech/servicos/automacao-de-processos-e-integracoes
 
 ## Projetos públicos
 

@@ -1,4 +1,4 @@
-const VERSION = 'security-hardening-2026-09-v1'
+const VERSION = 'seo-services-2026-10-v1'
 const SHELL_CACHE = `gandra-shell-${VERSION}`
 const STATIC_CACHE = `gandra-static-${VERSION}`
 const RUNTIME_CACHE = `gandra-runtime-${VERSION}`
@@ -6,6 +6,11 @@ const PRECACHE_URLS = ['/', '/offline.html', '/favicon.svg', '/apple-touch-icon.
 const NAVIGATION_PATHS = new Set([
   '/',
   '/servicos',
+  '/servicos/sites-institucionais',
+  '/servicos/portfolios-profissionais',
+  '/servicos/sistemas-sob-medida',
+  '/servicos/aplicacoes-web',
+  '/servicos/automacao-de-processos-e-integracoes',
   '/trabalhos',
   '/trabalhos/sgs',
   '/trabalhos/telma-santos',

@@ -110,7 +110,7 @@ export default function Services() {
         <ul ref={listRef} className="services__list">
           {services.map((service, index) => (
             <li key={service.title} className="services__item">
-              <Link href={`/servicos#${service.slug}`} prefetch={false} className="services__item-link">
+              <Link href={`/servicos/${service.slug}`} prefetch={false} className="services__item-link">
                 <span className="services__index">{String(index + 1).padStart(2, '0')}</span>
                 <div className="services__item-copy">
                   <h3>{service.title}</h3>

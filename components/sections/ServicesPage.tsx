@@ -47,11 +47,24 @@ export default function ServicesPage() {
                       </ul>
                     </div>
                   </div>
-                  {relatedProject && (
-                    <Link href={`/trabalhos/${relatedProject.slug}`} prefetch={false} className="service-page__case">
-                      Ver projeto relacionado: {relatedProject.name} ↗
+                  <div className="service-page__links">
+                    <Link
+                      href={`/servicos/${service.slug}`}
+                      prefetch={false}
+                      className="service-page__case"
+                    >
+                      Ver serviço em detalhes ↗
                     </Link>
-                  )}
+                    {relatedProject && (
+                      <Link
+                        href={`/trabalhos/${relatedProject.slug}`}
+                        prefetch={false}
+                        className="service-page__case"
+                      >
+                        Ver projeto relacionado: {relatedProject.name} ↗
+                      </Link>
+                    )}
+                  </div>
                 </div>
               </article>
             )
