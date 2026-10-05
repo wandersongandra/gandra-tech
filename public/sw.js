@@ -1,4 +1,4 @@
-const VERSION = 'security-hardening-2026-09-v1'
+const VERSION = 'seo-services-2026-10-v1'
 const SHELL_CACHE = `gandra-shell-${VERSION}`
 const STATIC_CACHE = `gandra-static-${VERSION}`
 const RUNTIME_CACHE = `gandra-runtime-${VERSION}`
