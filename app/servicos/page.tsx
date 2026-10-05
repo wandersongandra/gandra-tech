@@ -7,7 +7,7 @@ import { services } from '@/lib/services'
 import { createPageMetadata, createServiceJsonLd } from '@/lib/seo'
 
 export const metadata = createPageMetadata({
-  title: 'Desenvolvimento de Sites, Sistemas e Automações',
+  title: 'Sites, Sistemas e Automações',
   description:
     'Sites institucionais, sistemas sob medida, aplicações web, portfólios e automações para empresas. Atendimento remoto em todo o Brasil.',
   path: '/servicos',
