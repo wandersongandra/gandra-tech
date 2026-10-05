@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import { getProject } from '@/lib/projects'
-import { getService, services, type Service } from '@/lib/services'
+import { getService, type Service } from '@/lib/services'
 import { contactMailto } from '@/lib/site'
 
 export default function ServiceDetail({ service }: { service: Service }) {
@@ -36,7 +36,7 @@ export default function ServiceDetail({ service }: { service: Service }) {
         </div>
 
         <section className="service-detail__section" aria-labelledby="problemas-title">
-          <p className="service-detail__label">ONDE COSTUMA DOER</p>
+          <p className="service-detail__label">CENÁRIOS COMUNS</p>
           <h2 id="problemas-title">Problemas que este tipo de projeto pode resolver.</h2>
           <ul className="service-detail__plain-list">
             {service.painPoints.map((item) => (
