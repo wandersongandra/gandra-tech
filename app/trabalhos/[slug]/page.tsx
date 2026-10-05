@@ -18,8 +18,8 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   return createPageMetadata({
     title:
       project.slug === 'sgs'
-        ? 'SGS Segurança — Case de Sistema Sob Medida'
-        : 'Portfólio Telma Santos — Case de Portfólio Profissional',
+        ? 'SGS Segurança — Sistema Sob Medida'
+        : 'Telma Santos — Portfólio Profissional',
     description:
       project.slug === 'sgs'
         ? 'Case de sistema sob medida para gestão de segurança do trabalho, com inspeções, APRs, permissões, auditorias, indicadores e documentos.'
