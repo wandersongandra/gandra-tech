@@ -11,14 +11,14 @@ import ImageFill from '@/components/motion/ImageFill'
 import ScrambleText from '@/components/motion/ScrambleText'
 import { getReducedMotionQuery } from '@/components/motion/reducedMotion'
 import { contactMailto } from '@/lib/site'
-import { getService } from '@/lib/services'
+import { getService, type Service } from '@/lib/services'
 
 gsap.registerPlugin(ScrollTrigger)
 
 export default function ProjectView({ project, next }: { project: Project; next: Project }) {
   const relatedServices = project.relatedServiceSlugs
     .map((slug) => getService(slug))
-    .filter((service) => Boolean(service))
+    .filter((service): service is Service => Boolean(service))
 
   // Zoom-através: a capa cresce continuamente conforme a página sobe,
   // como se o scroll atravessasse a imagem. Só o <img> escala — o wrapper
@@ -113,7 +113,7 @@ export default function ProjectView({ project, next }: { project: Project; next:
               )}
               <div className="pv-overview__label">SERVIÇOS</div>
               <ul className="pv-overview__services">
-                {relatedServices.map((service) => service && (
+                {relatedServices.map((service) => (
                   <li key={service.slug}>
                     <Link href={`/servicos/${service.slug}`} prefetch={false}>
                       {service.title} ↗
