@@ -6,6 +6,7 @@ export type Project = {
   headline: string
   overview: string
   services: string[]
+  relatedServiceSlugs: string[]
   contexto: string
   desafio: string
   solucao: string
@@ -27,6 +28,7 @@ export const projects: Project[] = [
     overview:
       'Plataforma digital de segurança do trabalho concebida para centralizar inspeções, APRs, permissões de trabalho, auditorias, indicadores, documentos e evidências.',
     services: ['Produto', 'UX / UI', 'Engenharia web', 'Mobile'],
+    relatedServiceSlugs: ['sistemas-sob-medida', 'aplicacoes-web', 'automacao-de-processos-e-integracoes'],
     contexto:
       'O SGS é uma plataforma digital de segurança do trabalho para empresas que precisam centralizar inspeções, APRs, permissões de trabalho, auditorias, indicadores, documentos e evidências.',
     desafio:
@@ -50,6 +52,7 @@ export const projects: Project[] = [
     overview:
       'Projeto de portfólio desenvolvido para apresentar trabalho, identidade visual e serviços.',
     services: ['Estratégia visual', 'Design de interface', 'Engenharia web'],
+    relatedServiceSlugs: ['sites-institucionais', 'portfolios-profissionais'],
     contexto:
       'O projeto é um portfólio profissional desenvolvido para apresentar trabalho, identidade visual e serviços.',
     desafio:
