@@ -6,6 +6,11 @@ const outDir = path.join(root, 'out')
 const expectedRoutes = [
   '/',
   '/servicos',
+  '/servicos/sites-institucionais',
+  '/servicos/portfolios-profissionais',
+  '/servicos/sistemas-sob-medida',
+  '/servicos/aplicacoes-web',
+  '/servicos/automacao-de-processos-e-integracoes',
   '/trabalhos',
   '/trabalhos/sgs',
   '/trabalhos/telma-santos',
