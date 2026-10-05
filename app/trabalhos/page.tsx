@@ -7,8 +7,8 @@ import { projects } from '@/lib/projects'
 import { createPageMetadata } from '@/lib/seo'
 
 export const metadata = createPageMetadata({
-  title: 'Trabalhos',
-  description: `Portfólio de sites, sistemas e produtos digitais da Gandra Tecnologia: ${projects
+  title: 'Cases de Sites, Sistemas e Produtos Digitais',
+  description: `Conheça projetos de sites, sistemas e produtos digitais desenvolvidos pela Gandra Tecnologia: ${projects
     .map((p) => p.name)
     .join(', ')}.`,
   path: '/trabalhos',
