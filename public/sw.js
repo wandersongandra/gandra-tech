@@ -6,6 +6,11 @@ const PRECACHE_URLS = ['/', '/offline.html', '/favicon.svg', '/apple-touch-icon.
 const NAVIGATION_PATHS = new Set([
   '/',
   '/servicos',
+  '/servicos/sites-institucionais',
+  '/servicos/portfolios-profissionais',
+  '/servicos/sistemas-sob-medida',
+  '/servicos/aplicacoes-web',
+  '/servicos/automacao-de-processos-e-integracoes',
   '/trabalhos',
   '/trabalhos/sgs',
   '/trabalhos/telma-santos',
