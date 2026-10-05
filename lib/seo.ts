@@ -48,11 +48,11 @@ export function createServiceJsonLd(service: Service) {
   return {
     '@context': 'https://schema.org',
     '@type': 'Service',
-    '@id': `${siteUrl}/servicos#${service.slug}`,
+    '@id': `${siteUrl}/servicos/${service.slug}#service`,
     name: service.title,
     serviceType: service.title,
     description: service.description,
-    url: `${siteUrl}/servicos#${service.slug}`,
+    url: `${siteUrl}/servicos/${service.slug}`,
     provider: { '@id': `${siteUrl}#organization` },
     areaServed: { '@type': 'Country', name: 'Brasil' },
     availableLanguage: 'pt-BR',
