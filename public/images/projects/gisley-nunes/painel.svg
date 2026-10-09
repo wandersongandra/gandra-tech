@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1000" viewBox="0 0 1600 1000" role="img" aria-labelledby="title desc">
+<title id="title">Painel administrativo — Gisley Nunes Imóveis</title>
+<desc id="desc">Composição esquemática de navegação administrativa e gestão de imóveis, sem dados reais.</desc>
+<rect width="1600" height="1000" fill="#E7DED2"/>
+<rect x="100" y="95" width="1400" height="815" rx="24" fill="#F6F4EF"/>
+<path d="M124 95 H435 V910 H124 Q100 910 100 886 V119 Q100 95 124 95" fill="#0A2930"/>
+<text x="150" y="162" fill="#F4EFE6" font-family="Georgia, serif" font-size="37">Gisley Nunes</text>
+<text x="153" y="195" fill="#C2A68F" font-family="Arial, sans-serif" font-size="17" letter-spacing="4">ADMINISTRATIVO</text>
+<rect x="131" y="269" width="273" height="61" rx="11" fill="#244B54"/><text x="161" y="307" fill="#fff" font-family="Arial, sans-serif" font-size="24">Visão geral</text>
+<text x="161" y="396" fill="#E4E4D8" font-family="Arial, sans-serif" font-size="24">Imóveis</text>
+<text x="161" y="471" fill="#E4E4D8" font-family="Arial, sans-serif" font-size="24">Contatos</text>
+<text x="161" y="546" fill="#E4E4D8" font-family="Arial, sans-serif" font-size="24">Equipe</text>
+<path d="M483 238 H1445" stroke="#DAD8CF"/>
+<text x="491" y="174" fill="#123C46" font-family="Georgia, serif" font-size="54">Gestão de imóveis</text>
+<text x="493" y="219" fill="#607477" font-family="Arial, sans-serif" font-size="21">Catálogo, fotos e atendimento organizados em uma área reservada.</text>
+<rect x="1230" y="140" width="215" height="56" rx="10" fill="#8F523B"/>
+<text x="1337" y="175" text-anchor="middle" fill="#fff" font-family="Arial, sans-serif" font-size="20">+ Novo imóvel</text>
+<rect x="485" y="283" width="954" height="138" rx="16" fill="#fff" stroke="#DDDFD8"/>
+<text x="518" y="328" fill="#607477" font-family="Arial, sans-serif" font-size="18" letter-spacing="2">FLUXO DE CADASTRO</text>
+<rect x="518" y="349" width="187" height="44" rx="22" fill="#DDE8E3"/><text x="611" y="377" text-anchor="middle" fill="#123C46" font-family="Arial, sans-serif" font-size="18">Dados do imóvel</text>
+<path d="M725 372 H769" stroke="#8F523B" stroke-width="3"/>
+<rect x="787" y="349" width="149" height="44" rx="22" fill="#F1E1D7"/><text x="862" y="377" text-anchor="middle" fill="#784732" font-family="Arial, sans-serif" font-size="18">Fotografias</text>
+<path d="M954 372 H998" stroke="#8F523B" stroke-width="3"/>
+<rect x="1015" y="349" width="189" height="44" rx="22" fill="#F1F0EA"/><text x="1110" y="377" text-anchor="middle" fill="#526467" font-family="Arial, sans-serif" font-size="18">Revisão</text>
+<rect x="485" y="451" width="954" height="375" rx="16" fill="#fff" stroke="#DDDFD8"/>
+<text x="519" y="508" fill="#123C46" font-family="Arial, sans-serif" font-weight="bold" font-size="27">Imóveis cadastrados</text>
+<rect x="519" y="540" width="885" height="50" rx="8" fill="#F6F4EF"/>
+<text x="547" y="572" fill="#607477" font-family="Arial, sans-serif" font-size="19">Imóvel</text>
+<text x="935" y="572" fill="#607477" font-family="Arial, sans-serif" font-size="19">Publicação</text>
+<text x="1190" y="572" fill="#607477" font-family="Arial, sans-serif" font-size="19">Ações</text>
+<g fill="#E5E2DC"><rect x="547" y="626" width="92" height="69" rx="7"/><rect x="547" y="725" width="92" height="69" rx="7"/></g>
+<g fill="#D6DBD5"><rect x="664" y="633" width="213" height="13" rx="6"/><rect x="664" y="663" width="140" height="13" rx="6"/><rect x="664" y="731" width="213" height="13" rx="6"/><rect x="664" y="761" width="140" height="13" rx="6"/></g>
+<g fill="#E8EFEA"><rect x="924" y="634" width="150" height="37" rx="18"/><rect x="924" y="734" width="150" height="37" rx="18"/></g>
+<g fill="#A5B6AC"><rect x="1195" y="640" width="135" height="17" rx="8"/><rect x="1195" y="740" width="135" height="17" rx="8"/></g>
+<text x="101" y="956" fill="#3B4F53" font-family="Arial, sans-serif" font-size="17" letter-spacing="2">COMPOSIÇÃO ESQUEMÁTICA · SEM DADOS DE CLIENTES</text>
+</svg>

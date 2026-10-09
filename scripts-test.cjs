@@ -4,7 +4,7 @@ const path = require('node:path')
 const root = __dirname
 const source = fs.readFileSync(path.join(root, 'lib', 'projects.ts'), 'utf8')
 const slugs = [...source.matchAll(/slug:\s*'([^']+)'/g)].map((match) => match[1])
-const expected = ['sgs', 'telma-santos']
+const expected = ['sgs', 'telma-santos', 'gisley-nunes-imoveis', 'ajn-consultoria-engenharia']
 const failures = []
 
 if (JSON.stringify(slugs) !== JSON.stringify(expected)) {

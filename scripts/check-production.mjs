@@ -10,6 +10,8 @@ const routes = [
   '/trabalhos',
   '/trabalhos/sgs',
   '/trabalhos/telma-santos',
+  '/trabalhos/gisley-nunes-imoveis',
+  '/trabalhos/ajn-consultoria-engenharia',
   '/contato',
   '/llms.txt',
   '/sitemap.xml',

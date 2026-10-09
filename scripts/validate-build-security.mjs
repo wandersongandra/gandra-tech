@@ -14,6 +14,8 @@ const expectedRoutes = [
   '/trabalhos',
   '/trabalhos/sgs',
   '/trabalhos/telma-santos',
+  '/trabalhos/gisley-nunes-imoveis',
+  '/trabalhos/ajn-consultoria-engenharia',
   '/contato',
   '/termos-de-uso',
   '/politica-de-privacidade',
