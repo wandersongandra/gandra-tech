@@ -121,14 +121,6 @@ jobs:
         with:
           fail-on-severity: moderate
 
-      - name: Prepare security lockfile remediation (temporary)
-        run: |
-          npm audit fix --package-lock-only --ignore-scripts
-          echo LOCKFILE_BASE64_BEGIN
-          base64 -w 0 package-lock.json
-          echo
-          echo LOCKFILE_BASE64_END
-
       - name: Audit dependencies
         run: npm audit --audit-level=moderate
 
