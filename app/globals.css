@@ -3712,3 +3712,21 @@ main {
     font-size: 15px;
   }
 }
+
+/* Notas e link externo nos cases: discretos e acessíveis. */
+.pv-content__note {
+  margin: 18px 0 0;
+  max-width: 780px;
+  color: #515d59;
+  font-size: 12px;
+  line-height: 1.6;
+}
+.pv-overview__external {
+  color: inherit;
+  display: inline-block;
+  font-weight: 650;
+  text-underline-offset: 4px;
+  text-decoration: underline;
+}
+.pv-overview__external:hover { opacity: .72; }
+.pv-overview__external:focus-visible { outline: 2px solid currentColor; outline-offset: 5px; }

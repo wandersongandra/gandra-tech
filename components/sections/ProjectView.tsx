@@ -47,6 +47,7 @@ export default function ProjectView({ project, next }: { project: Project; next:
           <FadeIn as="div" className="pv-hero__meta" trigger="load" y={12} duration={0.5}>
             <span>{project.category}</span>
             <span>{project.year}</span>
+            {project.phase && <span>{project.phase}</span>}
           </FadeIn>
           <WordReveal
             as="h1"
@@ -105,6 +106,14 @@ export default function ProjectView({ project, next }: { project: Project; next:
                 <div className="pv-overview__label">PAPEL DA GANDRA</div>
                 <p className="pv-overview__text">{project.papel}</p>
               </div>
+              {project.externalUrl && project.externalLabel && (
+                <div className="pv-overview__block">
+                  <div className="pv-overview__label">SITE DO PROJETO</div>
+                  <a className="pv-overview__external" href={project.externalUrl} target="_blank" rel="noopener noreferrer">
+                    {project.externalLabel} ↗
+                  </a>
+                </div>
+              )}
               {project.stack && (
                 <div className="pv-overview__block">
                   <div className="pv-overview__label">STACK</div>
@@ -164,6 +173,7 @@ export default function ProjectView({ project, next }: { project: Project; next:
               }
             />
           </div>
+          {project.visualNote && <p className="pv-content__note">{project.visualNote}</p>}
         </div>
       </section>
 

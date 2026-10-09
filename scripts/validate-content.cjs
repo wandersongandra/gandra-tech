@@ -25,11 +25,11 @@ function assertUnique(values, label) {
 }
 
 const projectSlugs = projects.map((project) => project.slug)
-assert.deepEqual(projectSlugs, ['sgs', 'telma-santos'])
+assert.deepEqual(projectSlugs, ['sgs', 'telma-santos', 'gisley-nunes-imoveis', 'ajn-consultoria-engenharia'])
 assertUnique(projectSlugs, 'slugs de projetos')
 
 for (const project of projects) {
-  for (const field of ['slug', 'name', 'category', 'year', 'headline', 'overview', 'contexto', 'desafio', 'solucao', 'resultado', 'papel', 'workImage', 'coverImage', 'mainImage']) {
+  for (const field of ['slug', 'name', 'category', 'year', 'headline', 'overview', 'contexto', 'desafio', 'solucao', 'resultado', 'papel', 'workImage', 'coverImage', 'mainImage', 'seoTitle', 'seoDescription']) {
     assert.equal(typeof project[field], 'string', `projeto ${project.slug}: ${field} deve ser texto`)
     assert.ok(project[field].trim(), `projeto ${project.slug}: ${field} não pode ser vazio`)
   }
@@ -45,7 +45,9 @@ for (const project of projects) {
 
 assert.equal(getProject('não-existe'), undefined)
 assert.equal(getNextProject('sgs').slug, 'telma-santos')
-assert.equal(getNextProject('telma-santos').slug, 'sgs')
+assert.equal(getNextProject('telma-santos').slug, 'gisley-nunes-imoveis')
+assert.equal(getNextProject('gisley-nunes-imoveis').slug, 'ajn-consultoria-engenharia')
+assert.equal(getNextProject('ajn-consultoria-engenharia').slug, 'sgs')
 
 const serviceSlugs = services.map((service) => service.slug)
 assert.deepEqual(serviceSlugs, [
