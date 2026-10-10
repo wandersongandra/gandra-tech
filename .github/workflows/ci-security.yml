@@ -143,3 +143,38 @@ jobs:
         uses: gitleaks/gitleaks-action@e0c47f4f8be36e29cdc102c57e68cb5cbf0e8d1e
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  visual:
+    name: browser-qa
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+
+      - name: Setup Node.js
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
+        with:
+          node-version: "22"
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci --ignore-scripts
+
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: Build export
+        run: npm run build
+
+      - name: Browser smoke on local export
+        run: |
+          python3 -m http.server 4173 --directory out > /tmp/gandra-visual-server.log 2>&1 &
+          node scripts/visual-qa.cjs
+
+      - name: Archive screenshots
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: gandra-visual-qa
+          path: artifacts/visual/
+          if-no-files-found: ignore
