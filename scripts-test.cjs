@@ -23,3 +23,16 @@ if (failures.length) {
 }
 
 console.log(`Testes estruturais passaram: ${slugs.length} projetos e assets válidos.`)
+
+// Guardas de integração para o laboratório 3D e a disponibilidade offline.
+const homeSrc = require('node:fs').readFileSync(require('node:path').join(__dirname, 'app/page.tsx'), 'utf8')
+const labSrc = require('node:fs').readFileSync(require('node:path').join(__dirname, 'components/sections/ImmersiveLab.tsx'), 'utf8')
+const shaderSrc = require('node:fs').readFileSync(require('node:path').join(__dirname, 'components/motion/OrbitalArtifact.tsx'), 'utf8')
+const swSrc = require('node:fs').readFileSync(require('node:path').join(__dirname, 'public/sw.js'), 'utf8')
+const assertLab = require('node:assert/strict')
+assertLab.match(homeSrc, /<ImmersiveLab\s*\/>/)
+assertLab.match(labSrc, /aria-labelledby="lab-heading"/)
+assertLab.match(shaderSrc, /IntersectionObserver/)
+assertLab.match(shaderSrc, /prefers-reduced-motion/)
+assertLab.match(shaderSrc, /gl\.deleteProgram\(program\)/)
+for (const slug of ['gisley-nunes-imoveis', 'ajn-consultoria-engenharia']) assertLab.ok(swSrc.includes("'/trabalhos/" + slug + "'"))
