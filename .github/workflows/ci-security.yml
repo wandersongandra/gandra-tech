@@ -163,8 +163,8 @@ jobs:
       - name: Install Chromium
         run: npx playwright install --with-deps chromium
 
-      - name: Build export
-        run: npm run build
+      - name: Build export (Webpack para QA de navegador)
+        run: npx next build --webpack
 
       - name: Browser smoke on local export
         run: |
