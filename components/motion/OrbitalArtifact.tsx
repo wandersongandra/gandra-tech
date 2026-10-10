@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState, type RefObject } from 'react'
 
 const VERTEX = `attribute vec2 a_position;
 void main() { gl_Position = vec4(a_position, 0.0, 1.0); }`
@@ -90,9 +90,8 @@ void main() {
 }
 `
 
-export default function OrbitalArtifact() {
+function OrbitalRenderer({ hostRef }: { hostRef: RefObject<HTMLDivElement | null> }) {
   const canvasRef = useRef<HTMLCanvasElement>(null)
-  const hostRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     const canvas = canvasRef.current
@@ -239,7 +238,10 @@ export default function OrbitalArtifact() {
     function onScroll() {
       const section = host!.closest('section')!
       const rect = section.getBoundingClientRect()
-      progress = Math.max(0, Math.min(1, -rect.top / Math.max(1, rect.height - window.innerHeight)))
+      // A seção percorre do rodapé ao topo da viewport; sempre há distância positiva.
+      // Evita saltos de rotação quando o laboratório é menor que a altura da janela.
+      const travel = rect.height + window.innerHeight
+      progress = Math.max(0, Math.min(1, (window.innerHeight - rect.top) / Math.max(1, travel)))
     }
 
     const visibility = new IntersectionObserver((entries) => {
@@ -272,10 +274,38 @@ export default function OrbitalArtifact() {
     }
   }, [])
 
+  return <canvas ref={canvasRef} className="lab__canvas" aria-hidden="true" />
+}
+
+/**
+ * A cena decorativa não pode disputar o LCP do hero: só montamos o renderer
+ * (e criamos o contexto WebGL/shaders) quando o laboratório se aproxima da tela.
+ */
+export default function OrbitalArtifact() {
+  const hostRef = useRef<HTMLDivElement>(null)
+  const [nearViewport, setNearViewport] = useState(false)
+
+  useEffect(() => {
+    const host = hostRef.current
+    if (!host) return
+    if (!('IntersectionObserver' in window)) {
+      setNearViewport(true)
+      return
+    }
+    const visibility = new IntersectionObserver((entries) => {
+      if (entries.some((entry) => entry.isIntersecting)) {
+        setNearViewport(true)
+        visibility.disconnect()
+      }
+    }, { rootMargin: '150px 0px', threshold: 0 })
+    visibility.observe(host)
+    return () => visibility.disconnect()
+  }, [])
+
   return (
     <div ref={hostRef} className="lab__scene" aria-hidden="true">
       <div className="lab__fallback" />
-      <canvas ref={canvasRef} className="lab__canvas" />
+      {nearViewport ? <OrbitalRenderer hostRef={hostRef} /> : null}
     </div>
   )
 }

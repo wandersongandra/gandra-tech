@@ -19,7 +19,10 @@ async function main() {
       const errors = []
       page.on('pageerror', error => errors.push(error.message))
       await page.goto(origin, { waitUntil: 'domcontentloaded' })
+      await page.waitForTimeout(300)
+      assert.equal(await page.locator('#laboratorio canvas').count(), 0, viewport.name + ': WebGL montado antes do laboratório chegar perto')
       await page.locator('#laboratorio').scrollIntoViewIfNeeded()
+      await page.locator('#laboratorio canvas').waitFor({ state: 'attached' })
       await page.waitForTimeout(1200)
       assert.match(await page.locator('.lab__title').innerText(), /experiência também/i)
       assert.equal(await page.locator('.lab__link').getAttribute('href'), '/trabalhos')
