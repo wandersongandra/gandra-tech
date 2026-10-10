@@ -4030,3 +4030,30 @@ main {
   .lab__link { transition: none; }
   .lab__link:hover { gap: 24px; }
 }
+
+
+/* QA Chromium 390/1440px: a peça 3D não deve encobrir leitura nem anotações. */
+@media (min-width: 768px) {
+  .lab__scene {
+    left: 24%;
+    right: 12%;
+  }
+  .lab__fallback {
+    width: min(35vw, 490px);
+  }
+  .lab__annotations {
+    transform: translateX(20px);
+    background: linear-gradient(90deg, transparent, rgba(9, 10, 19, .52) 32%, rgba(9, 10, 19, .6));
+  }
+}
+@media (max-width: 767px) {
+  .lab__scene {
+    left: 0;
+    right: 0;
+    top: 25%;
+    bottom: 26%;
+  }
+  .lab__fallback {
+    width: min(66vw, 300px);
+  }
+}

@@ -50,7 +50,7 @@ vec3 normalAt(vec3 p) {
 void main() {
   vec2 uv = (gl_FragCoord.xy - 0.5 * u_resolution.xy) / min(u_resolution.x, u_resolution.y);
   vec3 ro = vec3(0.0, 0.0, 4.35);
-  vec3 rd = normalize(vec3(uv * 1.28, -1.8));
+  vec3 rd = normalize(vec3(uv * 1.8, -1.8));
   float dist = 0.0;
   float hit = 0.0;
   vec3 pos = ro;
