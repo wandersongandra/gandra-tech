@@ -119,7 +119,8 @@ export default function HeroParticles() {
     build()
     window.addEventListener('resize', build)
     // A amostragem usa a Inter: reconstrói quando ela terminar de carregar.
-    document.fonts?.ready.then(build)
+    let disposed = false
+    document.fonts?.ready.then(() => { if (!disposed) build() })
 
     const mouse = { x: -9999, y: -9999 }
     const onMove = (e: MouseEvent) => {
@@ -137,6 +138,8 @@ export default function HeroParticles() {
     }
 
     let raf = 0
+    let started = false
+    let inView = false
     let lastFrame = 0
     const frameInterval = lowPowerMode ? 1000 / 30 : 0
     const tick = (now: number) => {
@@ -196,14 +199,29 @@ export default function HeroParticles() {
 
     // Só começa quando a cortina abre — a formação do nome é a primeira
     // coisa que se vê. O timeout é rede de segurança caso o evento se perca.
-    const start = () => {
-      if (raf) return
+    const sync = () => {
+      cancelAnimationFrame(raf)
+      raf = 0
+      if (!started || !inView || document.hidden || disposed) return
       raf = requestAnimationFrame(tick)
+    }
+    const visibility = new IntersectionObserver((entries) => {
+      inView = entries.some((entry) => entry.isIntersecting)
+      sync()
+    })
+    visibility.observe(canvas)
+    document.addEventListener('visibilitychange', sync)
+    const start = () => {
+      started = true
+      sync()
     }
     window.addEventListener('gt:curtain-open', start, { once: true })
     const fallback = setTimeout(start, lowPowerMode ? 2400 : 4200)
 
     return () => {
+      disposed = true
+      visibility.disconnect()
+      document.removeEventListener('visibilitychange', sync)
       cancelAnimationFrame(raf)
       clearTimeout(fallback)
       window.removeEventListener('gt:curtain-open', start)

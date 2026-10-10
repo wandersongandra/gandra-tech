@@ -1,4 +1,4 @@
-const VERSION = 'seo-services-2026-10-v1'
+const VERSION = 'immersive-lab-2026-10-v2'
 const SHELL_CACHE = `gandra-shell-${VERSION}`
 const STATIC_CACHE = `gandra-static-${VERSION}`
 const RUNTIME_CACHE = `gandra-runtime-${VERSION}`
@@ -14,6 +14,8 @@ const NAVIGATION_PATHS = new Set([
   '/trabalhos',
   '/trabalhos/sgs',
   '/trabalhos/telma-santos',
+  '/trabalhos/gisley-nunes-imoveis',
+  '/trabalhos/ajn-consultoria-engenharia',
   '/contato',
   '/termos-de-uso',
   '/politica-de-privacidade',

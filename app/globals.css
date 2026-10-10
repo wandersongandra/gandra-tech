@@ -3730,3 +3730,330 @@ main {
 }
 .pv-overview__external:hover { opacity: .72; }
 .pv-overview__external:focus-visible { outline: 2px solid currentColor; outline-offset: 5px; }
+
+
+/* === GANDRA LAB / MATERIAL, DEPTH & MOTION ===
+   A escultura tem orçamento de pixels e pausas próprias no runtime. */
+.lab {
+  position: relative;
+  isolation: isolate;
+  overflow: clip;
+  color: #f2f2f8;
+  background: #080911;
+  border-top: 1px solid #1c1b27;
+}
+
+.lab__topline {
+  position: relative;
+  display: flex;
+  justify-content: space-between;
+  gap: 24px;
+  padding-top: 25px;
+  padding-bottom: 25px;
+  font: 600 10px/1.5 var(--font-sans);
+  letter-spacing: .17em;
+  color: #a6a5ba;
+}
+
+.lab__stage {
+  position: relative;
+  isolation: isolate;
+  min-height: min(820px, 95svh);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  overflow: hidden;
+  border-top: 1px solid rgba(179, 179, 208, .14);
+  background:
+    radial-gradient(ellipse 44% 70% at 53% 46%, rgba(88, 79, 145, .2), transparent 82%),
+    linear-gradient(130deg, #10111e 0%, #070910 60%, #0b0b15 100%);
+}
+
+.lab__grid {
+  position: absolute;
+  z-index: -1;
+  inset: 0;
+  opacity: .24;
+  background-image:
+    linear-gradient(to right, rgba(193, 192, 242, .13) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(193, 192, 242, .11) 1px, transparent 1px);
+  background-size: 108px 108px;
+  mask-image: radial-gradient(ellipse at center, black 2%, transparent 78%);
+  pointer-events: none;
+}
+
+.lab__scene {
+  position: absolute;
+  z-index: 0;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: auto;
+}
+
+.lab__fallback {
+  position: absolute;
+  width: min(50vw, 650px);
+  aspect-ratio: 1;
+  left: 50%;
+  top: 49%;
+  transform: translate(-50%, -50%);
+  opacity: .48;
+  border: 1px solid rgba(145, 147, 230, .55);
+  border-radius: 50%;
+  box-shadow:
+    0 0 120px 36px rgba(93, 86, 182, .16),
+    inset 0 0 110px rgba(132, 124, 221, .16);
+}
+
+.lab__fallback::before,
+.lab__fallback::after {
+  content: "";
+  position: absolute;
+  inset: 13%;
+  border-radius: 50%;
+  border: 1px solid rgba(186, 183, 248, .47);
+  transform: rotateX(68deg) rotateZ(25deg);
+}
+.lab__fallback::after {
+  inset: 7%;
+  transform: rotateY(68deg) rotateZ(-25deg);
+  border-color: rgba(146, 150, 220, .55);
+}
+
+.lab__canvas {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.lab__layout {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  flex: 1;
+  min-height: 590px;
+  display: grid;
+  grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr);
+  align-items: center;
+  gap: 15%;
+  padding-top: 84px;
+  padding-bottom: 70px;
+  pointer-events: none;
+}
+
+.lab__copy {
+  max-width: 475px;
+}
+
+.lab__eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 38px;
+  color: #b8b9d1;
+  font: 600 10px/1.4 var(--font-sans);
+  letter-spacing: .17em;
+}
+
+.lab__signal {
+  flex: 0 0 auto;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #a6adff;
+  box-shadow: 0 0 18px 3px rgba(144, 157, 255, .6);
+}
+
+.lab__title {
+  font-family: var(--font-display);
+  font-size: clamp(58px, 6vw, 112px);
+  line-height: .88;
+  font-weight: 300;
+  letter-spacing: -.046em;
+  text-wrap: balance;
+}
+
+.lab__title-italic {
+  display: block;
+  margin-top: .14em;
+  color: #b7b5fb;
+  font-style: italic;
+}
+
+.lab__description {
+  max-width: 355px;
+  margin-top: 42px;
+  color: #a6a8b9;
+  font: 400 14px/1.8 var(--font-sans);
+}
+
+.lab__annotations {
+  justify-self: end;
+  align-self: end;
+  width: min(100%, 310px);
+  margin-bottom: 46px;
+  font-family: var(--font-sans);
+}
+
+.lab__annotations-header {
+  display: block;
+  margin-bottom: 18px;
+  font: 600 10px/1.4 var(--font-sans);
+  letter-spacing: .17em;
+  color: #9294ae;
+}
+
+.lab__annotations > div {
+  display: grid;
+  grid-template-columns: 34px 1fr;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 0;
+  border-top: 1px solid rgba(186, 188, 220, .21);
+}
+
+.lab__annotations > div:last-child {
+  border-bottom: 1px solid rgba(186, 188, 220, .21);
+}
+
+.lab__annotations > div span {
+  font-size: 10px;
+  color: #999ccd;
+}
+
+.lab__annotations strong {
+  font-size: 12px;
+  font-weight: 500;
+  color: #e0e1f0;
+}
+
+.lab__bottomline {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  padding-top: 25px;
+  padding-bottom: 28px;
+  border-top: 1px solid rgba(180, 183, 212, .25);
+}
+
+.lab__coordinate,
+.lab__hint {
+  color: #a3a4b9;
+  font: 600 10px/1.5 var(--font-sans);
+  letter-spacing: .12em;
+  white-space: nowrap;
+}
+
+.lab__coordinate {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+.lab__coordinate i {
+  width: 26px;
+  height: 1px;
+  background: rgba(201, 204, 255, .4);
+}
+
+.lab__link {
+  display: inline-flex;
+  align-items: center;
+  gap: 24px;
+  min-height: 44px;
+  padding: 8px 0;
+  border-bottom: 1px solid #b5b8ef;
+  text-decoration: none;
+  font: 500 13px/1.4 var(--font-sans);
+  color: #f4f4ff;
+  pointer-events: auto;
+  transition: gap .32s ease, color .32s ease;
+}
+
+.lab__link:hover {
+  gap: 38px;
+  color: #b5b8ef;
+}
+
+.lab__link:focus-visible {
+  outline: 2px solid #bec3ff;
+  outline-offset: 5px;
+}
+
+@media (max-width: 1023px) {
+  .lab__layout { gap: 6%; }
+  .lab__title { font-size: clamp(52px, 7vw, 82px); }
+  .lab__annotations { max-width: 260px; }
+  .lab__hint { display: none; }
+}
+
+@media (max-width: 767px) {
+  .lab__topline { padding-top: 20px; padding-bottom: 20px; gap: 12px; }
+  .lab__topline span { font-size: 9px; letter-spacing: .1em; }
+  .lab__topline span:last-child { text-align: right; }
+  .lab__stage { min-height: 870px; }
+  .lab__layout {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    justify-content: space-between;
+    min-height: 740px;
+    gap: 240px;
+    padding-top: 57px;
+    padding-bottom: 30px;
+  }
+  .lab__copy { max-width: 100%; }
+  .lab__eyebrow { margin-bottom: 24px; font-size: 9px; }
+  .lab__title { max-width: 470px; font-size: clamp(44px, 10vw, 68px); line-height: .95; }
+  .lab__description { max-width: 340px; margin-top: 23px; font-size: 13px; line-height: 1.7; }
+  .lab__scene { top: 30%; bottom: 18%; }
+  .lab__fallback { width: min(88vw, 420px); }
+  .lab__annotations { align-self: stretch; width: 100%; max-width: none; margin-bottom: 0; }
+  .lab__annotations-header { margin-bottom: 8px; }
+  .lab__annotations > div { padding: 11px 0; }
+  .lab__bottomline { gap: 12px; padding-top: 18px; padding-bottom: 20px; }
+  .lab__coordinate { font-size: 9px; }
+  .lab__link { gap: 10px; font-size: 12px; }
+}
+@media (max-width: 380px) {
+  .lab__stage { min-height: 970px; }
+  .lab__layout { min-height: 855px; gap: 270px; }
+  .lab__title { font-size: 44px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .lab__link { transition: none; }
+  .lab__link:hover { gap: 24px; }
+}
+
+
+/* QA Chromium 390/1440px: a peça 3D não deve encobrir leitura nem anotações. */
+@media (min-width: 768px) {
+  .lab__scene {
+    left: 24%;
+    right: 12%;
+  }
+  .lab__fallback {
+    width: min(35vw, 490px);
+  }
+  .lab__annotations {
+    transform: translateX(20px);
+    background: linear-gradient(90deg, transparent, rgba(9, 10, 19, .52) 32%, rgba(9, 10, 19, .6));
+  }
+}
+@media (max-width: 767px) {
+  .lab__scene {
+    left: 0;
+    right: 0;
+    top: 25%;
+    bottom: 26%;
+  }
+  .lab__fallback {
+    width: min(66vw, 300px);
+  }
+}

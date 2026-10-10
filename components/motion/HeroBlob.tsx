@@ -137,13 +137,15 @@ export default function HeroBlob() {
     const uMouse = gl.getUniformLocation(prog, 'u_mouse')
 
     // DPR capado: o shader é o item mais caro do site em fill-rate.
-    const dpr = Math.min(window.devicePixelRatio || 1, lowPowerMode ? 1 : 1.25)
+    const dpr = Math.min(window.devicePixelRatio || 1, lowPowerMode ? 0.85 : 1)
+    let disposed = false
     const resize = () => {
       const parent = canvas.parentElement
       if (!parent) return
       const r = parent.getBoundingClientRect()
-      canvas.width = Math.round(r.width * dpr)
-      canvas.height = Math.round(r.height * dpr)
+      const scale = Math.min(dpr, 1100 / Math.max(r.width, 1), 700 / Math.max(r.height, 1))
+      canvas.width = Math.max(1, Math.round(r.width * scale))
+      canvas.height = Math.max(1, Math.round(r.height * scale))
       gl.viewport(0, 0, canvas.width, canvas.height)
     }
     resize()
@@ -159,9 +161,12 @@ export default function HeroBlob() {
       window.addEventListener('mousemove', onMove)
     }
 
-    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    const motionQuery = window.matchMedia('(prefers-reduced-motion: reduce)')
     let raf = 0
+    let inView = false
+    let lastFrame = 0
     const render = (t: number) => {
+      if (disposed || gl.isContextLost()) return
       mouse.x += (mouse.tx - mouse.x) * 0.05
       mouse.y += (mouse.ty - mouse.y) * 0.05
       gl.uniform2f(uRes, canvas.width, canvas.height)
@@ -170,23 +175,41 @@ export default function HeroBlob() {
       gl.drawArrays(gl.TRIANGLES, 0, 3)
     }
 
-    if (reduced) {
-      render(8000) // frame estático, ainda bonito
-    } else {
-      let lastFrame = 0
-      const frameInterval = lowPowerMode ? 1000 / 30 : 0
-      const loop = (t: number) => {
-        if (!frameInterval || t - lastFrame >= frameInterval) {
-          lastFrame = t
-          render(t)
-        }
-        raf = requestAnimationFrame(loop)
+    const loop = (t: number) => {
+      if (!inView || document.hidden || motionQuery.matches || disposed) {
+        raf = 0
+        return
+      }
+      const interval = lowPowerMode ? 1000 / 25 : 1000 / 40
+      if (t - lastFrame >= interval) {
+        lastFrame = t
+        render(t)
       }
       raf = requestAnimationFrame(loop)
     }
 
-    return () => {
+    const sync = () => {
       cancelAnimationFrame(raf)
+      raf = 0
+      if (!inView || document.hidden || disposed) return
+      if (motionQuery.matches) render(8000)
+      else raf = requestAnimationFrame(loop)
+    }
+
+    const visibility = new IntersectionObserver((entries) => {
+      inView = entries.some((entry) => entry.isIntersecting)
+      sync()
+    }, { threshold: 0 })
+    visibility.observe(canvas)
+    document.addEventListener('visibilitychange', sync)
+    motionQuery.addEventListener('change', sync)
+
+    return () => {
+      disposed = true
+      cancelAnimationFrame(raf)
+      visibility.disconnect()
+      document.removeEventListener('visibilitychange', sync)
+      motionQuery.removeEventListener('change', sync)
       window.removeEventListener('resize', resize)
       window.removeEventListener('mousemove', onMove)
       gl.deleteBuffer(buf)
