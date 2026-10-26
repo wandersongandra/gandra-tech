@@ -1,43 +1,17 @@
 'use client'
-import { useEffect } from 'react'
 import Link from 'next/link'
-import gsap from 'gsap'
-import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import type { Project } from '@/lib/projects'
 import WordReveal from '@/components/motion/WordReveal'
 import FadeIn from '@/components/motion/FadeIn'
 import PageTransition from '@/components/motion/PageTransition'
 import ImageFill from '@/components/motion/ImageFill'
-import ScrambleText from '@/components/motion/ScrambleText'
-import { getReducedMotionQuery } from '@/components/motion/reducedMotion'
 import { contactMailto } from '@/lib/site'
 import { getService, type Service } from '@/lib/services'
-
-gsap.registerPlugin(ScrollTrigger)
 
 export default function ProjectView({ project, next }: { project: Project; next: Project }) {
   const relatedServices = project.relatedServiceSlugs
     .map((slug) => getService(slug))
     .filter((service): service is Service => Boolean(service))
-
-  // Zoom-através: a capa cresce continuamente conforme a página sobe,
-  // como se o scroll atravessasse a imagem. Só o <img> escala — o wrapper
-  // tem clip próprio (mancha de tinta) e o FadeIn cuida da entrada.
-  useEffect(() => {
-    const motionQuery = getReducedMotionQuery()
-    if (motionQuery.matches) return
-    const img = document.querySelector('.pv-hero__cover img')
-    if (!img) return
-    const tween = gsap.fromTo(img, { scale: 1 }, {
-      scale: 1.18,
-      ease: 'none',
-      scrollTrigger: { trigger: '.pv-hero', start: 'top top', end: 'bottom top', scrub: true },
-    })
-    return () => {
-      tween.scrollTrigger?.kill()
-      tween.kill()
-    }
-  }, [])
 
   return (
     <PageTransition>
@@ -157,21 +131,38 @@ export default function ProjectView({ project, next }: { project: Project; next:
         </div>
       </section>
 
-      {/* Uma única tela do produto — o portfólio mostra o essencial. */}
-      <section className="pv-content">
+      <section className="pv-gallery" aria-labelledby="pv-gallery-title">
         <div className="container">
-          <div className="pv-block pv-block--wide">
-            <ImageFill
-              src={project.mainImage}
-              alt={`Tela principal — ${project.name}`}
-              sizes="(min-width: 1200px) 1104px, 100vw"
-              quality={95}
-              fallback={
-                <div className="pv-block__fill">
-                  <span className="placeholder-label">tela principal — {project.name}</span>
+          <div className="section-label">
+            <span id="pv-gallery-title">REGISTRO VISUAL</span>
+            <span>{project.name}</span>
+          </div>
+          <div className="pv-gallery__grid">
+            <figure className="pv-gallery__figure pv-gallery__figure--feature">
+              <div className="pv-gallery__image">
+                <ImageFill
+                  src={project.mainImage}
+                  alt={`Imagem principal do projeto ${project.name}`}
+                  sizes="(min-width: 1200px) 68vw, 100vw"
+                  quality={95}
+                  fallback={<div className="pv-block__fill"><span className="placeholder-label">{project.name}</span></div>}
+                />
+              </div>
+            </figure>
+            {project.gallery.map((image) => (
+              <figure className="pv-gallery__figure" key={image.src}>
+                <div className="pv-gallery__image">
+                  <ImageFill
+                    src={image.src}
+                    alt={image.alt}
+                    sizes="(min-width: 1200px) 32vw, 100vw"
+                    quality={95}
+                    fallback={<div className="pv-block__fill"><span className="placeholder-label">{project.name}</span></div>}
+                  />
                 </div>
-              }
-            />
+                {image.caption && <figcaption>{image.caption}</figcaption>}
+              </figure>
+            ))}
           </div>
           {project.visualNote && <p className="pv-content__note">{project.visualNote}</p>}
         </div>
@@ -194,9 +185,7 @@ export default function ProjectView({ project, next }: { project: Project; next:
         <div className="container">
           <div className="pv-next__label">PRÓXIMO PROJETO</div>
           <Link href={`/trabalhos/${next.slug}`} prefetch={false} className="pv-next__link">
-            <span className="pv-next__name">
-              <ScrambleText text={next.name} trigger="hover" speed={1.4} />
-            </span>
+            <span className="pv-next__name">{next.name}</span>
             <span className="pv-next__arrow">↗</span>
           </Link>
           <div className="pv-next__category">{next.category} · {next.year}</div>

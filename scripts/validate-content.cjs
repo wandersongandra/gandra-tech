@@ -36,6 +36,14 @@ for (const project of projects) {
   assert.ok(Array.isArray(project.services) && project.services.length > 0, `projeto ${project.slug}: services inválido`)
   assert.ok(Array.isArray(project.relatedServiceSlugs) && project.relatedServiceSlugs.length > 0, `projeto ${project.slug}: relatedServiceSlugs inválido`)
   assert.ok(Array.isArray(project.details) && project.details.length >= 3, `projeto ${project.slug}: details inválido`)
+  assert.ok(Array.isArray(project.gallery) && project.gallery.length > 0, `projeto ${project.slug}: gallery inválida`)
+  for (const image of project.gallery) {
+    assert.equal(typeof image.src, 'string', `projeto ${project.slug}: gallery sem src`)
+    assert.equal(typeof image.alt, 'string', `projeto ${project.slug}: gallery sem alt`)
+    assert.ok(image.src.trim() && image.alt.trim(), `projeto ${project.slug}: gallery incompleta`)
+    const asset = path.join(root, 'public', image.src.replace(/^[/\\]+/, ''))
+    assert.ok(fs.existsSync(asset), `projeto ${project.slug}: imagem de gallery ausente ${image.src}`)
+  }
   for (const detail of project.details) {
     assert.ok(detail.title?.trim(), `projeto ${project.slug}: detail sem título`)
     assert.ok(detail.description?.trim(), `projeto ${project.slug}: detail sem descrição`)

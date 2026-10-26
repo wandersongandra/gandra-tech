@@ -1,10 +1,7 @@
 import type { Metadata, Viewport } from 'next'
 import { Bodoni_Moda, Cormorant_Garamond, Inter } from 'next/font/google'
 import LenisProvider from '@/components/providers/LenisProvider'
-import CustomCursor from '@/components/motion/CustomCursor'
 import PageCurtain from '@/components/motion/PageCurtain'
-import VelocityWarp from '@/components/motion/VelocityWarp'
-import ChaosMode from '@/components/motion/ChaosMode'
 import ServiceWorkerRegister from '@/components/ServiceWorkerRegister'
 import { contactEmail, brandName, siteDescription, siteName, siteUrl } from '@/lib/site'
 import './globals.css'
@@ -112,10 +109,8 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
         <ServiceWorkerRegister />
         <div className="grain" aria-hidden="true" />
         <PageCurtain />
-        <CustomCursor />
         <LenisProvider>
-          <VelocityWarp>{children}</VelocityWarp>
-          <ChaosMode />
+          {children}
         </LenisProvider>
       </body>
     </html>

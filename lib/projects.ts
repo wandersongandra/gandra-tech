@@ -3,6 +3,12 @@ export type ProjectDetail = {
   description: string
 }
 
+export type ProjectImage = {
+  src: string
+  alt: string
+  caption?: string
+}
+
 export type Project = {
   slug: string
   name: string
@@ -28,6 +34,7 @@ export type Project = {
   workImage: string
   coverImage: string
   mainImage: string
+  gallery: ProjectImage[]
 }
 
 export const projects: Project[] = [
@@ -73,6 +80,13 @@ export const projects: Project[] = [
     workImage: '/images/work/sgs.webp',
     coverImage: '/images/projects/sgs/cover.webp',
     mainImage: '/images/projects/sgs/main.webp',
+    gallery: [
+      {
+        src: '/images/work/sgs.webp',
+        alt: 'Captura real do painel da plataforma SGS Segurança.',
+        caption: 'Operação centralizada em uma única interface.',
+      },
+    ],
   },
   {
     slug: 'telma-santos',
@@ -116,6 +130,13 @@ export const projects: Project[] = [
     workImage: '/images/projects/telma-santos/work.webp',
     coverImage: '/images/projects/telma-santos/cover.webp',
     mainImage: '/images/projects/telma-santos/main.webp',
+    gallery: [
+      {
+        src: '/images/projects/telma-santos/work.webp',
+        alt: 'Retrato real de Telma Santos em seu portfólio profissional.',
+        caption: 'Imagem do acervo visual do projeto.',
+      },
+    ],
   },
   {
     slug: 'gisley-nunes-imoveis',
@@ -142,7 +163,7 @@ export const projects: Project[] = [
     stack: 'Laravel, PHP, MySQL, JavaScript e Cloudflare R2',
     phase: 'Implantação em validação',
     visualNote:
-      'Composições editoriais das interfaces do projeto. Não são capturas do ambiente de produção.',
+      'Fotografias reais de um imóvel publicado no catálogo público da Gisley Nunes Imóveis; a apresentação do case não expõe dados administrativos.',
     details: [
       {
         title: 'Busca que não atrapalha a escolha',
@@ -160,9 +181,16 @@ export const projects: Project[] = [
           'A arquitetura Laravel/MySQL, o armazenamento de imagens no R2 e as camadas de autenticação, autorização, proteção de requisições e auditoria foram tratados como parte do produto. A ativação definitiva depende das integrações e da verificação do deploy.',
       },
     ],
-    workImage: '/images/projects/gisley-nunes/cover.svg',
-    coverImage: '/images/projects/gisley-nunes/cover.svg',
-    mainImage: '/images/projects/gisley-nunes/painel.svg',
+    workImage: '/images/projects/gisley-nunes/work.webp',
+    coverImage: '/images/projects/gisley-nunes/cover.webp',
+    mainImage: '/images/projects/gisley-nunes/main.webp',
+    gallery: [
+      {
+        src: '/images/projects/gisley-nunes/work.webp',
+        alt: 'Sala de estar de imóvel real publicado no catálogo da Gisley Nunes Imóveis.',
+        caption: 'Conteúdo real organizado pelo catálogo imobiliário.',
+      },
+    ],
   },
   {
     slug: 'ajn-consultoria-engenharia',
@@ -190,7 +218,7 @@ export const projects: Project[] = [
     externalUrl: 'https://ajnengenharia.com.br/',
     externalLabel: 'Visitar o site da AJN',
     visualNote:
-      'Composição editorial baseada na interface e em imagens do acervo da AJN; não é uma captura literal da página.',
+      'Fotografias reais do acervo público da AJN, com registros de equipe e operação em campo.',
     details: [
       {
         title: 'Conteúdo preservado, estrutura renovada',
@@ -208,9 +236,16 @@ export const projects: Project[] = [
           'Sem painel administrativo nem banco de dados na entrega estática, o conteúdo pode ser versionado e revisado junto ao código. As mudanças passam por validação antes da publicação, enquanto as imagens do acervo recebem seleção editorial por contexto.',
       },
     ],
-    workImage: '/images/projects/ajn/cover.svg',
-    coverImage: '/images/projects/ajn/cover.svg',
-    mainImage: '/images/projects/ajn/servicos.svg',
+    workImage: '/images/projects/ajn/work.webp',
+    coverImage: '/images/projects/ajn/cover.webp',
+    mainImage: '/images/projects/ajn/main.webp',
+    gallery: [
+      {
+        src: '/images/projects/ajn/work.webp',
+        alt: 'Equipe real da AJN em uma operação de campo.',
+        caption: 'Acervo real da operação da AJN.',
+      },
+    ],
   },
 ]
 
