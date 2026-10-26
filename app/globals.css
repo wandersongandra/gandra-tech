@@ -4057,3 +4057,300 @@ main {
     width: min(66vw, 300px);
   }
 }
+
+/* === PORTFOLIO / EDITORIAL GRID ===
+   A apresentação dos cases prioriza imagens reais, alinhamento e leitura.
+   O trilho horizontal anterior foi substituído por uma composição estável
+   que mantém o contexto visível em qualquer viewport. */
+.work-list {
+  padding: clamp(88px, 10vw, 144px) 0 clamp(96px, 12vw, 160px);
+}
+
+.work-list__heading,
+.windex__intro {
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(240px, 0.65fr);
+  align-items: end;
+  gap: clamp(32px, 8vw, 120px);
+  margin-bottom: clamp(48px, 7vw, 88px);
+}
+
+.work-list__title,
+.windex__title {
+  max-width: 11ch;
+  margin: 0;
+  font-size: clamp(48px, 6.8vw, 94px);
+  line-height: 0.98;
+  letter-spacing: -0.04em;
+  text-wrap: balance;
+}
+
+.work-list__intro,
+.windex__intro-copy {
+  max-width: 34ch;
+  margin: 0 0 6px auto;
+  font-family: var(--font-sans);
+  font-size: 15px;
+  line-height: 1.75;
+  color: var(--dim);
+}
+
+.project-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: clamp(48px, 7vw, 96px) clamp(24px, 4vw, 56px);
+}
+
+.project-card {
+  display: block;
+  min-width: 0;
+  color: inherit;
+  text-decoration: none;
+}
+
+.project-card__media {
+  position: relative;
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+  background: #dedbd4;
+  border: 1px solid rgba(17, 17, 17, 0.12);
+}
+
+.project-card__media img {
+  transition: transform 0.7s cubic-bezier(0.22, 1, 0.36, 1), filter 0.35s ease;
+}
+
+.project-card:hover .project-card__media img,
+.project-card:focus-visible .project-card__media img {
+  transform: scale(1.035);
+  filter: saturate(1.04);
+}
+
+.project-card__placeholder {
+  display: grid;
+  width: 100%;
+  height: 100%;
+  place-items: center;
+  padding: 32px;
+  color: var(--muted);
+  background: #e1ded7;
+  font-family: var(--font-serif);
+  font-size: clamp(28px, 4vw, 48px);
+  text-align: center;
+}
+
+.project-card__index {
+  position: absolute;
+  top: 14px;
+  left: 14px;
+  display: inline-grid;
+  min-width: 36px;
+  min-height: 32px;
+  place-items: center;
+  padding: 4px 8px;
+  color: var(--ink);
+  background: rgba(245, 244, 241, 0.92);
+  font: 600 10px/1 var(--font-sans);
+  letter-spacing: 0.12em;
+}
+
+.project-card__body {
+  padding-top: 18px;
+}
+
+.project-card__meta {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  color: var(--muted);
+  font: 600 10px/1.4 var(--font-sans);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.project-card__title {
+  margin-top: 12px;
+  color: var(--ink);
+  font-family: var(--font-serif);
+  font-size: clamp(32px, 4vw, 52px);
+  font-weight: 400;
+  line-height: 1.02;
+  letter-spacing: -0.028em;
+  transition: color 0.2s ease;
+}
+
+.project-card:hover .project-card__title,
+.project-card:focus-visible .project-card__title {
+  color: var(--accent);
+}
+
+.project-card__headline {
+  max-width: 42ch;
+  margin-top: 12px;
+  color: var(--dim);
+  font-size: 15px;
+  line-height: 1.65;
+}
+
+.project-card__action {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  margin-top: 16px;
+  color: var(--ink);
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+.project-card__action svg {
+  transition: transform 0.25s ease;
+}
+
+.project-card:hover .project-card__action svg,
+.project-card:focus-visible .project-card__action svg {
+  transform: translate(3px, -3px);
+}
+
+/* Arquivo de projetos: mesma linguagem do home, com mais respiro e sem
+   thumbnails escondidas que só aparecem durante hover. */
+.windex {
+  min-height: 100vh;
+  padding: clamp(72px, 9vw, 128px) 0 clamp(96px, 12vw, 160px);
+  color: var(--ink);
+  background: var(--paper);
+}
+
+.windex .section-label--dark,
+.windex .section-label {
+  color: var(--ink);
+}
+
+.windex__intro-copy {
+  margin-bottom: 10px;
+}
+
+.project-grid--archive {
+  margin-top: 0;
+}
+
+.project-card--compact .project-card__media {
+  aspect-ratio: 5 / 4;
+}
+
+.project-card--compact .project-card__headline {
+  max-width: 36ch;
+}
+
+.pv-gallery {
+  padding: clamp(72px, 10vw, 144px) 0 clamp(88px, 12vw, 160px);
+  background: var(--paper);
+  border-top: 1px solid rgba(17, 17, 17, 0.1);
+}
+
+.pv-gallery__grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.45fr) minmax(0, 0.75fr);
+  gap: clamp(20px, 3vw, 40px);
+  align-items: stretch;
+}
+
+.pv-gallery__figure {
+  min-width: 0;
+  margin: 0;
+}
+
+.pv-gallery__figure--feature {
+  grid-row: span 2;
+}
+
+.pv-gallery__image {
+  position: relative;
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+  background: #dedbd4;
+}
+
+.pv-gallery__figure--feature .pv-gallery__image {
+  height: 100%;
+  min-height: clamp(360px, 48vw, 700px);
+}
+
+.pv-gallery__image img {
+  transition: transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.pv-gallery__figure:hover .pv-gallery__image img {
+  transform: scale(1.025);
+}
+
+.pv-gallery__figure figcaption {
+  margin-top: 10px;
+  color: var(--muted);
+  font: 500 11px/1.5 var(--font-sans);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.pv-gallery .pv-content__note {
+  max-width: 720px;
+  margin-top: 28px;
+}
+
+@media (max-width: 767px) {
+  .work-list__heading,
+  .windex__intro {
+    grid-template-columns: 1fr;
+    gap: 24px;
+    margin-bottom: 48px;
+  }
+
+  .work-list__title,
+  .windex__title {
+    max-width: 12ch;
+    font-size: clamp(42px, 11vw, 56px);
+  }
+
+  .work-list__intro,
+  .windex__intro-copy {
+    max-width: 34ch;
+    margin: 0;
+  }
+
+  .project-grid {
+    grid-template-columns: 1fr;
+    gap: 56px;
+  }
+
+  .project-card__media {
+    aspect-ratio: 4 / 3;
+  }
+
+  .project-card__title {
+    font-size: clamp(32px, 9vw, 42px);
+  }
+
+  .pv-gallery__grid {
+    grid-template-columns: 1fr;
+    gap: 28px;
+  }
+
+  .pv-gallery__figure--feature {
+    grid-row: auto;
+  }
+
+  .pv-gallery__figure--feature .pv-gallery__image {
+    height: auto;
+    min-height: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .project-card__media img,
+  .project-card__title,
+  .project-card__action svg,
+  .pv-gallery__image img {
+    transition: none;
+  }
+}

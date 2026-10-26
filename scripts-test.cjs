@@ -11,7 +11,7 @@ if (JSON.stringify(slugs) !== JSON.stringify(expected)) {
   failures.push(`catálogo inesperado: ${JSON.stringify(slugs)}`)
 }
 
-for (const match of source.matchAll(/(?:workImage|coverImage|mainImage):\s*'([^']+)'/g)) {
+for (const match of source.matchAll(/(?:workImage|coverImage|mainImage|src):\s*'([^']+)'/g)) {
   const relativeAsset = match[1].replace(/^[/\\]+/, '')
   const asset = path.join(root, 'public', relativeAsset)
   if (!fs.existsSync(asset)) failures.push(`asset ausente: ${match[1]}`)

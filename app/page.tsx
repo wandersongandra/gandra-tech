@@ -5,7 +5,7 @@ import Services from '@/components/sections/Services'
 import ImmersiveLab from '@/components/sections/ImmersiveLab'
 import WorkList from '@/components/sections/WorkList'
 import Contact from '@/components/sections/Contact'
-import { DeferredManifesto, DeferredMarquee, DeferredVisualEffects } from '@/components/sections/HomeDeferredMotion'
+import { DeferredManifesto, DeferredMarquee } from '@/components/sections/HomeDeferredMotion'
 import StructuredData from '@/components/StructuredData'
 import { createServiceJsonLd } from '@/lib/seo'
 import { services } from '@/lib/services'
@@ -29,13 +29,11 @@ export default function Home() {
       />
       <Header />
       <main id="main-content">
-        <DeferredVisualEffects />
         <Hero />
         <DeferredMarquee />
         <Services />
         <ImmersiveLab />
         <WorkList />
-        <DeferredMarquee inverted speed={40} />
         <DeferredManifesto />
         <Contact />
       </main>

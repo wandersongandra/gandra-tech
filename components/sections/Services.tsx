@@ -6,7 +6,6 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import WordReveal from '@/components/motion/WordReveal'
 import FadeIn from '@/components/motion/FadeIn'
 import MagneticButton from '@/components/motion/MagneticButton'
-import ScrambleText from '@/components/motion/ScrambleText'
 import DrawArrow from '@/components/motion/DrawArrow'
 import { getReducedMotionQuery } from '@/components/motion/reducedMotion'
 import { services } from '@/lib/services'
@@ -81,7 +80,7 @@ export default function Services() {
     >
       <div className="container" data-stack-inner>
         <div className="section-label">
-          <ScrambleText text="01 / SERVIÇOS" speed={2} />
+          <span>01 / SERVIÇOS</span>
           <span>GANDRA / TECH</span>
         </div>
 

@@ -3,7 +3,6 @@ import { useRef, useEffect } from 'react'
 import WordReveal from '@/components/motion/WordReveal'
 import FadeIn from '@/components/motion/FadeIn'
 import MagneticButton from '@/components/motion/MagneticButton'
-import ScrambleText from '@/components/motion/ScrambleText'
 import { activeSocialLinks, contactEmail, contactMailto, contactNotes } from '@/lib/site'
 
 export default function Contact() {
@@ -34,7 +33,7 @@ export default function Contact() {
       </div>
       <div className="container">
         <div className="section-label section-label--dark">
-          <ScrambleText text="CONTATO" speed={3} />
+          <span>CONTATO</span>
           <span>2026</span>
         </div>
         <span id="contato" style={{ display: 'block', height: 0 }} />

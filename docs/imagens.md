@@ -1,21 +1,22 @@
 # Imagens do site
 
-Todas opcionais: quando o arquivo não existe, o componente cai num
-placeholder listrado e o layout continua de pé.
+Os componentes têm fallback listrado para desenvolvimento, mas os assets declarados no
+catálogo devem existir antes de uma publicação.
 
-## Por projeto — 3 imagens
+## Por projeto — imagens reais
 
 Os projetos publicados são definidos em `lib/projects.ts`. Cada entrada declara os
-caminhos de imagem usados pela lista e pela página de detalhe.
+caminhos de imagem usados pela lista, pelo hero e pela galeria da página de detalhe.
 
 Os assets de detalhe ficam em `images/projects/<slug>/`. O `workImage` pode apontar para
 outro caminho local, conforme declarado no catálogo:
 
 | campo | proporção | tamanho sugerido | onde aparece |
 |---|---|---|---|
-| `workImage` | — | — | lista da home e arquivo de trabalhos |
-| `coverImage` | 21:9 | 2100×900 | topo da página do projeto |
-| `mainImage` | 2:1 | 1920×960 | corpo da página do projeto |
+| `workImage` | 4:3 recomendado | conforme a fonte | lista da home e arquivo de trabalhos |
+| `coverImage` | fonte livre; recorte 21:9 no hero | largura mínima 1600px | topo da página do projeto |
+| `mainImage` | 4:3 recomendado | conforme a fonte | imagem de destaque da galeria |
+| `gallery[].src` | 4:3 recomendado | conforme a fonte | galeria visual do projeto |
 
 ## Home
 
@@ -29,9 +30,13 @@ outro caminho local, conforme declarado no catálogo:
 tela retina vira ~920px reais. Exportar abaixo disso borra — não há como
 recuperar resolução depois.
 
-**Fundo transparente** nos mockups de `work/`: eles são
-compostos sobre o papel bege da seção. Um fundo opaco aparece como retângulo
-recortado.
+As imagens dos cases devem ser registros reais do produto, da equipe, da
+operação ou do conteúdo publicado pelo cliente. Quando o projeto não tiver uma
+captura de interface disponível, use uma fotografia autorizada do próprio
+contexto do case e descreva a origem em `visualNote`.
+
+Os arquivos antigos em SVG permanecem no repositório para histórico e fallback,
+mas não são mais usados no catálogo visual atual.
 
 **Qualidade.** Screenshots de UI com texto miúdo usam `quality={95}`; o padrão
 75 do Next borra. Valores permitidos ficam em `next.config.ts` →
