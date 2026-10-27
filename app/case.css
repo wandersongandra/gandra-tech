@@ -669,9 +669,14 @@
 }
 
 @media (max-width: 560px) {
+  /* O celular ocupa o canto inferior direito; a legenda fica à esquerda dele.
+     O domínio já aparece acima do botão e na barra do navegador. */
   .m-case__live-cap {
-    flex-direction: column;
-    gap: 4px;
+    max-width: calc(100% - 140px);
+  }
+
+  .m-case__live-cap > span + span {
+    display: none;
   }
 }
 
