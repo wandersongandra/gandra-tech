@@ -3,6 +3,7 @@ import { useCallback, useEffect, useRef, useState, type MouseEvent } from 'react
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { scrollToSection } from '@/lib/scroll'
+import { contactMailto } from '@/lib/site'
 
 const FOCUSABLE_SELECTOR = [
   'a[href]',
@@ -16,7 +17,7 @@ const FOCUSABLE_SELECTOR = [
 export default function Header() {
   const pathname = usePathname()
   const isHome = pathname === '/'
-  const logoRef = useRef<HTMLAnchorElement>(null)
+  const headerRef = useRef<HTMLElement>(null)
   const menuButtonRef = useRef<HTMLButtonElement>(null)
   const mobileMenuPanelRef = useRef<HTMLElement>(null)
   const firstMenuLinkRef = useRef<HTMLAnchorElement>(null)
@@ -35,27 +36,40 @@ export default function Header() {
     closeMenu()
   }, [closeMenu, isHome])
 
-  // Logo vivo: as letras "respiram" — o espaçamento abre conforme o
-  // scroll desce e se comprime de volta no topo.
+  // Cabeçalho "Matéria": esconde ao descer, volta ao subir, ganha fundo
+  // depois do topo e mostra uma linha fina de progresso de leitura.
+  // Só transform/opacity — nada de layout.
   useEffect(() => {
-    const logo = logoRef.current
-    if (!logo) return
-    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
-    const compact = window.matchMedia('(max-width: 767px)').matches
-    const coarsePointer = window.matchMedia('(pointer: coarse)').matches
-    if (reduceMotion || compact || coarsePointer) return
-
+    const header = headerRef.current
+    if (!header) return
     let raf = 0
-    const onScroll = () => {
-      cancelAnimationFrame(raf)
-      raf = requestAnimationFrame(() => {
-        const p = Math.min(window.scrollY / 500, 1)
-        logo.style.letterSpacing = `${0.1 + p * 0.14}em`
-      })
+    let lastY = window.scrollY
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)')
+    const update = () => {
+      raf = 0
+      const y = window.scrollY
+      const max = Math.max(1, document.documentElement.scrollHeight - window.innerHeight)
+      header.style.setProperty('--progress', (y / max).toFixed(4))
+      header.classList.toggle('is-scrolled', y > 24)
+      const goingDown = y > lastY + 4
+      const goingUp = y < lastY - 4
+      // No celular o cabeçalho fica sempre à mão (o menu é a navegação).
+      const canHide = window.innerWidth >= 768 && !reduceMotion.matches
+      if (goingDown && y > 320 && canHide) header.classList.add('is-hidden')
+      else if (goingUp || y < 320) header.classList.remove('is-hidden')
+      if (goingDown || goingUp) lastY = y
     }
+    const onScroll = () => {
+      if (!raf) raf = requestAnimationFrame(update)
+    }
+    // Foco por teclado nunca fica escondido.
+    const onFocus = () => header.classList.remove('is-hidden')
+    update()
     window.addEventListener('scroll', onScroll, { passive: true })
+    header.addEventListener('focusin', onFocus)
     return () => {
       window.removeEventListener('scroll', onScroll)
+      header.removeEventListener('focusin', onFocus)
       cancelAnimationFrame(raf)
     }
   }, [])
@@ -118,9 +132,11 @@ export default function Header() {
   }
 
   return (
-    <header className="site-header">
-      <Link href="/" prefetch={false} ref={logoRef} className="site-header__logo">
-        GANDRA TECH<sup>®</sup>
+    <header ref={headerRef} className="site-header m-header">
+      <span className="m-header__progress" aria-hidden="true" />
+      <Link href="/" prefetch={false} className="site-header__logo" aria-label="Gandra Tech — início">
+        <span className="site-header__logo-mark" aria-hidden="true">G</span>
+        <span className="site-header__logo-text">Gandra Tech</span>
       </Link>
       <nav className="site-header__nav" aria-label="Navegação principal">
         <Link href="/servicos" prefetch={false} className="site-header__link">
@@ -139,6 +155,10 @@ export default function Header() {
           Contato
         </Link>
       </nav>
+      <a href={contactMailto} className="m-header__cta">
+        <span className="m-header__cta-dot" aria-hidden="true" />
+        Iniciar projeto
+      </a>
       <button
         ref={menuButtonRef}
         type="button"
