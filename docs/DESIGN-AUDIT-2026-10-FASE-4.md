@@ -77,3 +77,35 @@ A11y, boas práticas e SEO seguem em 100. As medições já incluem a abertura
   pintado não vira clique.
 - Modo tinta é easter egg: sessões com ele ligado mantêm contraste AA (texto
   claro em fundo #12110e; vermelhão de texto pequeno #f26a43).
+
+## Caça a bugs (pós-fase 4)
+
+Varredura em Chromium, WebKit e Firefox (1024–2560, 768, 390, 360, paisagem 844×390, zoom 200% = 720×450 @2x), impressão, modo tinta, offline, memória em 24 navegações. Cada correção virou um commit próprio; as reproduções que valem a pena ficaram em `scripts/visual-qa.cjs` (função `regressions`).
+
+| # | O que o visitante via | Onde | Status |
+|---|---|---|---|
+| 1 | A cortina nunca cobria a tela; a página antiga ficava visível na troca | todas as rotas | corrigido (yPercent) |
+| 2 | Camada surreal montada duas vezes se a pessoa interagisse cedo (manchas e pincel em dobro) | home | corrigido |
+| 3 | Cortina disparava em âncoras, `tel:`, Ctrl/⌘+clique, cliques repetidos; voltar no meio travava; sem trava de segurança | links | corrigido |
+| 4 | Página nova abria ~65 px abaixo do topo | navegação interna | corrigido (ScrollMemory) |
+| 5 | Voltar no desktop (Lenis) não restaurava a rolagem | navegação | corrigido |
+| 6 | Papel em branco depois do rodapé (camada de manchas mais alta que a página) | paisagem, resize | corrigido |
+| 7 | Mancha deixada no início de cada pincelada | desktop | corrigido |
+| 8 | Pincelada engolia o clique seguinte; traço preso ao soltar fora da janela | desktop | corrigido |
+| 9 | Chave de som por cima do menu mobile aberto | mobile | corrigido |
+| 10 | Tab no menu mobile não alcançava o botão de fechar | mobile | corrigido |
+| 11 | Fechar o menu mobile (X ou Esc) jogava a página para o topo | mobile | corrigido (trava no `html`) |
+| 12 | Abertura repetia em toda aba nova | home | corrigido (janela de 30 min) |
+| 13 | Modo tinta piscava claro ao recarregar/abrir página | todas | corrigido |
+| 14 | Safari/iOS: AudioContext criado fora de gesto (aviso, som mudo) | todas | corrigido |
+| 15 | Offline: HTML da home na URL errada, HTML no lugar de imagem, cache sem limite | service worker | corrigido |
+| 16 | Canonical da 404 apontava para a home | 404 | corrigido |
+| 17 | Impressão com camadas decorativas, botão de som, header repetido e faixa de trabalhos cortada | impressão | corrigido |
+| 18 | Modo tinta: subtítulo do contato/404 invisível, vermelho pequeno 3,38:1, legenda da capa escura no escuro | contato, 404, home, cases | corrigido |
+| 19 | iPad/Safari: barra do navegador cobria o rodapé do palco fixado dos trabalhos (100vh) | home ≥ 1024 | corrigido (100svh com `@supports`) |
+| 20 | Firefox: aviso "preload de fonte não usado" com o SW no controle | console | benigno, não visível |
+| 21 | Firefox: avisos de "scroll-linked positioning"/scroll anchoring | console | inerente ao GSAP/header sticky |
+
+Verificado e sem bug: overflow horizontal (0 em todas as combinações), meio-tom e rolo sempre resolvem nos 3 motores, seleção de texto, foco visível, reduced-motion sem conteúdo escondido, forced-colors, links internos e externo, sitemap/robots/OG, memória estável (4,4 MB e 435 listeners entre a 8ª e a 24ª navegação). As palavras do manifesto que saem da tela são o efeito "cair para cima" (cortadas pelo `overflow-x: clip`).
+
+Verificação final: typecheck, lint, test, build, validate:build-security, npm audit (0) e visual-qa locais; checks do GitHub verdes; preview em 16 rotas × 6 viewports com 0 violações de CSP e 0 imagens quebradas (o único erro de console é o beacon `cloudflareinsights` injetado no preview). Lighthouse local: home 92–93 mobile / 100 desktop, case 92–93 / 99–100, a11y 100, CLS 0.
