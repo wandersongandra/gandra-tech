@@ -1,31 +1,45 @@
 import type { Metadata, Viewport } from 'next'
-import { Bodoni_Moda, Cormorant_Garamond, Inter } from 'next/font/google'
+import { Archivo, Instrument_Serif, JetBrains_Mono } from 'next/font/google'
 import LenisProvider from '@/components/providers/LenisProvider'
 import PageCurtain from '@/components/motion/PageCurtain'
+import StudioCursor from '@/components/motion/StudioCursor'
 import ServiceWorkerRegister from '@/components/ServiceWorkerRegister'
 import { contactEmail, brandName, siteDescription, siteName, siteUrl } from '@/lib/site'
 import './globals.css'
+import './materia.css'
 
-const bodoni = Bodoni_Moda({
+/*
+ * Sistema tipográfico "Matéria" — todas as famílias são OFL (Google Fonts)
+ * e o next/font baixa os arquivos no build: o site serve as fontes do
+ * próprio domínio, sem CDN em runtime (font-src 'self').
+ *
+ * Archivo: grotesca variável com eixos de peso (100–900) e largura (62–125).
+ * É a "matéria" do site: os eixos são animados pelo cursor e pelo scroll.
+ */
+const archivo = Archivo({
   subsets: ['latin'],
-  variable: '--font-bodoni',
-  weight: ['400', '500', '600', '700'],
-  style: ['normal', 'italic'],
-  preload: false,
-})
-
-const cormorant = Cormorant_Garamond({
-  subsets: ['latin'],
-  variable: '--font-cormorant',
-  weight: ['300', '400'],
-  style: ['normal', 'italic'],
+  variable: '--font-archivo',
+  axes: ['wdth'],
+  display: 'swap',
   preload: true,
 })
 
-const inter = Inter({
+/* Instrument Serif itálico: a voz humana, usada só em palavras de acento. */
+const instrumentSerif = Instrument_Serif({
   subsets: ['latin'],
-  variable: '--font-inter',
-  weight: ['400', '500', '600', '700'],
+  variable: '--font-instrument',
+  weight: '400',
+  style: ['normal', 'italic'],
+  display: 'swap',
+  preload: false,
+})
+
+/* JetBrains Mono: anotações técnicas, índices e metadados. */
+const jetbrains = JetBrains_Mono({
+  subsets: ['latin'],
+  variable: '--font-jetbrains',
+  weight: ['400', '500'],
+  display: 'swap',
   preload: false,
 })
 
@@ -98,7 +112,7 @@ const structuredData = [
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="pt-BR" className={`${bodoni.variable} ${cormorant.variable} ${inter.variable}`}>
+    <html lang="pt-BR" className={`${archivo.variable} ${instrumentSerif.variable} ${jetbrains.variable}`}>
       <body>
         {structuredData.map((data) => (
           <script key={data['@type']} type="application/ld+json">
@@ -109,6 +123,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
         <ServiceWorkerRegister />
         <div className="grain" aria-hidden="true" />
         <PageCurtain />
+        <StudioCursor />
         <LenisProvider>
           {children}
         </LenisProvider>
