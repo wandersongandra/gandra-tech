@@ -164,7 +164,7 @@ export default function ProjectView({ project, next }: { project: Project; next:
                 <ul className="m-case__services">
                   {relatedServices.map((service) => (
                     <li key={service.slug}>
-                      <Link href={`/servicos/${service.slug}`} prefetch={false} className="m-link">
+                      <Link href={`/servicos/${service.slug}`} prefetch={false} className="m-link" data-curtain={service.title}>
                         {service.title}
                       </Link>
                     </li>

@@ -111,6 +111,7 @@ export default function Services() {
             <li key={service.slug} className="m-services__row">
               <Link
                 href={`/servicos/${service.slug}`}
+                data-curtain={service.title}
                 prefetch={false}
                 className="m-services__link"
                 data-preview={service.relatedProjectSlug ?? ''}

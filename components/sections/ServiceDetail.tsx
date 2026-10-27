@@ -75,6 +75,7 @@ export default function ServiceDetail({ service }: { service: Service }) {
           {relatedProject && (
             <Link
               href={`/trabalhos/${relatedProject.slug}`}
+              data-curtain={relatedProject.name}
               prefetch={false}
               className="service-detail__case-link"
             >
@@ -101,7 +102,7 @@ export default function ServiceDetail({ service }: { service: Service }) {
           <h2 id="relacionados-title">Outras frentes que podem fazer parte do mesmo projeto.</h2>
           <div className="service-detail__related-links">
             {relatedServices.map((item) => (
-              <Link key={item.slug} href={`/servicos/${item.slug}`} prefetch={false}>
+              <Link key={item.slug} href={`/servicos/${item.slug}`} prefetch={false} data-curtain={item.title}>
                 {item.title} ↗
               </Link>
             ))}

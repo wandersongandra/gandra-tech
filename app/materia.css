@@ -1803,7 +1803,6 @@ body {
   overflow: hidden;
   opacity: 1;
   animation: none;
-  transform: translateY(105%);
 }
 
 .curtain__count {

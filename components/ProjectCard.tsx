@@ -14,6 +14,7 @@ export default function ProjectCard({ project, index, compact = false, total }: 
   return (
     <Link
       href={`/trabalhos/${project.slug}`}
+      data-curtain={project.name}
       prefetch={false}
       className={`project-card${compact ? ' project-card--compact' : ''}`}
       data-cursor="Ver case"

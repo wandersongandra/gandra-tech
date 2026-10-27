@@ -65,6 +65,10 @@ export default function PageCurtain() {
       panel.style.transform = 'translateY(-100%)'
       panel.inert = true
       path.setAttribute('d', FLAT)
+      // Rótulo volta para dentro da máscara: voltar/avançar do navegador
+      // não mostra o destino da navegação anterior.
+      gsap.set(logo, { yPercent: 105 })
+      if (countRef.current) gsap.set(countRef.current, { opacity: 0 })
     }
 
     if (motionQuery.matches) {
@@ -185,8 +189,11 @@ export default function PageCurtain() {
         .fromTo(count, { opacity: 0 }, { opacity: 1, duration: 0.3 }, 0.3)
     }
 
-    document.addEventListener('click', onClick)
-    return () => document.removeEventListener('click', onClick)
+    // Fase de captura: roda antes do onClick do next/link, que chama
+    // preventDefault e navegaria na hora — sem isso a cortina de entrada
+    // nunca tocava e só a saída aparecia.
+    document.addEventListener('click', onClick, true)
+    return () => document.removeEventListener('click', onClick, true)
   }, [pathname, router])
 
   return (
