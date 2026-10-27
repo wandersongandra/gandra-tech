@@ -20,12 +20,15 @@ async function main() {
       page.on('pageerror', error => errors.push(error.message))
       await page.goto(origin, { waitUntil: 'domcontentloaded' })
       await page.waitForTimeout(300)
+      // Abertura (fase 4): 1ª visita da sessão marca html[data-intro] antes da pintura.
+      assert.ok(await page.evaluate(() => document.documentElement.hasAttribute('data-intro')), viewport.name + ': abertura não marcou data-intro')
+      assert.equal(await page.locator('.m-intro[aria-hidden="true"]').count(), 1, viewport.name + ': camada da abertura ausente')
       assert.equal(await page.locator('.project-grid--home .project-card').count(), 4, viewport.name + ': grade de projetos incompleta')
       assert.equal(await page.locator('.project-grid--home .project-card__media img').count(), 4, viewport.name + ': imagens reais dos projetos ausentes')
       assert.equal(await page.locator('.work-rail').count(), 0, viewport.name + ': rail horizontal antigo ainda renderizado')
       assert.equal(await page.locator('#laboratorio').count(), 0, viewport.name + ': seção do laboratório 3D não deveria existir')
       // Só os rastros de tinta 2D (.m-ink-trail) podem existir; nada de WebGL.
-      assert.equal(await page.locator('canvas:not(.m-ink-trail)').count(), 0, viewport.name + ': nenhum canvas WebGL deveria ser montado na home')
+      assert.equal(await page.locator('canvas:not(.m-ink-trail):not(.m-halftone):not(.m-brush)').count(), 0, viewport.name + ': nenhum canvas WebGL deveria ser montado na home')
       const images = await page.evaluate(() => [...document.querySelectorAll('.project-card__media picture')].map(pic => ({
         avif: !!pic.querySelector('source[type="image/avif"][srcset]'),
         webp: !!pic.querySelector('source[type="image/webp"][srcset]'),
@@ -57,6 +60,24 @@ async function main() {
       await page.waitForFunction(() => document.documentElement.dataset.surreal === 'on', null, { timeout: 10000 })
       assert.ok(await page.locator('.m-hero .m-drip').count() >= 6, viewport.name + ': gotas do GANDRA ausentes')
       assert.equal(await page.evaluate(() => getComputedStyle(document.querySelector('.m-manifesto__word')).display), 'inline-block', viewport.name + ': palavras do manifesto sem inline-block')
+      // Prensa (fase 4): abertura terminou; meio-tom, rolo, som e modo tinta.
+      await page.waitForFunction(() => !document.documentElement.hasAttribute('data-intro'), null, { timeout: 3000 })
+      const intro = await page.evaluate(() => ({ attr: document.documentElement.hasAttribute('data-intro'), display: getComputedStyle(document.querySelector('.m-intro')).display }))
+      assert.deepEqual(intro, { attr: false, display: 'none' }, viewport.name + ': abertura não saiu da tela')
+      await page.waitForFunction(() => document.documentElement.dataset.press === 'on', null, { timeout: 10000 })
+      assert.ok(await page.locator('.m-press .m-press__roller').count() >= 1, viewport.name + ': rolo da prensa ausente nos títulos')
+      assert.ok(await page.locator('.project-card__media .m-halftone').count() >= 1, viewport.name + ': meio-tom das fotos ausente')
+      assert.equal(await page.locator('button.m-sound[aria-pressed="false"]').count(), 1, viewport.name + ': chave de som deveria nascer desligada')
+      assert.equal(await page.evaluate(() => document.querySelectorAll('canvas:not(.m-ink-trail):not(.m-halftone):not(.m-brush)').length), 0, viewport.name + ': canvas inesperado')
+      if (viewport.name === 'desktop') {
+        const konami = ['ArrowUp', 'ArrowUp', 'ArrowDown', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'ArrowLeft', 'ArrowRight', 'b', 'a']
+        for (const k of konami) await page.keyboard.press(k)
+        await page.waitForTimeout(1100)
+        assert.equal(await page.evaluate(() => document.documentElement.dataset.tinta), 'on', 'desktop: código Konami não ligou o modo tinta')
+        for (const k of konami) await page.keyboard.press(k)
+        await page.waitForTimeout(1100)
+        assert.equal(await page.evaluate(() => document.documentElement.dataset.tinta || ''), '', 'desktop: modo tinta não desligou')
+      }
       await page.evaluate(() => window.scrollTo(0, window.scrollY + document.querySelector('.m-contact').getBoundingClientRect().top))
       await page.waitForTimeout(700)
       assert.equal(await page.evaluate(() => document.querySelector('.m-contact').style.clipPath), '', viewport.name + ': inundação do contato não terminou')
@@ -81,8 +102,10 @@ async function main() {
       drips: document.querySelectorAll('.m-drip').length,
       stains: document.querySelectorAll('.m-stain').length,
       clip: document.querySelector('.m-contact')?.style.clipPath || '',
+      intro: document.documentElement.hasAttribute('data-intro'),
+      press: document.querySelectorAll('.m-press, .m-halftone, .m-brush, .m-sound').length,
     }))
-    assert.deepEqual(still, { surreal: '', drips: 0, stains: 0, clip: '' }, 'reduced-motion: camada surreal não deveria montar')
+    assert.deepEqual(still, { surreal: '', drips: 0, stains: 0, clip: '', intro: false, press: 0 }, 'reduced-motion: camada surreal/prensa não deveria montar')
     await context.close()
     for (const name of ['gisley-nunes-imoveis', 'ajn-consultoria-engenharia']) {
       assert.ok(fs.existsSync(path.join(__dirname, '..', 'out', 'trabalhos', name + '.html')) ||
@@ -110,7 +133,7 @@ async function main() {
     assert.equal(label, expected, 'cortina: rótulo do destino não apareceu')
     await casePage.waitForURL(/\/trabalhos\/(?!gisley)/, { timeout: 5000 })
     await caseContext.close()
-    process.stdout.write('QA: desktop, mobile, camada surreal, reduced-motion, menu, projetos reais, galeria e rotas exportadas passaram.\n')
+    process.stdout.write('QA: desktop, mobile, camada surreal, prensa (abertura, meio-tom, rolo, som, modo tinta), reduced-motion, menu, projetos reais, galeria e rotas exportadas passaram.\n')
   } finally {
     await browser.close()
   }

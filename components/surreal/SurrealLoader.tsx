@@ -27,8 +27,19 @@ export default function SurrealLoader() {
         engine.paperHour()
         if (reduced) return
         // espera a cortina/entrada do hero assentarem antes de mexer no DOM
-        cleanup = engine.mount({ fine })
+        const offEngine = engine.mount({ fine })
+        cleanup = offEngine
         document.documentElement.dataset.surreal = 'on'
+        // fase 4: a prensa (meio-tom, rolo, pincel, som, modo tinta)
+        import('./press').then((press) => {
+          if (cancelled) return
+          const offPress = press.mountPress({ fine })
+          cleanup = () => {
+            offPress()
+            offEngine()
+          }
+          document.documentElement.dataset.press = 'on'
+        })
       })
     }
     const schedule = () => {
@@ -55,6 +66,7 @@ export default function SurrealLoader() {
       else clearTimeout(idle)
       cleanup?.()
       delete document.documentElement.dataset.surreal
+      delete document.documentElement.dataset.press
     }
   }, [pathname])
 
