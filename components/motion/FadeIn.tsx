@@ -131,6 +131,9 @@ export default function FadeIn({
       tween?.kill()
       st?.kill()
     }
+  }, () => {
+    // sem GSAP: mostra o conteúdo parado em vez de deixá-lo invisível
+    if (ref.current) ref.current.style.opacity = '1'
   }), [animateOpacity, delay, duration, repeat, rotation, scale, start, trigger, x, y])
 
   const T = Tag

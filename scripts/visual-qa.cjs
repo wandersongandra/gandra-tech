@@ -105,6 +105,21 @@ async function fase5(browser) {
     assert.equal(await page.locator('.nf-sheet').evaluate((e) => getComputedStyle(e).clipPath), 'none', '404: a folha não desamassou')
     await ctx.close()
   }
+  // GSAP não chega (rede, deploy novo): o conteúdo esperando a animação aparece parado
+  {
+    const ctx = await fresh()
+    await ctx.route(/\/_next\/static\/chunks\/.*\.js$/, async (route) => {
+      const res = await route.fetch()
+      const body = await res.text()
+      if (/GreenSock|_getGSAP/.test(body)) return route.abort()
+      return route.fulfill({ response: res, body })
+    })
+    const page = await ctx.newPage()
+    await page.goto(html('contato'), { waitUntil: 'load' })
+    await page.waitForTimeout(2000)
+    assert.equal(await page.locator('.cp-hero__label').evaluate((e) => getComputedStyle(e).opacity), '1', 'sem GSAP: rótulo do contato ficou invisível')
+    await ctx.close()
+  }
   // reduced-motion: tudo parado e aberto, só cor no link
   {
     const ctx = await fresh({ reducedMotion: 'reduce' })

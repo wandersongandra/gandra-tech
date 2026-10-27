@@ -22,6 +22,10 @@ export function loadGsap(): Promise<GsapKit> {
       kit = { gsap: g.gsap, ScrollTrigger: s.ScrollTrigger }
       return kit
     })
+    // falhou o download: esquece a promessa para a próxima montagem tentar de novo
+    pending.catch(() => {
+      pending = null
+    })
   }
   return pending
 }
@@ -33,9 +37,11 @@ export function gsapNow(): GsapKit | null {
 
 /**
  * Roda `run` com o GSAP assim que ele estiver disponível e devolve a limpeza
- * (cancela se o componente desmontar antes do download terminar).
+ * (cancela se o componente desmontar antes do download terminar). Se o
+ * chunk não chegar (rede caiu, deploy trocou os hashes), `onFail` revela o
+ * que estava escondido esperando a animação.
  */
-export function withGsap(run: (k: GsapKit) => void | (() => void)): () => void {
+export function withGsap(run: (k: GsapKit) => void | (() => void), onFail?: () => void): () => void {
   let cancelled = false
   let cleanup: void | (() => void)
   if (kit) cleanup = run(kit)
@@ -44,7 +50,9 @@ export function withGsap(run: (k: GsapKit) => void | (() => void)): () => void {
       (k) => {
         if (!cancelled) cleanup = run(k)
       },
-      () => {}
+      () => {
+        if (!cancelled) onFail?.()
+      }
     )
   return () => {
     cancelled = true

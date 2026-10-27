@@ -129,6 +129,9 @@ export default function WordReveal({
       tween?.kill()
       st?.kill()
     }
+  }, () => {
+    // sem GSAP: mostra as palavras paradas em vez de deixá-las invisíveis
+    ref.current?.querySelectorAll<HTMLElement>('[data-word]').forEach((w) => (w.style.opacity = '1'))
   }), [animateOpacity, blur, delay, duration, repeat, rotation, stagger, start, trigger, y])
 
   const T = Tag
