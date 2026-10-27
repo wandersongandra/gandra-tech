@@ -4,6 +4,7 @@ import LenisProvider from '@/components/providers/LenisProvider'
 import PageCurtain from '@/components/motion/PageCurtain'
 import StudioCursor from '@/components/motion/StudioCursor'
 import InkRipple from '@/components/motion/InkRipple'
+import SurrealLoader from '@/components/surreal/SurrealLoader'
 import ServiceWorkerRegister from '@/components/ServiceWorkerRegister'
 import { contactEmail, brandName, siteDescription, siteName, siteUrl } from '@/lib/site'
 import './globals.css'
@@ -127,6 +128,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
         <PageCurtain />
         <StudioCursor />
         <InkRipple />
+        <SurrealLoader />
         <LenisProvider>
           {children}
         </LenisProvider>
