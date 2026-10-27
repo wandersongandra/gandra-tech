@@ -3,6 +3,7 @@ import { useEffect, useRef } from 'react'
 import { useRouter, usePathname } from 'next/navigation'
 import { getReducedMotionQuery } from './reducedMotion'
 import { withGsap } from '@/lib/gsap'
+import { jumpToTop } from '@/lib/scroll'
 
 /**
  * Cortina de página em blob: um path SVG cobre a viewport e a borda
@@ -48,6 +49,9 @@ export default function PageCurtain() {
   const didMount = useRef(false)
   // Tempo-limite da navegação: some com a cortina se a rota não trocar.
   const guard = useRef(0)
+  // Fase 5: card → case vira um morph (View Transitions) no lugar da cortina.
+  const morphing = useRef(false)
+  const morphDone = useRef<(() => void) | null>(null)
   const router = useRouter()
   const pathname = usePathname()
 
@@ -118,6 +122,16 @@ export default function PageCurtain() {
       return () => window.removeEventListener('gt:curtain-release', onRelease)
     }
 
+    // Chegada de um morph: não há cortina para tirar; só avisa o morph
+    // que o DOM novo está montado (ele tira o snapshot da capa).
+    if (morphing.current) {
+      hidePanel()
+      window.dispatchEvent(new Event('gt:curtain-open'))
+      morphDone.current?.()
+      morphDone.current = null
+      return () => window.removeEventListener('gt:curtain-release', onRelease)
+    }
+
     // Subsequent pathname changes: panel is at yPercent:0 (was animated in), sweep out
     if (guard.current) window.clearTimeout(guard.current)
     guard.current = 0
@@ -159,6 +173,62 @@ export default function PageCurtain() {
       guard.current = 0
     }
 
+    // Card de projeto → página do case: a foto do card cresce até virar a
+    // capa do case (View Transition do próprio documento). Sem suporte, com
+    // morph em curso ou fora de um card, segue a cortina de sempre.
+    const morph = (a: HTMLAnchorElement, path: string, href: string) => {
+      type VT = { finished: Promise<void>; ready: Promise<void>; updateCallbackDone: Promise<void> }
+      const doc = document as Document & { startViewTransition?: (cb: () => Promise<void>) => VT }
+      const media = a.closest('.project-card')?.querySelector<HTMLElement>('.project-card__media')
+      if (!media || !doc.startViewTransition || morphing.current || !/^\/trabalhos\/[^/]+$/.test(path)) return false
+      morphing.current = true
+      media.style.viewTransitionName = 'gt-plate'
+      document.documentElement.classList.add('is-morphing')
+      const release = () => {
+        morphing.current = false
+        morphDone.current = null
+        document.documentElement.classList.remove('is-morphing')
+        const plate = document.querySelector<HTMLElement>('[data-plate]')
+        if (plate) plate.style.viewTransitionName = ''
+        media.style.viewTransitionName = ''
+      }
+      let vt: VT
+      try {
+        vt = doc.startViewTransition(
+          () =>
+            new Promise<void>((resolve) => {
+              media.style.viewTransitionName = ''
+              let done = false
+              const finish = () => {
+                if (done) return
+                done = true
+                window.clearTimeout(limit)
+                jumpToTop()
+                // Nada de rAF aqui: o navegador suspende a renderização até
+                // este callback resolver — um rAF nunca chegaria.
+                window.setTimeout(() => {
+                  const plate = document.querySelector<HTMLElement>('[data-plate]')
+                  if (plate) plate.style.viewTransitionName = 'gt-plate'
+                  jumpToTop()
+                  resolve()
+                }, 0)
+              }
+              // rota que não troca (erro): o navegador desiste do morph
+              const limit = window.setTimeout(finish, 2500)
+              morphDone.current = finish
+              router.push(href)
+            })
+        )
+      } catch {
+        release()
+        return false
+      }
+      vt.ready.catch(() => {})
+      vt.updateCallbackDone.catch(() => {})
+      vt.finished.catch(() => {}).finally(release)
+      return true
+    }
+
     const onClick = (e: MouseEvent) => {
       if (!(e.target instanceof Element)) return
       if (e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return
@@ -182,6 +252,7 @@ export default function PageCurtain() {
       const href = pathOnly + url.search + url.hash
 
       e.preventDefault()
+      if (!pendingHref && morph(a, pathOnly, href)) return
       const logo = logoRef.current
       const count = countRef.current
       if (logo) logo.textContent = destinationLabel(a, pathOnly)

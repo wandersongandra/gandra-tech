@@ -36,3 +36,10 @@ export function scrollToTop() {
     window.scrollTo({ top: 0, behavior: scrollBehavior() })
   }
 }
+
+/** Topo imediato, sem animação (troca de página por morph). */
+export function jumpToTop() {
+  window.__lenis?.scrollTo(0, { immediate: true, force: true })
+  // 'instant': o html tem scroll-behavior: smooth e scrollTo(0, 0) animava
+  window.scrollTo({ top: 0, left: 0, behavior: 'instant' as ScrollBehavior })
+}

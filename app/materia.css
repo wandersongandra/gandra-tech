@@ -2635,3 +2635,33 @@ html[data-tinta='on'] .m-press__wet {
     break-inside: avoid;
   }
 }
+
+/* === Fase 5: morph card → case (View Transitions) ======================== */
+::view-transition-group(gt-plate) {
+  animation-duration: 0.8s;
+  animation-timing-function: cubic-bezier(0.77, 0, 0.175, 1);
+}
+
+::view-transition-old(gt-plate),
+::view-transition-new(gt-plate) {
+  height: 100%;
+  object-fit: cover;
+  animation-duration: 0.8s;
+  animation-timing-function: cubic-bezier(0.77, 0, 0.175, 1);
+}
+
+::view-transition-old(root) {
+  animation: gt-vt-out 0.4s cubic-bezier(0.4, 0, 1, 1) both;
+}
+
+::view-transition-new(root) {
+  animation: gt-vt-in 0.5s 0.25s cubic-bezier(0, 0, 0.2, 1) both;
+}
+
+@keyframes gt-vt-out {
+  to { opacity: 0; }
+}
+
+@keyframes gt-vt-in {
+  from { opacity: 0; }
+}
