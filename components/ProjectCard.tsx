@@ -11,6 +11,7 @@ type ProjectCardProps = {
 
 export default function ProjectCard({ project, index, compact = false, total }: ProjectCardProps) {
   const number = String(index + 1).padStart(2, '0')
+  const Heading = compact ? 'h2' : 'h3'
   return (
     <Link
       href={`/trabalhos/${project.slug}`}
@@ -41,7 +42,8 @@ export default function ProjectCard({ project, index, compact = false, total }: 
           <span>{project.category}</span>
           <span>{project.year}</span>
         </div>
-        <h3 className="project-card__title">{project.name}</h3>
+        {/* No arquivo o card vem logo após o h1 da página: h2 mantém a ordem. */}
+        <Heading className="project-card__title">{project.name}</Heading>
         <p className="project-card__headline">{project.headline}</p>
         <span className="project-card__action mono">
           Ver case <span aria-hidden="true">→</span>
