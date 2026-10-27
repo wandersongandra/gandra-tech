@@ -523,6 +523,163 @@
 }
 
 /* --- Final em tinta ------------------------------------------------------ */
+/* O site no ar: convite + captura em moldura de navegador e celular. */
+.m-case__live {
+  display: grid;
+  grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+  gap: clamp(40px, 6vw, 112px);
+  align-items: center;
+  padding-top: clamp(56px, 8vw, 128px);
+  padding-bottom: clamp(88px, 12vw, 180px);
+  border-top: 1px solid var(--m-ink);
+}
+
+.m-case__live-copy .m-label {
+  display: block;
+  margin-bottom: 20px;
+}
+
+.m-case__live-text {
+  max-width: 42ch;
+  margin: 24px 0 0;
+  color: var(--m-muted);
+  font-size: clamp(16px, 1.25vw, 19px);
+  line-height: 1.55;
+}
+
+.m-case__live-actions {
+  margin-top: 32px;
+}
+
+.m-case__live-domain {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 12px;
+  margin: 28px 0 0;
+  padding-top: 12px;
+  border-top: 1px solid var(--m-line);
+  font-size: 13px;
+  color: var(--m-ink);
+  overflow-wrap: anywhere;
+}
+
+.m-case__live-domain > span {
+  color: var(--m-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  font-size: 12px;
+}
+
+.m-case__live-fig {
+  position: relative;
+  margin: 0;
+  padding-right: clamp(36px, 6vw, 96px);
+  padding-bottom: clamp(28px, 4vw, 56px);
+}
+
+.m-case__browser {
+  border: 1px solid var(--m-ink);
+  background: var(--m-paper-2);
+  box-shadow: 12px 12px 0 var(--m-ink);
+}
+
+.m-case__browser-bar {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  height: 34px;
+  padding: 0 14px;
+  border-bottom: 1px solid var(--m-ink);
+  font-size: 12px;
+  color: var(--m-ink);
+}
+
+.m-case__browser-dots {
+  display: inline-flex;
+  gap: 6px;
+}
+
+.m-case__browser-dots i {
+  width: 9px;
+  height: 9px;
+  border: 1px solid var(--m-ink);
+  border-radius: 50%;
+}
+
+.m-case__browser-dots i:first-child {
+  background: var(--m-signal);
+  border-color: var(--m-signal);
+}
+
+.m-case__browser-url {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.m-case__browser-screen {
+  overflow: hidden;
+  aspect-ratio: 16 / 10;
+}
+
+.m-case__browser-screen .m-picture,
+.m-case__browser-pic {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.m-case__phone {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  width: clamp(104px, 22%, 210px);
+  aspect-ratio: 390 / 760;
+  overflow: hidden;
+  border: 6px solid var(--m-ink);
+  border-radius: 22px;
+  background: var(--m-ink);
+  box-shadow: 8px 8px 0 rgba(18, 17, 14, 0.18);
+  transform: rotate(3deg);
+}
+
+.m-case__phone .m-picture,
+.m-case__phone-pic {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border-radius: 14px;
+}
+
+.m-case__live-cap {
+  display: flex;
+  gap: 16px;
+  justify-content: space-between;
+  max-width: calc(100% - clamp(80px, 24%, 230px));
+  padding-top: 24px;
+  color: var(--m-muted);
+  font-size: 12px;
+}
+
+@media (max-width: 900px) {
+  .m-case__live {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 560px) {
+  /* O celular ocupa o canto inferior direito; a legenda fica à esquerda dele.
+     O domínio já aparece acima do botão e na barra do navegador. */
+  .m-case__live-cap {
+    max-width: calc(100% - 140px);
+  }
+
+  .m-case__live-cap > span + span {
+    display: none;
+  }
+}
+
 .m-case__finale {
   position: relative;
   overflow: hidden;

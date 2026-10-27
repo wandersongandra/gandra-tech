@@ -29,6 +29,13 @@ const art: Record<string, ArtDirection> = {
   '/images/projects/ajn/work.webp': { focus: '48% 38%' },
   '/images/projects/ajn/main.webp': { focus: '30% 45%' },
   '/images/projects/ajn/cover.webp': { focus: '62% 62%' },
+  // capturas dos sites no ar: o recorte sempre preserva o topo da página
+  '/images/projects/ajn/site-desktop.webp': { focus: '50% 0%', tone: 'dark' },
+  '/images/projects/ajn/site-mobile.webp': { focus: '50% 0%', tone: 'dark' },
+  '/images/projects/telma-santos/site-desktop.webp': { focus: '50% 0%', tone: 'dark' },
+  '/images/projects/telma-santos/site-mobile.webp': { focus: '50% 0%', tone: 'dark' },
+  '/images/projects/gisley-nunes/site-desktop.webp': { focus: '50% 0%', tone: 'light' },
+  '/images/projects/gisley-nunes/site-mobile.webp': { focus: '50% 0%', tone: 'light' },
 }
 
 export type MediaInfo = MediaEntry & ArtDirection & {

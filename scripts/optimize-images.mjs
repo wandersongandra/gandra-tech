@@ -33,6 +33,13 @@ const sources = {
   '/images/projects/ajn/work.webp': { kind: 'photo' },
   '/images/projects/ajn/main.webp': { kind: 'photo' },
   '/images/projects/ajn/cover.webp': { kind: 'photo' },
+  // Capturas 2× dos sites no ar (Playwright, 1440×900 e 390×844), sem banners.
+  '/images/projects/ajn/site-desktop.webp': { kind: 'ui' },
+  '/images/projects/ajn/site-mobile.webp': { kind: 'ui' },
+  '/images/projects/telma-santos/site-desktop.webp': { kind: 'ui' },
+  '/images/projects/telma-santos/site-mobile.webp': { kind: 'ui' },
+  '/images/projects/gisley-nunes/site-desktop.webp': { kind: 'ui' },
+  '/images/projects/gisley-nunes/site-mobile.webp': { kind: 'ui' },
 }
 
 // Interfaces têm texto pequeno: compressão mais leve para não borrar.

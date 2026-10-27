@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import Picture from '@/components/materia/Picture'
-import type { Project } from '@/lib/projects'
+import { previewImage, type Project } from '@/lib/projects'
 
 type ProjectCardProps = {
   project: Project
@@ -11,6 +11,7 @@ type ProjectCardProps = {
 
 export default function ProjectCard({ project, index, compact = false, total }: ProjectCardProps) {
   const number = String(index + 1).padStart(2, '0')
+  const Heading = compact ? 'h2' : 'h3'
   return (
     <Link
       href={`/trabalhos/${project.slug}`}
@@ -23,8 +24,8 @@ export default function ProjectCard({ project, index, compact = false, total }: 
         <div className="project-card__media">
           <div className="project-card__media-inner">
             <Picture
-              src={project.workImage}
-              alt={`Imagem real do projeto ${project.name}`}
+              src={previewImage(project)}
+              alt={project.siteImage ? `Página inicial do site de ${project.name} no ar` : `Imagem real do projeto ${project.name}`}
               sizes={compact ? '(min-width: 900px) 50vw, 118vw' : '(min-width: 1024px) 46vw, 118vw'}
               className="m-fill"
             />
@@ -41,7 +42,8 @@ export default function ProjectCard({ project, index, compact = false, total }: 
           <span>{project.category}</span>
           <span>{project.year}</span>
         </div>
-        <h3 className="project-card__title">{project.name}</h3>
+        {/* No arquivo o card vem logo após o h1 da página: h2 mantém a ordem. */}
+        <Heading className="project-card__title">{project.name}</Heading>
         <p className="project-card__headline">{project.headline}</p>
         <span className="project-card__action mono">
           Ver case <span aria-hidden="true">→</span>

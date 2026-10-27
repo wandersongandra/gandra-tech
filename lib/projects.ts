@@ -25,8 +25,14 @@ export type Project = {
   papel: string
   stack?: string
   phase?: string
+  /** Endereço público verificado do projeto no ar (abre em nova aba). */
   externalUrl?: string
   externalLabel?: string
+  /** Quando não há site público: o que a lista mostra no lugar do domínio. */
+  accessNote?: string
+  /** Capturas 2× do site no ar (desktop 1440×900 e celular 390×844). */
+  siteImage?: string
+  siteMobileImage?: string
   visualNote?: string
   seoTitle: string
   seoDescription: string
@@ -77,6 +83,7 @@ export const projects: Project[] = [
           'O projeto também considera uso em telas menores porque parte das consultas e registros pode acontecer longe de uma estação de trabalho. A experiência mobile foi tratada como parte do produto, com hierarquia de informação e navegação pensadas para preservar clareza quando o espaço de tela é mais limitado.',
       },
     ],
+    accessNote: 'Plataforma com acesso restrito',
     workImage: '/images/work/sgs.webp',
     coverImage: '/images/projects/sgs/cover.webp',
     mainImage: '/images/projects/sgs/main.webp',
@@ -127,6 +134,10 @@ export const projects: Project[] = [
           'Como boa parte das visitas pode acontecer pelo celular, o projeto preserva a ordem de leitura e a clareza dos conteúdos em telas menores. A interface responsiva reorganiza os elementos sem reduzir o portfólio a uma versão comprimida do desktop.',
       },
     ],
+    externalUrl: 'https://www.telmaformadoraeducacional.com.br/',
+    externalLabel: 'Visitar o site da Telma Santos',
+    siteImage: '/images/projects/telma-santos/site-desktop.webp',
+    siteMobileImage: '/images/projects/telma-santos/site-mobile.webp',
     workImage: '/images/projects/telma-santos/work.webp',
     coverImage: '/images/projects/telma-santos/cover.webp',
     mainImage: '/images/projects/telma-santos/main.webp',
@@ -181,6 +192,10 @@ export const projects: Project[] = [
           'A arquitetura Laravel/MySQL, o armazenamento de imagens no R2 e as camadas de autenticação, autorização, proteção de requisições e auditoria foram tratados como parte do produto. A ativação definitiva depende das integrações e da verificação do deploy.',
       },
     ],
+    externalUrl: 'https://www.gisleynunesimoveis.com.br/',
+    externalLabel: 'Visitar o site da Gisley Nunes Imóveis',
+    siteImage: '/images/projects/gisley-nunes/site-desktop.webp',
+    siteMobileImage: '/images/projects/gisley-nunes/site-mobile.webp',
     workImage: '/images/projects/gisley-nunes/work.webp',
     coverImage: '/images/projects/gisley-nunes/cover.webp',
     mainImage: '/images/projects/gisley-nunes/main.webp',
@@ -236,6 +251,8 @@ export const projects: Project[] = [
           'Sem painel administrativo nem banco de dados na entrega estática, o conteúdo pode ser versionado e revisado junto ao código. As mudanças passam por validação antes da publicação, enquanto as imagens do acervo recebem seleção editorial por contexto.',
       },
     ],
+    siteImage: '/images/projects/ajn/site-desktop.webp',
+    siteMobileImage: '/images/projects/ajn/site-mobile.webp',
     workImage: '/images/projects/ajn/work.webp',
     coverImage: '/images/projects/ajn/cover.webp',
     mainImage: '/images/projects/ajn/main.webp',
@@ -248,6 +265,17 @@ export const projects: Project[] = [
     ],
   },
 ]
+
+/** Domínio legível do site no ar (sem protocolo, www nem barra final). */
+export function siteDomain(project: Pick<Project, 'externalUrl'>): string | undefined {
+  if (!project.externalUrl) return undefined
+  return new URL(project.externalUrl).hostname.replace(/^www\./, '')
+}
+
+/** Imagem de prévia do projeto: o site no ar quando existe; senão, a imagem do card. */
+export function previewImage(project: Pick<Project, 'siteImage' | 'workImage'>): string {
+  return project.siteImage ?? project.workImage
+}
 
 export function getProject(slug: string): Project | undefined {
   return projects.find((p) => p.slug === slug)

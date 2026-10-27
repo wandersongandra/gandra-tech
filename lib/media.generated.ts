@@ -154,5 +154,83 @@ export const media: Record<string, MediaEntry> = {
     ],
     "kind": "photo",
     "bg": "#6c648e"
+  },
+  "/images/projects/ajn/site-desktop.webp": {
+    "base": "/images/r/projects/ajn/site-desktop",
+    "width": 2880,
+    "height": 1800,
+    "widths": [
+      480,
+      768,
+      1080,
+      1440,
+      1920,
+      2880
+    ],
+    "kind": "ui",
+    "bg": "#fafafa"
+  },
+  "/images/projects/ajn/site-mobile.webp": {
+    "base": "/images/r/projects/ajn/site-mobile",
+    "width": 780,
+    "height": 1688,
+    "widths": [
+      480,
+      780
+    ],
+    "kind": "ui",
+    "bg": "#fafafa"
+  },
+  "/images/projects/telma-santos/site-desktop.webp": {
+    "base": "/images/r/projects/telma-santos/site-desktop",
+    "width": 2880,
+    "height": 1800,
+    "widths": [
+      480,
+      768,
+      1080,
+      1440,
+      1920,
+      2880
+    ],
+    "kind": "ui",
+    "bg": "#050505"
+  },
+  "/images/projects/telma-santos/site-mobile.webp": {
+    "base": "/images/r/projects/telma-santos/site-mobile",
+    "width": 780,
+    "height": 1688,
+    "widths": [
+      480,
+      780
+    ],
+    "kind": "ui",
+    "bg": "#050505"
+  },
+  "/images/projects/gisley-nunes/site-desktop.webp": {
+    "base": "/images/r/projects/gisley-nunes/site-desktop",
+    "width": 2880,
+    "height": 1800,
+    "widths": [
+      480,
+      768,
+      1080,
+      1440,
+      1920,
+      2880
+    ],
+    "kind": "ui",
+    "bg": "#f8f4ee"
+  },
+  "/images/projects/gisley-nunes/site-mobile.webp": {
+    "base": "/images/r/projects/gisley-nunes/site-mobile",
+    "width": 780,
+    "height": 1688,
+    "widths": [
+      480,
+      780
+    ],
+    "kind": "ui",
+    "bg": "#f8f4ee"
   }
 }

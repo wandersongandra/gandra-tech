@@ -1,149 +1,144 @@
 'use client'
 import { useEffect, useRef } from 'react'
 import Link from 'next/link'
-import ProjectCard from '@/components/ProjectCard'
+import Picture from '@/components/materia/Picture'
 import { useMotionPrefs } from '@/components/motion/useMotion'
-import { projects } from '@/lib/projects'
+import { previewImage, projects, siteDomain } from '@/lib/projects'
 import { withGsap } from '@/lib/gsap'
 
+const pad = (n: number) => String(n).padStart(2, '0')
+
 /**
- * Trabalhos selecionados. Em telas largas com movimento liberado a seção é
- * fixada (pin) e os cases correm na horizontal conforme o scroll vertical,
- * com revelação por clip-path e parallax interno das imagens reais. Em
- * celular, toque ou movimento reduzido vira uma pilha vertical comum —
- * nenhum conteúdo depende da animação.
+ * Trabalhos selecionados — índice tipográfico, como o sumário de uma revista:
+ * número, nome grande, tipo, ano e o endereço do site no ar. A linha inteira
+ * leva ao case (/trabalhos/<slug>); o convite para abrir o site do cliente
+ * fica dentro do case. Sem fotos soltas na home.
+ *
+ * Movimento: as linhas entram por fios que se desenham e, com ponteiro fino,
+ * uma prévia do site no ar acompanha o cursor sobre a linha. Em toque ou
+ * movimento reduzido a lista é estática e a prévia nem é baixada.
  */
 export default function WorkList() {
   const sectionRef = useRef<HTMLElement>(null)
-  const trackRef = useRef<HTMLDivElement>(null)
-  const progressRef = useRef<HTMLSpanElement>(null)
-  const { ready, reduced, wide } = useMotionPrefs()
+  const listRef = useRef<HTMLOListElement>(null)
+  const { ready, reduced, fine } = useMotionPrefs()
 
+  // Entrada das linhas (fio + texto). Conteúdo nunca depende disso.
   useEffect(() => withGsap(({ gsap }) => {
-    const section = sectionRef.current
-    const track = trackRef.current
-    if (!section || !track || !ready || reduced) return
-
+    const list = listRef.current
+    if (!list || !ready || reduced) return
     const ctx = gsap.context(() => {
-      const cards = gsap.utils.toArray<HTMLElement>('.project-card', track)
+      gsap.utils.toArray<HTMLElement>('.work-row', list).forEach((row, i) => {
+        const rule = row.querySelector('.work-row__rule')
+        const cells = row.querySelectorAll('.work-row__cell')
+        const tl = gsap.timeline({ scrollTrigger: { trigger: row, start: 'top 92%', once: true } })
+        if (rule) tl.fromTo(rule, { scaleX: 0 }, { scaleX: 1, duration: 1.1, ease: 'expo.out', delay: i * 0.04 })
+        tl.fromTo(cells, { yPercent: 60, opacity: 0 }, { yPercent: 0, opacity: 1, duration: 0.9, ease: 'expo.out', stagger: 0.05, clearProps: 'transform,opacity' }, '<0.08')
+      })
+    }, list)
+    return () => ctx.revert()
+  }), [ready, reduced])
 
-      if (wide) {
-        section.classList.add('is-pinned')
-        const distance = () => Math.max(0, track.scrollWidth - track.clientWidth)
-        const horizontal = gsap.to(track, {
-          x: () => -distance(),
-          ease: 'none',
-          scrollTrigger: {
-            trigger: section.querySelector('.m-works__stage'),
-            start: 'top top',
-            end: () => `+=${distance()}`,
-            pin: true,
-            scrub: 0.6,
-            invalidateOnRefresh: true,
-            onUpdate: (self) => {
-              if (progressRef.current) progressRef.current.style.transform = `scaleX(${self.progress.toFixed(4)})`
-            },
-          },
-        })
+  // A seção não tem mais pin; o aviso continua para quem espera o layout final.
+  useEffect(() => {
+    if (ready) window.dispatchEvent(new Event('gt:works-ready'))
+  }, [ready])
 
-        cards.forEach((card) => {
-          const media = card.querySelector('.project-card__media')
-          const inner = card.querySelector('.project-card__media-inner')
-          if (media) {
-            gsap.fromTo(
-              media,
-              { clipPath: 'inset(12% 18% 12% 0%)' },
-              {
-                clipPath: 'inset(0% 0% 0% 0%)',
-                ease: 'none',
-                scrollTrigger: {
-                  trigger: card,
-                  containerAnimation: horizontal,
-                  start: 'left right',
-                  end: 'center center',
-                  scrub: true,
-                },
-              }
-            )
-          }
-          if (inner) {
-            gsap.fromTo(
-              inner,
-              { xPercent: -8 },
-              {
-                xPercent: 8,
-                ease: 'none',
-                scrollTrigger: {
-                  trigger: card,
-                  containerAnimation: horizontal,
-                  start: 'left right',
-                  end: 'right left',
-                  scrub: true,
-                },
-              }
-            )
-          }
-        })
-      } else {
-        cards.forEach((card) => {
-          const media = card.querySelector('.project-card__media')
-          if (!media) return
-          gsap.fromTo(
-            media,
-            { clipPath: 'inset(18% 0% 0% 0%)' },
-            {
-              clipPath: 'inset(0% 0% 0% 0%)',
-              duration: 1.1,
-              ease: 'expo.out',
-              scrollTrigger: { trigger: card, start: 'top 88%', once: true },
-            }
-          )
-        })
-      }
-    }, section)
-    window.dispatchEvent(new Event('gt:works-ready'))
-
-    return () => {
-      ctx.revert()
-      section.classList.remove('is-pinned')
+  // Prévia que segue o cursor (só ponteiro fino e com movimento liberado).
+  useEffect(() => {
+    const list = listRef.current
+    if (!list || !ready || reduced || !fine) return
+    let raf = 0
+    let x = 0
+    let y = 0
+    const move = (e: PointerEvent) => {
+      const row = (e.target as Element | null)?.closest?.<HTMLElement>('.work-row__link')
+      if (!row) return
+      const r = row.getBoundingClientRect()
+      x = e.clientX - r.left
+      y = e.clientY - r.top
+      if (raf) return
+      raf = requestAnimationFrame(() => {
+        raf = 0
+        row.style.setProperty('--peek-x', `${x.toFixed(1)}px`)
+        row.style.setProperty('--peek-y', `${y.toFixed(1)}px`)
+      })
     }
-  }), [ready, reduced, wide])
+    list.classList.add('is-following')
+    list.addEventListener('pointermove', move, { passive: true })
+    return () => {
+      cancelAnimationFrame(raf)
+      list.classList.remove('is-following')
+      list.removeEventListener('pointermove', move)
+    }
+  }, [ready, reduced, fine])
 
   return (
     <>
     <section id="trabalhos" ref={sectionRef} className="work-list m-works" aria-labelledby="works-title">
-      <div className="m-works__stage">
-        <div className="m-shell m-works__head">
-          <div className="m-section-head mono">
-            <span>(02) Trabalhos selecionados</span>
-            <span>Cada case reúne contexto, decisões de projeto e registros reais.</span>
-            <span className="work-list__aside">
-              <span className="work-list__count">({String(projects.length).padStart(2, '0')})</span>
-            </span>
-          </div>
-          <div className="m-works__title-row">
-            <h2 id="works-title" className="m-display m-works__title">
-              Projetos com <em className="m-italic">direção</em> e código.
-            </h2>
-            <Link href="/trabalhos" prefetch={false} className="m-link work-list__archive" data-cursor="Arquivo">
-              Ver arquivo completo <span aria-hidden="true">↗</span>
-            </Link>
-          </div>
-        </div>
-
-        <div className="m-works__viewport">
-          <div ref={trackRef} className="project-grid project-grid--home m-works__track">
-            {projects.map((project, index) => (
-              <ProjectCard key={project.slug} project={project} index={index} total={projects.length} />
-            ))}
-          </div>
-        </div>
-
-        <div className="m-shell m-works__progress" aria-hidden="true">
-          <span className="m-works__progress-bar">
-            <span ref={progressRef} className="m-works__progress-fill" />
+      <div className="m-shell m-works__head">
+        <div className="m-section-head mono">
+          <span>(02) Trabalhos selecionados</span>
+          <span>Cada case reúne contexto, decisões de projeto e o site no ar.</span>
+          <span className="work-list__aside">
+            <span className="work-list__count">({pad(projects.length)})</span>
           </span>
         </div>
+        <div className="m-works__title-row">
+          <h2 id="works-title" className="m-display m-works__title">
+            Projetos com <em className="m-italic">direção</em> e código.
+          </h2>
+          <Link href="/trabalhos" prefetch={false} className="m-link work-list__archive" data-cursor="Arquivo">
+            Ver arquivo completo <span aria-hidden="true">↗</span>
+          </Link>
+        </div>
+
+        <ol ref={listRef} className="work-rows" aria-label="Projetos selecionados">
+          {projects.map((project, index) => {
+            const domain = siteDomain(project)
+            return (
+              <li key={project.slug} className="work-row">
+                <span className="work-row__rule" aria-hidden="true" />
+                <Link
+                  href={`/trabalhos/${project.slug}`}
+                  prefetch={false}
+                  className="work-row__link"
+                  data-curtain={project.name}
+                  data-cursor="Ver case"
+                >
+                  <span className="work-row__cell work-row__num mono" aria-hidden="true">
+                    {pad(index + 1)}
+                    <span className="work-row__total">/{pad(projects.length)}</span>
+                  </span>
+                  <span className="work-row__cell work-row__name">
+                    <span className="work-row__name-text">{project.name}</span>
+                  </span>
+                  <span className="work-row__cell work-row__type mono">{project.category}</span>
+                  <span className="work-row__cell work-row__year mono">{project.year}</span>
+                  <span className="work-row__cell work-row__domain mono">
+                    {domain ? (
+                      <>
+                        <span className="sr-only">Site no ar: </span>
+                        {domain}
+                      </>
+                    ) : (
+                      <span className="work-row__private">{project.accessNote ?? 'Case completo'}</span>
+                    )}
+                  </span>
+                  <span className="work-row__cell work-row__go mono">
+                    <span className="work-row__go-label">Ver case</span>
+                    <span aria-hidden="true"> →</span>
+                  </span>
+                  {fine && !reduced ? (
+                    <span className="work-row__peek" aria-hidden="true">
+                      <Picture src={previewImage(project)} alt="" sizes="360px" className="m-fill" focus="50% 0%" />
+                    </span>
+                  ) : null}
+                </Link>
+              </li>
+            )
+          })}
+        </ol>
       </div>
     </section>
     {/* Fase 5: mergulho num ponto da retícula até a próxima seção. Só
