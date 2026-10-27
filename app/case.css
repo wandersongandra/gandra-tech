@@ -778,14 +778,16 @@
     }
   }
 
+  /* sticky (e não fixed): o filtro de pré-prensa no <main> e o transform
+     de entrada viram bloco de contenção de um fixed — a régua pulava ao
+     soltar o filtro (CLS) e não ficava presa durante a prensa. */
   .m-case__ruler {
-    position: fixed;
+    position: sticky;
     top: calc(var(--header-h) + env(safe-area-inset-top, 0px));
-    left: 0;
-    right: 0;
     z-index: 40;
     display: block;
     height: 7px;
+    margin-bottom: -7px;
     pointer-events: none;
     background: repeating-linear-gradient(90deg, var(--m-line) 0 1px, transparent 1px 10px) bottom / 100% 4px no-repeat,
       repeating-linear-gradient(90deg, var(--m-ink) 0 1px, transparent 1px 100px) bottom / 100% 7px no-repeat;
