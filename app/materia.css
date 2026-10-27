@@ -2761,3 +2761,21 @@ html[data-tinta='on'] .m-press__wet {
 @media print {
   .m-glyphs { display: none; }
 }
+
+/* Fase 5 · peça 6 — texto líquido. Com movimento, o fólio passa um filtro
+   SVG (turbulência 0→8→0 + feOffset) no link sob o cursor ou com foco.
+   Em reduced-motion fica só a troca de cor, com contraste AA. */
+@media (prefers-reduced-motion: reduce) {
+  .site-header__link:not(.site-header__logo):is(:hover, :focus-visible),
+  .m-link:is(:hover, :focus-visible),
+  .site-footer__legal a:is(:hover, :focus-visible),
+  .link-arrow:is(:hover, :focus-visible) {
+    color: var(--m-signal-ink);
+    transition: color var(--m-dur-fast) ease;
+  }
+  .m-footer .m-link:is(:hover, :focus-visible),
+  .m-footer .site-footer__legal a:is(:hover, :focus-visible),
+  html[data-tinta='on'] :is(.site-header__link, .m-link, .link-arrow):is(:hover, :focus-visible) {
+    color: var(--m-signal);
+  }
+}

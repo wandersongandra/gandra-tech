@@ -415,9 +415,95 @@ export function glyphField(host: HTMLElement, opts: Opts): Off {
 }
 
 /* --------------------------------------------------------------------- */
+/* --------------------------------------------------------------------- */
+/* 6. Texto líquido nos links: a tinta escorre e volta (hover e foco).    */
+/* --------------------------------------------------------------------- */
+const LIQUID = '.site-header__link, .m-link, .site-footer__legal a, .link-arrow'
+const LIQUID_SKIP = '.site-header__logo, .m-footer__mark'
+
+export function liquidLinks(defs: SVGSVGElement, opts: Opts): Off {
+  // Em reduced-motion o CSS só troca a cor; aqui não há nada a fazer.
+  if (opts.reduced) return () => {}
+  const f = document.createElementNS(SVGNS, 'filter')
+  f.setAttribute('id', 'gt-liquid')
+  f.setAttribute('x', '-6%')
+  f.setAttribute('y', '-30%')
+  f.setAttribute('width', '112%')
+  f.setAttribute('height', '160%')
+  f.setAttribute('color-interpolation-filters', 'sRGB')
+  const t = document.createElementNS(SVGNS, 'feTurbulence')
+  t.setAttribute('type', 'fractalNoise')
+  t.setAttribute('baseFrequency', '0.014 0.06')
+  t.setAttribute('numOctaves', '1')
+  t.setAttribute('seed', '11')
+  t.setAttribute('result', 'n')
+  const d = document.createElementNS(SVGNS, 'feDisplacementMap')
+  d.setAttribute('in', 'SourceGraphic')
+  d.setAttribute('in2', 'n')
+  d.setAttribute('scale', '0')
+  d.setAttribute('xChannelSelector', 'R')
+  d.setAttribute('yChannelSelector', 'G')
+  d.setAttribute('result', 'd')
+  const o = document.createElementNS(SVGNS, 'feOffset')
+  o.setAttribute('in', 'd')
+  o.setAttribute('dx', '0')
+  o.setAttribute('dy', '0')
+  f.append(t, d, o)
+  defs.appendChild(f)
+
+  // Um filtro só, um link por vez: o novo assume, o anterior volta limpo.
+  let cur: HTMLElement | null = null
+  let raf = 0
+  const stop = () => {
+    cancelAnimationFrame(raf)
+    raf = 0
+    if (cur) cur.style.filter = ''
+    cur = null
+  }
+  const run = (el: HTMLElement) => {
+    if (el === cur) return
+    stop()
+    cur = el
+    el.style.filter = 'url(#gt-liquid)'
+    const t0 = performance.now()
+    const dur = 620
+    const tick = (now: number) => {
+      const p = clamp((now - t0) / dur)
+      const s = 8 * Math.sin(Math.PI * p)
+      d.setAttribute('scale', s.toFixed(2))
+      o.setAttribute('dx', (1.4 * Math.sin(Math.PI * 2 * p)).toFixed(2))
+      if (p < 1) raf = requestAnimationFrame(tick)
+      else stop()
+    }
+    raf = requestAnimationFrame(tick)
+  }
+  const pick = (n: EventTarget | null) => {
+    const el = n instanceof Element ? n.closest<HTMLElement>(LIQUID) : null
+    return el && !el.matches(LIQUID_SKIP) && !el.closest(LIQUID_SKIP) ? el : null
+  }
+  const onOver = (e: PointerEvent) => {
+    if (e.pointerType !== 'mouse') return
+    const el = pick(e.target)
+    if (!el || (e.relatedTarget instanceof Node && el.contains(e.relatedTarget))) return
+    run(el)
+  }
+  const onFocus = (e: FocusEvent) => {
+    const el = pick(e.target)
+    if (el && el.matches(':focus-visible')) run(el)
+  }
+  document.addEventListener('pointerover', onOver, { passive: true })
+  document.addEventListener('focusin', onFocus)
+  return () => {
+    stop()
+    document.removeEventListener('pointerover', onOver)
+    document.removeEventListener('focusin', onFocus)
+    f.remove()
+  }
+}
+
 export function mountFolio(opts: Opts): Off {
   const defs = defsLayer()
-  const offs: Off[] = [inkBleed(defs, opts)]
+  const offs: Off[] = [inkBleed(defs, opts), liquidLinks(defs, opts)]
   const diveEl = document.querySelector<HTMLElement>('.m-dive')
   if (diveEl && !opts.reduced) offs.push(dive(diveEl))
   const glyphHost = document.querySelector<HTMLElement>('[data-glyphs]')
