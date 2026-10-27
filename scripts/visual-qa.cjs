@@ -499,11 +499,13 @@ async function main() {
       assert.equal(await page.evaluate(() => document.querySelectorAll('canvas:not(.m-ink-trail):not(.m-halftone):not(.m-brush)').length), 0, viewport.name + ': canvas inesperado')
       if (viewport.name === 'desktop') {
         const konami = ['ArrowUp', 'ArrowUp', 'ArrowDown', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'ArrowLeft', 'ArrowRight', 'b', 'a']
+        // Foca o documento: sem foco alguns engines engolem a sequência.
+        await page.locator('body').click({ position: { x: 8, y: 8 } })
         for (const k of konami) await page.keyboard.press(k)
-        await page.waitForTimeout(1100)
-        assert.equal(await page.evaluate(() => document.documentElement.dataset.tinta), 'on', 'desktop: código Konami não ligou o modo tinta')
+        await page.waitForFunction(() => document.documentElement.dataset.tinta === 'on', null, { timeout: 4000 })
+        assert.equal(await page.evaluate(() => document.documentElement.dataset.tinta || ''), 'on', 'desktop: código Konami não ligou o modo tinta')
         for (const k of konami) await page.keyboard.press(k)
-        await page.waitForTimeout(1100)
+        await page.waitForFunction(() => !document.documentElement.dataset.tinta, null, { timeout: 4000 })
         assert.equal(await page.evaluate(() => document.documentElement.dataset.tinta || ''), '', 'desktop: modo tinta não desligou')
       }
       await page.evaluate(() => window.scrollTo(0, window.scrollY + document.querySelector('.m-contact').getBoundingClientRect().top))
