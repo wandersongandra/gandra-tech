@@ -7,6 +7,108 @@ const origin = process.env.QA_ORIGIN || 'http://127.0.0.1:4173'
 const screenshotDir = path.join(__dirname, '..', 'artifacts', 'visual')
 fs.mkdirSync(screenshotDir, { recursive: true })
 
+// Regressões da caça a bugs (fase 4): cada bloco reproduz um bug que um
+// visitante viu de verdade.
+async function regressions(browser) {
+  const html = (n) => origin + '/' + n + '.html'
+  // 1) Cortina cobre a tela no meio da troca; página nova começa no topo.
+  {
+    const ctx = await browser.newContext({ viewport: { width: 1440, height: 900 } })
+    const page = await ctx.newPage()
+    await page.goto(html('trabalhos/sgs'), { waitUntil: 'load' })
+    await page.waitForLoadState('networkidle')
+    await page.waitForTimeout(800)
+    await page.evaluate(() => window.scrollTo(0, 1500))
+    await page.waitForTimeout(400)
+    await page.locator('.m-case__next').click({ noWaitAfter: true })
+    let covered = false
+    for (let i = 0; i < 12 && !covered; i++) {
+      await page.waitForTimeout(80)
+      covered = await page.evaluate(() => Math.abs(document.querySelector('.curtain').getBoundingClientRect().top) <= 8)
+    }
+    assert.ok(covered, 'cortina: o painel nunca cobriu a tela (y em px virava -100%)')
+    await page.waitForURL(/\/trabalhos\/(?!sgs)/, { timeout: 5000 })
+    await page.waitForTimeout(1600)
+    assert.ok((await page.evaluate(() => window.scrollY)) <= 2, 'rolagem: página nova não começou no topo')
+    // 2) tel:, Ctrl+clique e âncora da mesma página não passam pela cortina.
+    const intercepted = await page.evaluate(() => {
+      const out = {}
+      const probe = (href, init) => {
+        const a = document.createElement('a')
+        a.href = href
+        a.textContent = 'x'
+        document.body.appendChild(a)
+        let prevented = null
+        const spy = (e) => { prevented = e.defaultPrevented; e.preventDefault() }
+        window.addEventListener('click', spy)
+        a.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true, button: 0, ...init }))
+        window.removeEventListener('click', spy)
+        a.remove()
+        return prevented
+      }
+      out.tel = probe('tel:+5500000000', {})
+      out.ctrl = probe('/servicos', { ctrlKey: true })
+      out.meta = probe('/servicos', { metaKey: true })
+      out.hash = probe(location.pathname + '#x', {})
+      return out
+    })
+    assert.deepEqual(intercepted, { tel: false, ctrl: false, meta: false, hash: false }, 'cortina: interceptou link que é do navegador')
+    // 3) Camada de manchas não infla a página.
+    const layer = await page.evaluate(() => {
+      const l = document.querySelector('.m-stains')
+      return l ? +l.getAttribute('height') - Math.max(document.body.offsetHeight, innerHeight) : 0
+    })
+    assert.ok(layer <= 2, 'manchas: camada mais alta que a página (' + layer + 'px)')
+    // 4) Intro não repete em aba nova; modo tinta volta antes da pintura.
+    await page.evaluate(() => sessionStorage.setItem('gt-tinta', '1'))
+    const tab = await ctx.newPage()
+    await tab.goto(html('servicos'), { waitUntil: 'domcontentloaded' })
+    assert.equal(await tab.evaluate(() => document.documentElement.hasAttribute('data-intro')), false, 'abertura: repetiu em aba nova')
+    await page.goto(html('contato'), { waitUntil: 'domcontentloaded' })
+    assert.equal(await page.evaluate(() => document.documentElement.dataset.tinta || ''), 'on', 'modo tinta: só voltou depois da pintura')
+    await page.evaluate(() => sessionStorage.removeItem('gt-tinta'))
+    await ctx.close()
+  }
+  // 5) Interação antes do idle não monta a camada surreal duas vezes.
+  {
+    const ctx = await browser.newContext({ viewport: { width: 1440, height: 900 } })
+    const page = await ctx.newPage()
+    await page.goto(origin, { waitUntil: 'commit' })
+    await page.waitForSelector('main')
+    await page.keyboard.press('Shift')
+    await page.waitForLoadState('load')
+    await page.keyboard.press('Shift')
+    await page.waitForFunction(() => document.documentElement.dataset.surreal === 'on', null, { timeout: 10000 })
+    await page.waitForTimeout(1500)
+    const n = await page.evaluate(() => [document.querySelectorAll('.m-stains').length, document.querySelectorAll('.m-brush').length, document.querySelectorAll('.m-sound').length])
+    assert.deepEqual(n, [1, 1, 1], 'surreal: camada montada em dobro')
+    await ctx.close()
+  }
+  // 6) Menu mobile: fechar não pula para o topo, chave de som some e o
+  //    botão de fechar entra no ciclo do Tab.
+  {
+    const ctx = await browser.newContext({ viewport: { width: 390, height: 844 }, hasTouch: true, isMobile: true })
+    const page = await ctx.newPage()
+    await page.goto(html('servicos'), { waitUntil: 'load' })
+    await page.waitForFunction(() => document.documentElement.dataset.press === 'on', null, { timeout: 10000 })
+    await page.evaluate(() => window.scrollTo(0, 600))
+    await page.waitForTimeout(300)
+    await page.tap('.site-header__menu-toggle')
+    await page.waitForTimeout(400)
+    assert.equal(await page.evaluate(() => getComputedStyle(document.querySelector('.m-sound')).visibility), 'hidden', 'menu: chave de som por cima do menu')
+    const seq = []
+    for (let i = 0; i < 4; i++) {
+      await page.keyboard.press('Tab')
+      seq.push(await page.evaluate(() => document.activeElement?.classList.contains('site-header__menu-toggle')))
+    }
+    assert.ok(seq.includes(true), 'menu: botão de fechar fora do ciclo de foco')
+    await page.tap('.site-header__menu-toggle')
+    await page.waitForTimeout(400)
+    assert.ok(Math.abs((await page.evaluate(() => window.scrollY)) - 600) <= 2, 'menu: fechar jogou a página para o topo')
+    await ctx.close()
+  }
+}
+
 async function main() {
   const browser = await chromium.launch({ headless: true, executablePath: process.env.QA_CHROME || undefined })
   try {
@@ -133,7 +235,8 @@ async function main() {
     assert.equal(label, expected, 'cortina: rótulo do destino não apareceu')
     await casePage.waitForURL(/\/trabalhos\/(?!gisley)/, { timeout: 5000 })
     await caseContext.close()
-    process.stdout.write('QA: desktop, mobile, camada surreal, prensa (abertura, meio-tom, rolo, som, modo tinta), reduced-motion, menu, projetos reais, galeria e rotas exportadas passaram.\n')
+    await regressions(browser)
+    process.stdout.write('QA: desktop, mobile, camada surreal, prensa (abertura, meio-tom, rolo, som, modo tinta), reduced-motion, menu, projetos reais, galeria e rotas exportadas e regressões da caça a bugs passaram.\n')
   } finally {
     await browser.close()
   }
