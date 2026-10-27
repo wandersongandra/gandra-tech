@@ -33,7 +33,7 @@ export default function ContactPage() {
             sem promessa vazia.
           </FadeIn>
           <FadeIn trigger="load" delay={0.5} y={16} duration={0.7} animateOpacity={false}>
-            <a href={contactMailto} className="cp-hero__email">
+            <a href={contactMailto} className="cp-hero__email" data-no-stain>
               {contactEmail} ↗
             </a>
           </FadeIn>

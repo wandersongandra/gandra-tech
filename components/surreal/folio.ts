@@ -501,9 +501,135 @@ export function liquidLinks(defs: SVGSVGElement, opts: Opts): Off {
   }
 }
 
+/* --------------------------------------------------------------------- */
+/* 7. Segurar para carimbar: clique normal continua instantâneo; segurar  */
+/*    (ou manter a tecla) carimba "GANDRA ✶ APROVADO" ao lado do e-mail.  */
+/* --------------------------------------------------------------------- */
+const STAMP_TARGETS = '.m-contact__email, .cp-hero__email[href^="mailto:"]'
+const HOLD_MS = 550
+
+export function holdStamp(opts: Opts): Off {
+  const stamps: HTMLElement[] = []
+  let timer = 0
+  let held: HTMLElement | null = null
+  let swallow: HTMLElement | null = null
+  let lastKey = 0
+
+  const stamp = (el: HTMLElement) => {
+    const r = el.getBoundingClientRect()
+    const s = document.createElement('span')
+    s.className = 'm-stamp mono'
+    s.setAttribute('aria-hidden', 'true')
+    s.textContent = 'GANDRA ✶ APROVADO'
+    const rot = -9 + Math.random() * 14
+    const x = r.left + window.scrollX + r.width * (0.18 + Math.random() * 0.64)
+    const y = r.top + window.scrollY + r.height * (0.2 + Math.random() * 0.6)
+    s.style.left = `${x.toFixed(1)}px`
+    s.style.top = `${y.toFixed(1)}px`
+    s.style.setProperty('--rot', `${rot.toFixed(1)}deg`)
+    document.body.appendChild(s)
+    stamps.push(s)
+    while (stamps.length > 6) stamps.shift()?.remove()
+    const base = `translate(-50%, -50%) rotate(${rot.toFixed(1)}deg)`
+    if (opts.reduced) {
+      s.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 160, fill: 'both' })
+    } else {
+      // o carimbo desce pesado, bate e assenta com um tranco
+      s.animate(
+        [
+          { opacity: 0, transform: `${base} scale(1.7)` },
+          { opacity: 1, transform: `${base} scale(0.94)`, offset: 0.7 },
+          { opacity: 1, transform: `${base} scale(1)` },
+        ],
+        { duration: 240, easing: 'cubic-bezier(0.55, 0, 1, 0.45)', fill: 'both' }
+      )
+      el.animate([{ transform: 'translateY(0)' }, { transform: 'translateY(2px)' }, { transform: 'translateY(0)' }], {
+        duration: 160,
+        delay: 160,
+      })
+    }
+    window.setTimeout(() => {
+      if (!s.isConnected) return
+      const a = s.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 900, fill: 'forwards' })
+      a.onfinish = () => {
+        s.remove()
+        const i = stamps.indexOf(s)
+        if (i >= 0) stamps.splice(i, 1)
+      }
+    }, 2600)
+  }
+
+  const target = (n: EventTarget | null) => (n instanceof Element ? n.closest<HTMLElement>(STAMP_TARGETS) : null)
+  const cancel = () => {
+    window.clearTimeout(timer)
+    timer = 0
+    held?.classList.remove('is-charging')
+    held = null
+  }
+  const onDown = (e: PointerEvent) => {
+    if (e.button !== 0 || e.ctrlKey || e.metaKey || e.shiftKey || e.altKey) return
+    const el = target(e.target)
+    if (!el) return
+    cancel()
+    held = el
+    swallow = null
+    el.classList.add('is-charging')
+    timer = window.setTimeout(() => {
+      timer = 0
+      el.classList.remove('is-charging')
+      swallow = el
+      stamp(el)
+    }, HOLD_MS)
+  }
+  const onClick = (e: MouseEvent) => {
+    const el = target(e.target)
+    if (el && swallow === el) {
+      // segurou: o carimbo foi a resposta; não abre o e-mail
+      e.preventDefault()
+      e.stopPropagation()
+    }
+    swallow = null
+  }
+  const onMenu = (e: Event) => {
+    if (target(e.target) && (swallow || held)) e.preventDefault()
+  }
+  const onKey = (e: KeyboardEvent) => {
+    const el = target(e.target)
+    if (!el) return
+    // Enter: o primeiro toque segue o link; mantido, carimba a cada repetição.
+    // Espaço: carimba (no link ele só rolaria a página).
+    const enterHold = e.key === 'Enter' && e.repeat
+    if (!enterHold && e.key !== ' ') return
+    e.preventDefault()
+    const now = performance.now()
+    if (now - lastKey < 320) return
+    lastKey = now
+    stamp(el)
+  }
+  document.addEventListener('pointerdown', onDown, { passive: true })
+  document.addEventListener('pointerup', cancel, { passive: true })
+  document.addEventListener('pointercancel', cancel, { passive: true })
+  document.addEventListener('dragstart', cancel)
+  document.addEventListener('click', onClick, true)
+  document.addEventListener('contextmenu', onMenu)
+  document.addEventListener('keydown', onKey)
+  return () => {
+    cancel()
+    document.removeEventListener('pointerdown', onDown)
+    document.removeEventListener('pointerup', cancel)
+    document.removeEventListener('pointercancel', cancel)
+    document.removeEventListener('dragstart', cancel)
+    document.removeEventListener('click', onClick, true)
+    document.removeEventListener('contextmenu', onMenu)
+    document.removeEventListener('keydown', onKey)
+    stamps.forEach((s) => s.remove())
+  }
+}
+
 export function mountFolio(opts: Opts): Off {
   const defs = defsLayer()
   const offs: Off[] = [inkBleed(defs, opts), liquidLinks(defs, opts)]
+  if (document.querySelector(STAMP_TARGETS)) offs.push(holdStamp(opts))
   const diveEl = document.querySelector<HTMLElement>('.m-dive')
   if (diveEl && !opts.reduced) offs.push(dive(diveEl))
   const glyphHost = document.querySelector<HTMLElement>('[data-glyphs]')

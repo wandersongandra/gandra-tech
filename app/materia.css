@@ -2779,3 +2779,46 @@ html[data-tinta='on'] .m-press__wet {
     color: var(--m-signal);
   }
 }
+
+/* Fase 5 · peça 7 — segurar para carimbar. O clique curto abre o e-mail na
+   hora; segurar ~0,55 s (ou manter a tecla) carimba. No toque, sem menu de
+   contexto nem seleção, e sem o atraso de duplo toque. */
+.m-contact__email,
+.cp-hero__email[href^='mailto:'] {
+  touch-action: manipulation;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .m-contact__email,
+  .cp-hero__email[href^='mailto:'] {
+    transition: color 0.4s ease, transform 0.55s cubic-bezier(0.3, 0, 0.2, 1);
+  }
+  .m-contact__email.is-charging,
+  .cp-hero__email.is-charging {
+    transform: scale(0.97);
+  }
+}
+
+.m-stamp {
+  position: absolute;
+  z-index: 60;
+  padding: 0.45em 0.8em 0.4em;
+  color: var(--m-signal);
+  font-size: clamp(13px, 1.4vw, 20px);
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  line-height: 1;
+  white-space: nowrap;
+  border: 3px double currentColor;
+  border-radius: 4px;
+  opacity: 0.92;
+  pointer-events: none;
+  transform: translate(-50%, -50%) rotate(var(--rot, -4deg));
+}
+
+@media print {
+  .m-stamp { display: none; }
+}

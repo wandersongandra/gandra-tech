@@ -63,7 +63,7 @@ export default function Contact() {
           <div className="m-contact__col m-contact__col--main">
             <span className="contact__col-label m-label">Escreva para</span>
             <MagneticButton strength={0.15}>
-              <a href={contactMailto} className="m-contact__email" data-cursor="Escrever">
+              <a href={contactMailto} className="m-contact__email" data-cursor="Escrever" data-no-stain>
                 {contactEmail}
                 <span aria-hidden="true"> ↗</span>
               </a>
