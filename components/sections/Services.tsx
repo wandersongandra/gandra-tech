@@ -78,7 +78,8 @@ export default function Services() {
 
     // Toque: prévia ancorada pela borda direita (fica dentro da viewport).
     preview.classList.add('is-touch')
-    gsap.set(preview, { xPercent: -100, yPercent: -50, x: 0, y: 0, rotation: 0 })
+    // scale via GSAP (CSS scale + transform do GSAP brigavam e a prévia ficava a ~0.6).
+    gsap.set(preview, { xPercent: -100, yPercent: -50, x: 0, y: 0, rotation: 0, scale: 1 })
     const rows = Array.from(list.querySelectorAll<HTMLElement>('[data-preview]'))
     let current = ''
     let raf = 0
@@ -100,6 +101,7 @@ export default function Services() {
           img.classList.toggle('is-current', img.dataset.slug === key)
         })
         preview.classList.toggle('is-visible', Boolean(key))
+        gsap.to(preview, { scale: key ? 1 : 0.85, duration: 0.45, ease: 'power3.out', overwrite: false })
       }
       if (best) {
         const r = best.getBoundingClientRect()

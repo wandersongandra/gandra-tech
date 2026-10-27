@@ -1032,6 +1032,9 @@ body {
 
 .m-services__preview.is-touch {
   width: clamp(160px, 42vw, 240px);
+  /* GSAP controla scale; evita disputa com transform:translate */
+  scale: none;
+  transition: opacity 0.35s ease;
 }
 
 .m-services__preview-img {
