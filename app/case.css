@@ -732,3 +732,92 @@
 .m-drop__toggle:hover {
   color: var(--m-signal);
 }
+
+/* === Fase 5: ficha técnica carimbada ===================================== */
+.m-case__sheet-plate {
+  position: relative;
+}
+
+/* Marcas de registro: cruz + círculo nos quatro cantos da prova. */
+.m-case__reg {
+  position: absolute;
+  width: 18px;
+  height: 18px;
+  pointer-events: none;
+  background:
+    linear-gradient(var(--m-ink), var(--m-ink)) center / 1px 100% no-repeat,
+    linear-gradient(var(--m-ink), var(--m-ink)) center / 100% 1px no-repeat,
+    radial-gradient(circle, transparent 0 4px, var(--m-ink) 4.5px 5.4px, transparent 6px);
+  opacity: 0.7;
+}
+
+.m-case__reg--tl { top: -26px; left: -26px; }
+.m-case__reg--tr { top: -26px; right: -26px; }
+.m-case__reg--bl { bottom: -26px; left: -26px; }
+.m-case__reg--br { bottom: -26px; right: -26px; }
+
+@media (max-width: 760px) {
+  .m-case__reg--tl, .m-case__reg--bl { left: -14px; }
+  .m-case__reg--tr, .m-case__reg--br { right: -14px; }
+  .m-case__reg { width: 12px; height: 12px; }
+}
+
+/* Régua: só existe onde a linha do tempo de rolagem existe. */
+.m-case__ruler {
+  display: none;
+}
+
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    /* A ficha desce como um carimbo: grande e torta → assentada a −2°. */
+    .m-case__sheet-plate {
+      transform-origin: 50% 60%;
+      animation: m-stamp linear both;
+      animation-timeline: view();
+      animation-range: entry 10% cover 38%;
+    }
+  }
+
+  .m-case__ruler {
+    position: fixed;
+    top: calc(var(--header-h) + env(safe-area-inset-top, 0px));
+    left: 0;
+    right: 0;
+    z-index: 40;
+    display: block;
+    height: 7px;
+    pointer-events: none;
+    background: repeating-linear-gradient(90deg, var(--m-line) 0 1px, transparent 1px 10px) bottom / 100% 4px no-repeat,
+      repeating-linear-gradient(90deg, var(--m-ink) 0 1px, transparent 1px 100px) bottom / 100% 7px no-repeat;
+    opacity: 0.55;
+  }
+
+  .m-case__ruler-fill {
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    height: 2px;
+    background: var(--m-signal);
+    transform-origin: 0 50%;
+    animation: m-ruler linear both;
+    animation-timeline: scroll(root);
+  }
+}
+
+@keyframes m-stamp {
+  0% { transform: scale(1.15) rotate(0deg); opacity: 0; }
+  55% { opacity: 1; }
+  82% { transform: scale(0.985) rotate(-2.2deg); }
+  100% { transform: scale(1) rotate(-2deg); opacity: 1; }
+}
+
+@keyframes m-ruler {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
+}
+
+@media print {
+  .m-case__ruler { display: none !important; }
+  .m-case__sheet-plate { animation: none !important; transform: none !important; }
+}
