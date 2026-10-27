@@ -464,9 +464,25 @@ body {
   transform: translateY(-3.5px) rotate(-45deg);
 }
 
+/* A cortina do menu anima num pseudo-elemento: clip-path animado no próprio
+   diálogo deixava os links sem receber toque até o fim da animação. */
 .mobile-menu {
+  background: transparent;
+  isolation: isolate;
+}
+
+.mobile-menu::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
   background: var(--m-ink);
   animation: m-menu-in 0.6s var(--m-ease-out) both;
+}
+
+@keyframes m-menu-link-in {
+  from { opacity: 0; transform: translate3d(0, 60%, 0) rotate(3deg); }
+  to { opacity: 1; transform: none; }
 }
 
 @keyframes m-menu-in {
@@ -489,12 +505,12 @@ body {
   font-weight: 560;
   font-stretch: 80%;
   letter-spacing: -0.03em;
-  animation: m-rise 0.9s var(--m-ease-out) both;
+  animation: m-menu-link-in 0.8s var(--m-ease-out) 0.16s both;
 }
 
-.mobile-menu__link:nth-child(2) { animation-delay: 0.05s; }
-.mobile-menu__link:nth-child(3) { animation-delay: 0.1s; }
-.mobile-menu__link:nth-child(4) { animation-delay: 0.15s; }
+.mobile-menu__link:nth-child(2) { animation-delay: 0.21s; }
+.mobile-menu__link:nth-child(3) { animation-delay: 0.26s; }
+.mobile-menu__link:nth-child(4) { animation-delay: 0.31s; }
 
 .mobile-menu__link::after {
   content: '0' counter(menu);
@@ -1918,6 +1934,7 @@ body {
   .m-hero__lead,
   .m-hero__actions,
   .mobile-menu,
+  .mobile-menu::before,
   .mobile-menu__link {
     animation: none !important;
     transform: none !important;
