@@ -132,7 +132,8 @@ export default function KineticWordmark({ text, className }: Props) {
         el.style.fontVariationSettings = `"wdth" ${s.wdth.toFixed(1)}, "wght" ${Math.round(s.wght)}`
       })
       place()
-      const keepGoing = moving || (fine && pointer.active) || (!fine && background)
+      // Desktop: ponteiro parado + letras convergidas → dorme; onMove acorda de novo.
+      const keepGoing = moving || (!fine && background)
       if (keepGoing) raf = requestAnimationFrame(tick)
     }
     let armed = fine

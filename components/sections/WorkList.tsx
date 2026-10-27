@@ -97,7 +97,11 @@ export default function WorkList() {
       current?.classList.add('is-peek')
       if (current) {
         const r = current.getBoundingClientRect()
-        current.style.setProperty('--peek-x', `${(r.width * 0.62).toFixed(1)}px`)
+        // CSS: translateX(peek-x + 28). Largura touch = min(68vw, 280).
+        const peekW = Math.min(window.innerWidth * 0.68, 280)
+        const maxX = window.innerWidth - r.left - peekW - 28 - 12
+        const peekX = Math.max(8, Math.min(r.width * 0.42, maxX))
+        current.style.setProperty('--peek-x', `${peekX.toFixed(1)}px`)
         current.style.setProperty('--peek-y', `${(r.height * 0.55).toFixed(1)}px`)
       }
     }

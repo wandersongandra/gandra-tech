@@ -368,6 +368,15 @@ async function touchMobileQa(browser) {
   await page.waitForTimeout(500)
   const peeked = await page.evaluate(() => document.querySelectorAll('.work-row__link.is-peek').length)
   assert.ok(peeked >= 1, 'touch-qa: nenhuma linha com prévia por scroll')
+  const peekBox = await page.evaluate(() => {
+    const peek = document.querySelector('.work-row__link.is-peek .work-row__peek')
+    if (!peek) return null
+    const r = peek.getBoundingClientRect()
+    return { left: Math.round(r.left), right: Math.round(r.right), w: Math.round(r.width), vw: window.innerWidth }
+  })
+  assert.ok(peekBox, 'touch-qa: elemento da prévia de trabalhos ausente')
+  assert.ok(peekBox.left >= -4, 'touch-qa: prévia trabalhos cortada à esquerda: ' + JSON.stringify(peekBox))
+  assert.ok(peekBox.right <= peekBox.vw + 4, 'touch-qa: prévia trabalhos cortada à direita: ' + JSON.stringify(peekBox))
 
   // Serviços: prévia por scroll deve caber na viewport (borda direita ancorada)
   await page.evaluate(() => document.querySelector('#servicos')?.scrollIntoView({ block: 'center' }))
