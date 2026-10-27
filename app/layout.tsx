@@ -7,6 +7,7 @@ import ServiceWorkerRegister from '@/components/ServiceWorkerRegister'
 import { contactEmail, brandName, siteDescription, siteName, siteUrl } from '@/lib/site'
 import './globals.css'
 import './materia.css'
+import './case.css'
 
 /*
  * Sistema tipográfico "Matéria" — todas as famílias são OFL (Google Fonts)
