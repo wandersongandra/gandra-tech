@@ -51,11 +51,20 @@ export default function ProjectView({ project, next }: { project: Project; next:
   const headlineWords = project.headline.replace(/[.!?]+$/, '').split(' ')
   const accentWord = headlineWords[headlineWords.length - 1]
 
+  // Cases ainda sem resultado medido descrevem o objetivo ("Objetivo do
+  // projeto: …"); o capítulo assume esse nome em vez de prometer resultado.
+  function resultChapter(text: string) {
+    const m = text.match(/^Objetivo[^:]*:\s*/)
+    if (!m) return { title: 'Resultado', text }
+    const rest = text.slice(m[0].length)
+    return { title: 'Objetivo', text: rest.charAt(0).toUpperCase() + rest.slice(1) }
+  }
+
   const chapters = [
     { title: 'Contexto', text: project.contexto },
     { title: 'Desafio', text: project.desafio },
     { title: 'Solução', text: project.solucao },
-    { title: 'Resultado', text: project.resultado },
+    resultChapter(project.resultado),
     { title: 'Papel da Gandra', text: project.papel },
   ]
 
