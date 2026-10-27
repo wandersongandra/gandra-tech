@@ -228,8 +228,13 @@ export function glyphField(host: HTMLElement, opts: Opts): Off {
   let visible = true
   let color = '#ece8df'
 
+  let disposed = false
   const layout = () => {
+    if (disposed) return
     const r = host.getBoundingClientRect()
+    // Hero fora do layout (troca de rota, aba oculta): uma tela 0×0 fazia o
+    // drawImage da caixa de base lançar "canvas with a width or height of 0".
+    if (r.width < 1 || r.height < 1) return
     W = Math.round(r.width)
     H = Math.round(r.height)
     const size = W < 600 ? 13 : 15
@@ -353,6 +358,7 @@ export function glyphField(host: HTMLElement, opts: Opts): Off {
 
   const loop = (now: number) => {
     raf = 0
+    if (disposed || !W || !H) return
     if (draw(now) && visible) raf = requestAnimationFrame(loop)
   }
   const wake = () => {
@@ -398,12 +404,15 @@ export function glyphField(host: HTMLElement, opts: Opts): Off {
   // a fonte precisa estar carregada antes de desenhar a caixa
   const font = document.fonts?.load ? document.fonts.load(`15px ${family}`) : Promise.resolve()
   font.catch(() => {}).finally(() => {
+    // a rota pode ter mudado antes de a fonte chegar
+    if (disposed) return
     ready = true
     layout()
     if (!opts.reduced) cv.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 900, easing: 'ease-out' })
   })
 
   return () => {
+    disposed = true
     cancelAnimationFrame(raf)
     ro.disconnect()
     io.disconnect()
