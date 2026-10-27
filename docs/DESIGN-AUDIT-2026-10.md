@@ -15,7 +15,7 @@ Ferramentas: Playwright (Chrome, 1440×900 e 390×844, com e sem `prefers-reduce
 | 6 | A mesma frase de SEO repetida 3 vezes na home | Conteúdo | Cada seção com texto próprio, reaproveitando apenas cópia real do repositório |
 | 7 | Efeitos desconectados (blur reveal, glitch na cortina, grão animado repintando a tela) e conteúdo oculto sem JS | Coerência e performance | Um vocabulário único de movimento (máscara, largura variável, scrub); tudo visível sem JS |
 | 8 | 2 violações de contraste no axe e anel de foco fraco | Acessibilidade | 0 violações; foco de 2px na cor de sinal (3,38:1 no papel) |
-| 9 | LCP mobile de 3,8s puxado pelo blob WebGL e pelas partículas no primeiro quadro | Performance | WebGL só no laboratório, montado sob demanda; LCP 3,5s e TBT de 270→80ms |
+| 9 | LCP mobile de 3,8s puxado pelo blob WebGL e pelas partículas no primeiro quadro | Performance | WebGL só no laboratório, montado sob demanda; LCP 3,5s e TBT de 270→80ms. Depois, a pedido do cliente, o laboratório 3D saiu do site e a home ficou sem WebGL |
 | 10 | Links do cabeçalho em tom periwinkle e faixa de clientes pequena demais | Acabamento | Cabeçalho com barra de progresso, CTA e menu mobile em tela cheia |
 
 ## Números (build local, mesmo servidor com gzip)

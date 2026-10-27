@@ -44,7 +44,7 @@ export default function Contact() {
       <span id="contato" className="m-anchor" />
       <div className="m-shell">
         <div className="m-section-head mono">
-          <span>(06) Contato</span>
+          <span>(05) Contato</span>
           <span>Vamos conversar</span>
           <span aria-hidden="true">2026</span>
         </div>

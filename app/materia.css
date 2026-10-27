@@ -1043,67 +1043,6 @@ body {
 }
 
 /* ==========================================================================
-   LABORATÓRIO (recolorido para o sistema)
-   ========================================================================== */
-.lab {
-  background: var(--m-ink);
-}
-
-.lab__topline {
-  font-family: var(--m-mono);
-  font-size: 12px;
-  font-weight: 400;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-}
-
-.lab__title {
-  font-family: var(--m-font);
-  font-weight: 560;
-  font-stretch: 84%;
-  letter-spacing: -0.04em;
-}
-
-.lab__title-italic {
-  font-family: var(--m-italic);
-  font-style: italic;
-  font-weight: 400;
-  font-stretch: 100%;
-  letter-spacing: -0.01em;
-  color: var(--m-signal);
-}
-
-.lab__eyebrow,
-.lab__annotations-header,
-.lab__coordinate,
-.lab__hint,
-.lab__annotations > div span {
-  font-family: var(--m-mono);
-  font-weight: 400;
-  font-size: 12px;
-  letter-spacing: 0.04em;
-}
-
-.lab__signal {
-  background: var(--m-signal);
-  box-shadow: none;
-}
-
-.lab__annotations strong {
-  font-family: var(--m-font);
-  font-weight: 500;
-}
-
-.lab__link {
-  color: var(--m-paper);
-  font-family: var(--m-font);
-}
-
-.lab__link:hover {
-  color: var(--m-signal);
-}
-
-/* ==========================================================================
    TRABALHOS
    ========================================================================== */
 .m-works {
@@ -1970,11 +1909,4 @@ body {
 .windex__title,
 .work-list__title {
   max-width: 14ch;
-}
-
-/* Dica do laboratório: "MOVA O CURSOR" só faz sentido com mouse/trackpad. */
-@media (hover: none), (pointer: coarse) {
-  .lab__hint {
-    display: none;
-  }
 }

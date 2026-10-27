@@ -69,7 +69,7 @@ export default function Manifesto() {
     <section ref={sectionRef} className="m-manifesto" aria-labelledby="manifesto-title">
       <div className="m-shell">
         <div className="m-section-head mono">
-          <span>(04) Abordagem</span>
+          <span>(03) Abordagem</span>
           <span>Da ideia ao produto no ar</span>
           <span aria-hidden="true">Atendimento remoto / Brasil</span>
         </div>

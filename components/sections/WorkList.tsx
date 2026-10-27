@@ -116,7 +116,7 @@ export default function WorkList() {
       <div className="m-works__stage">
         <div className="m-shell m-works__head">
           <div className="m-section-head mono">
-            <span>(03) Trabalhos selecionados</span>
+            <span>(02) Trabalhos selecionados</span>
             <span>Cada case reúne contexto, decisões de projeto e registros reais.</span>
             <span className="work-list__aside">
               <span className="work-list__count">({String(projects.length).padStart(2, '0')})</span>
