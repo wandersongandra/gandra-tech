@@ -24,17 +24,13 @@ if (failures.length) {
 
 console.log(`Testes estruturais passaram: ${slugs.length} projetos e assets válidos.`)
 
-// Guardas de integração para o laboratório 3D e a disponibilidade offline.
+// Guardas de integração da home e da disponibilidade offline.
+// O laboratório 3D (WebGL) foi removido do site: garante que não volte por engano.
 const homeSrc = require('node:fs').readFileSync(require('node:path').join(__dirname, 'app/page.tsx'), 'utf8')
-const labSrc = require('node:fs').readFileSync(require('node:path').join(__dirname, 'components/sections/ImmersiveLab.tsx'), 'utf8')
-const shaderSrc = require('node:fs').readFileSync(require('node:path').join(__dirname, 'components/motion/OrbitalArtifact.tsx'), 'utf8')
 const swSrc = require('node:fs').readFileSync(require('node:path').join(__dirname, 'public/sw.js'), 'utf8')
 const assertLab = require('node:assert/strict')
-assertLab.match(homeSrc, /<ImmersiveLab\s*\/>/)
-assertLab.match(labSrc, /aria-labelledby="lab-heading"/)
-assertLab.match(shaderSrc, /IntersectionObserver/)
-assertLab.match(shaderSrc, /nearViewport \? <OrbitalRenderer hostRef=\{hostRef\} \/>/)
-assertLab.match(shaderSrc, /rect\.height \+ window\.innerHeight/)
-assertLab.match(shaderSrc, /prefers-reduced-motion/)
-assertLab.match(shaderSrc, /gl\.deleteProgram\(program\)/)
+assertLab.doesNotMatch(homeSrc, /ImmersiveLab/)
+for (const removed of ['components/sections/ImmersiveLab.tsx', 'components/motion/OrbitalArtifact.tsx', 'components/motion/HeroBlob.tsx']) {
+  assertLab.ok(!require('node:fs').existsSync(require('node:path').join(__dirname, removed)), removed + ' deveria ter sido removido')
+}
 for (const slug of ['gisley-nunes-imoveis', 'ajn-consultoria-engenharia']) assertLab.ok(swSrc.includes("'/trabalhos/" + slug + "'"))

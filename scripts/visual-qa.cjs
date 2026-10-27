@@ -23,15 +23,10 @@ async function main() {
       assert.equal(await page.locator('.project-grid--home .project-card').count(), 4, viewport.name + ': grade de projetos incompleta')
       assert.equal(await page.locator('.project-grid--home .project-card__media img').count(), 4, viewport.name + ': imagens reais dos projetos ausentes')
       assert.equal(await page.locator('.work-rail').count(), 0, viewport.name + ': rail horizontal antigo ainda renderizado')
-      assert.equal(await page.locator('#laboratorio canvas').count(), 0, viewport.name + ': WebGL montado antes do laboratório chegar perto')
-      await page.locator('#laboratorio').scrollIntoViewIfNeeded()
-      await page.locator('#laboratorio canvas').waitFor({ state: 'attached' })
-      await page.waitForTimeout(1200)
-      assert.match(await page.locator('.lab__title').innerText(), /experiência também/i)
-      assert.equal(await page.locator('.lab__link').getAttribute('href'), '/trabalhos')
+      assert.equal(await page.locator('#laboratorio').count(), 0, viewport.name + ': seção do laboratório 3D não deveria existir')
+      assert.equal(await page.locator('canvas').count(), 0, viewport.name + ': nenhum canvas WebGL deveria ser montado na home')
       const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth)
       assert.ok(overflow <= 2, viewport.name + ': overflow de ' + overflow + 'px')
-      await page.screenshot({ path: path.join(screenshotDir, 'lab-' + viewport.name + '.png') })
       await page.screenshot({ path: path.join(screenshotDir, 'home-' + viewport.name + '.png'), fullPage: true })
       if (viewport.name === 'mobile') {
         await page.locator('.site-header__menu-toggle').click()
@@ -47,8 +42,8 @@ async function main() {
     const page = await context.newPage()
     await page.goto(origin, { waitUntil: 'domcontentloaded' })
     assert.ok(await page.evaluate(() => matchMedia('(prefers-reduced-motion: reduce)').matches))
-    await page.locator('#laboratorio').scrollIntoViewIfNeeded()
-    assert.ok(await page.locator('.lab__title').isVisible())
+    await page.locator('#trabalhos').scrollIntoViewIfNeeded()
+    assert.ok(await page.locator('#trabalhos').isVisible())
     await context.close()
     for (const name of ['gisley-nunes-imoveis', 'ajn-consultoria-engenharia']) {
       assert.ok(fs.existsSync(path.join(__dirname, '..', 'out', 'trabalhos', name + '.html')) ||
@@ -56,7 +51,7 @@ async function main() {
     }
     const caseContext = await browser.newContext({ viewport: { width: 1440, height: 900 } })
     const casePage = await caseContext.newPage()
-    await casePage.goto(origin + '/trabalhos/gisley-nunes-imoveis', { waitUntil: 'domcontentloaded' })
+    await casePage.goto(origin + '/trabalhos/gisley-nunes-imoveis.html', { waitUntil: 'domcontentloaded' })
     await casePage.waitForTimeout(250)
     assert.equal(await casePage.locator('.pv-gallery__figure').count(), 2, 'case: galeria visual incompleta')
     assert.ok(await casePage.locator('.pv-gallery__image img').count() >= 2, 'case: imagens reais não carregadas')

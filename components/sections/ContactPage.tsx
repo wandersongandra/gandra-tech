@@ -5,6 +5,7 @@ import PageTransition from '@/components/motion/PageTransition'
 import CopyEmailButton from '@/components/CopyEmailButton'
 import { activeSocialLinks, contactEmail, contactMailto, contactNotes } from '@/lib/site'
 import { faqItems } from '@/lib/faq'
+import { contactSteps } from '@/lib/process'
 
 export default function ContactPage() {
   return (
@@ -104,18 +105,12 @@ export default function ContactPage() {
             <h2 id="cp-process-title">O que acontece depois do contato.</h2>
           </div>
           <ol className="cp-process__steps">
-            <li>
-              <span>01</span>
-              <p>Você envia o contexto e o objetivo do projeto.</p>
-            </li>
-            <li>
-              <span>02</span>
-              <p>Retornamos com perguntas de alinhamento de escopo.</p>
-            </li>
-            <li>
-              <span>03</span>
-              <p>Você recebe uma proposta com escopo, etapas e investimento.</p>
-            </li>
+            {contactSteps.map((step, index) => (
+              <li key={step}>
+                <span>{String(index + 1).padStart(2, '0')}</span>
+                <p>{step}</p>
+              </li>
+            ))}
           </ol>
         </div>
       </section>
