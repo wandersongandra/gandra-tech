@@ -539,7 +539,10 @@ function toast(text: string) {
 
 export function setInkMode(on: boolean, sfx?: Sfx, animate = true) {
   const html = document.documentElement
+  let applied = false
   const apply = () => {
+    if (applied) return
+    applied = true
     if (on) html.dataset.tinta = 'on'
     else delete html.dataset.tinta
     try {
@@ -558,11 +561,20 @@ export function setInkMode(on: boolean, sfx?: Sfx, animate = true) {
     [{ clipPath: 'circle(0% at 50% 50%)' }, { clipPath: 'circle(75% at 50% 50%)' }],
     { duration: 520, easing: 'cubic-bezier(.77,0,.175,1)', fill: 'forwards' }
   )
-  a.onfinish = () => {
+  const afterCover = () => {
     apply()
     const b = flood.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 420, easing: 'ease-out', fill: 'forwards' })
-    b.onfinish = () => flood.remove()
+    const done = () => flood.remove()
+    b.onfinish = done
+    // WAAPI onfinish pode falhar em headless; garante remoção + apply.
+    window.setTimeout(() => {
+      apply()
+      if (flood.isConnected) flood.remove()
+    }, 1000)
   }
+  a.onfinish = afterCover
+  // Fallback se a animação não disparar onfinish (CI / WebKit headless).
+  window.setTimeout(afterCover, 700)
   toast(on ? 'Modo tinta ligado — repita o código para voltar ao papel.' : 'De volta ao papel.')
 }
 

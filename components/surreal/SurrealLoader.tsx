@@ -47,17 +47,50 @@ export default function SurrealLoader() {
         const offEngine = engine.mount({ fine })
         cleanup = offEngine
         document.documentElement.dataset.surreal = 'on'
+        // Fluido de tinta no hero (home): chunk separado.
+        // Só sob pointer no hero (surpresa imediata) ou após 8s idle —
+        // fora da janela típica de LCP/TBT do Lighthouse mobile.
+        let offFluid: (() => void) | undefined
+        let fluidTimer = 0
+        let cancelFluidSchedule = () => {}
+        if (pathname === '/' || pathname === '') {
+          const hero = document.querySelector('.m-hero')
+          const onHero = () => bootFluid()
+          cancelFluidSchedule = () => {
+            hero?.removeEventListener('pointerdown', onHero)
+            hero?.removeEventListener('pointermove', onHero)
+            if (fluidTimer) {
+              window.clearTimeout(fluidTimer)
+              fluidTimer = 0
+            }
+          }
+          const bootFluid = () => {
+            if (cancelled || offFluid) return
+            cancelFluidSchedule()
+            import('./fluid/mount').then((fluid) => {
+              if (cancelled) return
+              offFluid = fluid.mountFluid({ fine })
+            })
+          }
+          hero?.addEventListener('pointerdown', onHero, { once: true, passive: true })
+          hero?.addEventListener('pointermove', onHero, { once: true, passive: true })
+          fluidTimer = window.setTimeout(bootFluid, 8000)
+        }
         // fase 4: a prensa (meio-tom, rolo, pincel, som, modo tinta)
         import('./press').then((press) => {
           if (cancelled) return
           const offPress = press.mountPress({ fine })
           cleanup = () => {
+            cancelFluidSchedule()
+            offFluid?.()
             offPress()
             offEngine()
           }
           document.documentElement.dataset.press = 'on'
           folio((offFolio) => {
             cleanup = () => {
+              cancelFluidSchedule()
+              offFluid?.()
               offFolio()
               offPress()
               offEngine()
@@ -98,6 +131,7 @@ export default function SurrealLoader() {
       delete document.documentElement.dataset.surreal
       delete document.documentElement.dataset.press
       delete document.documentElement.dataset.folio
+      delete document.documentElement.dataset.fluid
     }
   }, [pathname])
 

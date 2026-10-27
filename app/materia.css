@@ -2512,6 +2512,25 @@ html[data-intro='skip'] main {
   opacity: 0.85;
 }
 
+
+/* --- Fluido de tinta (hero, WebGL lazy) ----------------------------------- */
+.m-ink-fluid {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+  pointer-events: none;
+  mix-blend-mode: multiply;
+  opacity: 0.92;
+}
+.m-hero > *:not(.m-ink-fluid) {
+  position: relative;
+  z-index: 1;
+}
+@media (prefers-reduced-motion: reduce) {
+  .m-ink-fluid { display: none !important; }
+}
 /* --- Pincel (desktop) ----------------------------------------------------- */
 .m-brush {
   position: fixed;
@@ -2755,6 +2774,7 @@ html[data-tinta='on'] .m-press__wet {
   .m-ink-trail,
   .m-intro,
   .m-brush,
+  .m-ink-fluid,
   .m-stains,
   .m-sound,
   .m-lens,
