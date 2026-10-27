@@ -9,6 +9,127 @@ fs.mkdirSync(screenshotDir, { recursive: true })
 
 // Regressões da caça a bugs (fase 4): cada bloco reproduz um bug que um
 // visitante viu de verdade.
+// Fase 5 — o fólio: peças lazy, reduced-motion e as interações principais.
+async function fase5(browser) {
+  const html = (n) => origin + '/' + n + '.html'
+  const folio = (page) => page.waitForFunction(() => document.documentElement.dataset.folio === 'on', null, { timeout: 15000 })
+  const fresh = async (opts = {}) => {
+    const ctx = await browser.newContext({ viewport: { width: 1440, height: 900 }, ...opts })
+    await ctx.addInitScript(() => sessionStorage.setItem('gt-intro', '1'))
+    return ctx
+  }
+  // 1) nada do fólio no JS carregado até o load; depois ele monta
+  {
+    const ctx = await fresh()
+    const page = await ctx.newPage()
+    const early = []
+    let loaded = false
+    page.on('load', () => { loaded = true })
+    page.on('response', (r) => { if (!loaded && r.url().endsWith('.js')) early.push(r) })
+    await page.goto(html('contato'), { waitUntil: 'load' })
+    for (const r of early) {
+      const body = await r.text().catch(() => '')
+      assert.ok(!body.includes('GANDRA ✶ APROVADO') && !body.includes('gt-liquid'), 'fólio: entrou no JS inicial (' + r.url() + ')')
+    }
+    await folio(page)
+    // 5) campo de tipos: canvas decorativo, fora da árvore de acessibilidade
+    assert.equal(await page.locator('canvas.m-glyphs[aria-hidden="true"]').count(), 1, 'tipos móveis: canvas ausente no hero do contato')
+    // 7) clique curto abre na hora; segurar carimba e não abre
+    await page.evaluate(() => {
+      window.__mail = []
+      document.addEventListener('click', (e) => { if (e.target.closest('a[href^="mailto:"]')) { window.__mail.push(e.defaultPrevented); e.preventDefault() } })
+    })
+    const box = await page.locator('.cp-hero__email').boundingBox()
+    await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2)
+    await page.mouse.down(); await page.waitForTimeout(100); await page.mouse.up()
+    await page.waitForTimeout(100)
+    assert.deepEqual(await page.evaluate(() => window.__mail), [false], 'carimbo: clique curto no e-mail não passou direto')
+    assert.equal(await page.locator('.m-stamp').count(), 0, 'carimbo: clique curto carimbou')
+    await page.mouse.down(); await page.waitForTimeout(800); await page.mouse.up()
+    await page.waitForTimeout(150)
+    assert.equal(await page.locator('.m-stamp').count(), 1, 'carimbo: segurar não carimbou')
+    assert.equal((await page.evaluate(() => window.__mail)).length, 1, 'carimbo: segurar também abriu o e-mail')
+    assert.equal(await page.locator('.cp-hero__email').evaluate((e) => getComputedStyle(e).touchAction), 'manipulation', 'carimbo: sem touch-action manipulation')
+    // 6) texto líquido no hover; o logotipo fica de fora
+    await page.locator('.site-header__link').first().hover()
+    await page.waitForTimeout(120)
+    assert.match(await page.locator('.site-header__link').first().evaluate((e) => e.style.filter), /gt-liquid/, 'líquido: filtro não entrou no hover')
+    await page.locator('.site-header__logo').hover()
+    await page.waitForTimeout(120)
+    assert.equal(await page.locator('.site-header__logo').evaluate((e) => e.style.filter), '', 'líquido: o logotipo recebeu o filtro')
+    await ctx.close()
+  }
+  // 2) card → case: view transition nativa, sem cortina, chega no topo
+  {
+    const ctx = await fresh()
+    await ctx.addInitScript(() => {
+      const vt = document.startViewTransition
+      window.__vt = 0
+      if (vt) document.startViewTransition = function (...a) { window.__vt++; return vt.apply(this, a) }
+    })
+    const page = await ctx.newPage()
+    await page.goto(html('trabalhos'), { waitUntil: 'load' })
+    await folio(page)
+    const card = page.locator('a.project-card[href^="/trabalhos/"]').first()
+    await card.scrollIntoViewIfNeeded()
+    await page.waitForTimeout(300)
+    await card.click({ noWaitAfter: true })
+    await page.waitForURL(/\/trabalhos\/[^/.]+/, { timeout: 8000 })
+    await page.waitForTimeout(1600)
+    assert.ok((await page.evaluate(() => window.__vt)) >= 1, 'morph: startViewTransition não foi usado')
+    assert.ok((await page.evaluate(() => window.scrollY)) <= 2, 'morph: o case não começou no topo')
+    // 4) ficha carimbada: régua e marcas de registro
+    assert.equal(await page.locator('.m-case__reg').count(), 4, 'ficha: marcas de registro ausentes')
+    if (await page.evaluate(() => CSS.supports('animation-timeline: scroll()'))) {
+      assert.equal(await page.locator('.m-case__ruler-fill').evaluate((e) => getComputedStyle(e).animationName), 'm-ruler', 'ficha: régua sem scroll(root)')
+    }
+    await ctx.close()
+  }
+  // 3) mergulho no ponto; 8) origami e 404 amassada
+  {
+    const ctx = await fresh()
+    const page = await ctx.newPage()
+    await page.goto(html('index'), { waitUntil: 'load' })
+    await folio(page)
+    assert.ok((await page.locator('.m-dive').evaluate((e) => e.offsetHeight)) > 900, 'mergulho: trilho sem altura com movimento')
+    await page.goto(html('servicos'), { waitUntil: 'load' })
+    await folio(page)
+    assert.ok((await page.locator('.service-page__item.is-folded').count()) > 0, 'origami: nenhum serviço chegou dobrado')
+    for (let y = 0; y < 12000; y += 500) { await page.mouse.wheel(0, 500); await page.waitForTimeout(90) }
+    await page.waitForTimeout(1200)
+    assert.equal(await page.locator('.service-page__item.is-folded').count(), 0, 'origami: serviço ficou dobrado depois de rolar')
+    await page.goto(html('404'), { waitUntil: 'load' })
+    await folio(page)
+    assert.ok(await page.locator('.nf-sheet').evaluate((e) => e.classList.contains('is-ball')), '404: a folha não chegou amassada')
+    await page.waitForTimeout(3000)
+    assert.equal(await page.locator('.nf-sheet').evaluate((e) => getComputedStyle(e).clipPath), 'none', '404: a folha não desamassou')
+    await ctx.close()
+  }
+  // reduced-motion: tudo parado e aberto, só cor no link
+  {
+    const ctx = await fresh({ reducedMotion: 'reduce' })
+    const page = await ctx.newPage()
+    await page.goto(html('servicos'), { waitUntil: 'load' })
+    await folio(page)
+    assert.equal(await page.locator('.service-page__item.is-folded').count(), 0, 'reduced: origami fechado')
+    const link = page.locator('.site-header__link').first()
+    await link.hover()
+    await page.waitForTimeout(350)
+    assert.equal(await link.evaluate((e) => e.style.filter), '', 'reduced: filtro líquido com movimento reduzido')
+    assert.equal(await link.evaluate((e) => getComputedStyle(e).color), 'rgb(179, 48, 14)', 'reduced: link sem a troca de cor')
+    await page.goto(html('index'), { waitUntil: 'load' })
+    await folio(page)
+    assert.ok((await page.locator('.m-dive').evaluate((e) => e.offsetHeight)) <= 16, 'reduced: mergulho não virou faixa')
+    await page.goto(html('404'), { waitUntil: 'load' })
+    await folio(page)
+    assert.ok(!(await page.locator('.nf-sheet').evaluate((e) => e.classList.contains('is-crumpled'))), 'reduced: 404 amassada')
+    await page.goto(html('contato'), { waitUntil: 'load' })
+    await folio(page)
+    assert.equal(await page.locator('canvas.m-glyphs').count(), 1, 'reduced: campo de tipos estático ausente')
+    await ctx.close()
+  }
+}
+
 async function regressions(browser) {
   const html = (n) => origin + '/' + n + '.html'
   // 1) Cortina cobre a tela no meio da troca; página nova começa no topo.
@@ -236,7 +357,8 @@ async function main() {
     await casePage.waitForURL(/\/trabalhos\/(?!gisley)/, { timeout: 5000 })
     await caseContext.close()
     await regressions(browser)
-    process.stdout.write('QA: desktop, mobile, camada surreal, prensa (abertura, meio-tom, rolo, som, modo tinta), reduced-motion, menu, projetos reais, galeria e rotas exportadas e regressões da caça a bugs passaram.\n')
+    await fase5(browser)
+    process.stdout.write('QA: desktop, mobile, camada surreal, prensa (abertura, meio-tom, rolo, som, modo tinta), reduced-motion, menu, projetos reais, galeria e rotas exportadas e regressões da caça a bugs e fase 5 (fólio) passaram.\n')
   } finally {
     await browser.close()
   }
