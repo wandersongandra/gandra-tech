@@ -46,6 +46,8 @@ export default function PageCurtain() {
   // Objeto-mutação dirigido pelos tweens — fora do state para não rerenderizar.
   const sweepRef = useRef({ b: 0 })
   const didMount = useRef(false)
+  // Tempo-limite da navegação: some com a cortina se a rota não trocar.
+  const guard = useRef(0)
   const router = useRouter()
   const pathname = usePathname()
 
@@ -62,7 +64,10 @@ export default function PageCurtain() {
       tl?.kill()
       gsap.killTweensOf([panel, path, logo, countRef.current, sweepRef.current])
       panel.style.visibility = 'hidden'
-      panel.style.transform = 'translateY(-100%)'
+      // Via GSAP (yPercent), nunca `style.transform = 'translateY(-100%)'`:
+      // o GSAP lia esse valor como y:-100vh fixo e somava ao yPercent dos
+      // tweens — a cortina de entrada nascia já fora da tela e nunca cobria.
+      gsap.set(panel, { yPercent: -100, y: 0 })
       panel.inert = true
       path.setAttribute('d', FLAT)
       // Rótulo volta para dentro da máscara: voltar/avançar do navegador
@@ -94,7 +99,7 @@ export default function PageCurtain() {
       })
         .fromTo(
           panel,
-          { yPercent: 0 },
+          { yPercent: 0, y: 0 },
           { yPercent: -100, duration: 0.9, ease: 'power3.inOut' },
           0
         )
@@ -102,14 +107,20 @@ export default function PageCurtain() {
         .to(sweep, { b: 0, duration: 0.6, ease: 'power3.out', onUpdate: drawExit }, 0.32)
     }
 
+    // Navegação cancelada ou que não trocou a rota: tira a cortina.
+    const onRelease = () => sweepOut(0)
+    window.addEventListener('gt:curtain-release', onRelease)
+
     if (!didMount.current) {
       didMount.current = true
       hidePanel()
       window.dispatchEvent(new Event('gt:curtain-open'))
-      return
+      return () => window.removeEventListener('gt:curtain-release', onRelease)
     }
 
     // Subsequent pathname changes: panel is at yPercent:0 (was animated in), sweep out
+    if (guard.current) window.clearTimeout(guard.current)
+    guard.current = 0
     sweepOut(0.05)
 
     const handleMotionChange = () => {
@@ -119,6 +130,7 @@ export default function PageCurtain() {
 
     return () => {
       motionQuery.removeEventListener('change', handleMotionChange)
+      window.removeEventListener('gt:curtain-release', onRelease)
       hidePanel()
     }
   }), [pathname])
@@ -134,28 +146,51 @@ export default function PageCurtain() {
     const sweep = sweepRef.current
     const drawEnter = () => path.setAttribute('d', enterD(sweep.b))
 
+    // Navegação em curso: cliques repetidos só trocam o destino (a cortina
+    // não recomeça nem empurra duas rotas); voltar/avançar no meio cancela.
+    let tl: gsap.core.Timeline | null = null
+    let pendingHref: string | null = null
+
+    const cancel = () => {
+      tl?.kill()
+      tl = null
+      pendingHref = null
+      if (guard.current) window.clearTimeout(guard.current)
+      guard.current = 0
+    }
+
     const onClick = (e: MouseEvent) => {
       if (!(e.target instanceof Element)) return
       if (e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return
       const a = e.target.closest('a[href]') as HTMLAnchorElement | null
       if (!a) return
+      if ((a.target && a.target !== '_self') || a.hasAttribute('download') || a.dataset.noCurtain !== undefined) return
 
-      const href = a.getAttribute('href') ?? ''
-      if (
-        !href ||
-        href.startsWith('http') ||
-        href.startsWith('//') ||
-        href.startsWith('mailto:') ||
-        href.startsWith('#') ||
-        a.target ||
-        a.hasAttribute('download')
-      ) return
-
-      const targetPath = href.split('?')[0]
-      if (targetPath === window.location.pathname) return
-      const pathOnly = targetPath.split('#')[0] || '/'
+      // Só links internos http(s): tel:, mailto:, whatsapp: e outros
+      // domínios seguem o comportamento normal do navegador.
+      let url: URL
+      try {
+        url = new URL(a.href, window.location.href)
+      } catch {
+        return
+      }
+      if (url.origin !== window.location.origin || !/^https?:$/.test(url.protocol)) return
+      const norm = (p: string) => p.replace(/\/+$/, '') || '/'
+      const pathOnly = norm(url.pathname)
+      // Mesma página (âncora ou query): sem cortina — o Next rola ou troca a query.
+      if (pathOnly === norm(window.location.pathname)) return
+      const href = pathOnly + url.search + url.hash
 
       e.preventDefault()
+      const logo = logoRef.current
+      const count = countRef.current
+      if (logo) logo.textContent = destinationLabel(a, pathOnly)
+      if (count) count.textContent = `→ ${pathOnly}`
+      if (pendingHref) {
+        pendingHref = href
+        return
+      }
+      pendingHref = href
       gsap.killTweensOf(panel)
       gsap.killTweensOf(sweep)
       sweep.b = 0
@@ -165,20 +200,27 @@ export default function PageCurtain() {
 
       // Varredura de entrada: a crista avança à frente do painel e assenta
       // quando ele cobre a tela — aí a navegação acontece por baixo.
-      const logo = logoRef.current
-      const count = countRef.current
-      if (logo) logo.textContent = destinationLabel(a, pathOnly)
-      if (count) count.textContent = `→ ${pathOnly}`
-
-      gsap.timeline()
+      tl = gsap.timeline()
         .fromTo(
           panel,
-          { yPercent: 100 },
+          { yPercent: 100, y: 0 },
           {
             yPercent: 0,
             duration: 0.6,
             ease: 'power3.inOut',
-            onComplete: () => router.push(href),
+            onComplete: () => {
+              const to = pendingHref
+              tl = null
+              pendingHref = null
+              if (!to) return
+              router.push(to)
+              // Se a rota não mudar (erro, rota igual), a cortina não pode
+              // ficar cobrindo a tela: sai sozinha.
+              guard.current = window.setTimeout(() => {
+                guard.current = 0
+                window.dispatchEvent(new Event('gt:curtain-release'))
+              }, 4000)
+            },
           },
           0
         )
@@ -189,11 +231,22 @@ export default function PageCurtain() {
         .fromTo(count, { opacity: 0 }, { opacity: 1, duration: 0.3 }, 0.3)
     }
 
+    const onPop = () => {
+      if (!tl && !guard.current) return
+      cancel()
+      window.dispatchEvent(new Event('gt:curtain-release'))
+    }
+    window.addEventListener('popstate', onPop)
+
     // Fase de captura: roda antes do onClick do next/link, que chama
     // preventDefault e navegaria na hora — sem isso a cortina de entrada
     // nunca tocava e só a saída aparecia.
     document.addEventListener('click', onClick, true)
-    return () => document.removeEventListener('click', onClick, true)
+    return () => {
+      document.removeEventListener('click', onClick, true)
+      window.removeEventListener('popstate', onPop)
+      tl?.kill()
+    }
   }), [pathname, router])
 
   return (
