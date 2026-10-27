@@ -10,8 +10,10 @@ branch `fix/bug-sweep-2026-10`. Produção auditada: `https://www.gandra.tech` (
   internos encontrados no crawl (200, exceto `/cdn-cgi/l/email-protection`, ver N1).
 - **Cliques** — todos os `a[href]` e `button` de cada página (header, menu mobile, rodapé, cards,
   breadcrumbs, “próximo case”, voltar ao topo, botão de som, copiar e-mail) em Chromium e Firefox
-  desktop (1440×900), Chromium e WebKit mobile (iPhone 13) e WebKit/Chromium tablet: URL de destino,
-  âncora, cortina, rolagem travada, erros de página.
+  desktop (1440×900) e Chromium e WebKit mobile (iPhone 13): URL de destino, âncora, cortina,
+  rolagem travada, erros de página. O crawl de carga/console/overflow cobriu as 17 páginas nos 3
+  motores × desktop, tablet e mobile; a rodada de cliques do WebKit tablet travou o navegador de
+  teste e foi interrompida (sem resultado próprio).
 - **Modos** — sem JavaScript, `prefers-reduced-motion`, carga direta com âncora (`/#trabalhos`),
   voltar/avançar, recarregar, navegação rápida repetida, teclado (skip link, Esc no menu).
 - **Robustez** — console/CSP/rede, hidratação (relógio adiantado), vazamento de listeners/nós em
