@@ -9,7 +9,8 @@
  * - prensa: um rolo de tinta atravessa os títulos de seção guiado pelo
  *   scroll — antes dele a letra é só relevo seco no papel;
  * - tipografia por velocidade: os títulos entortam com o scroll (só transform);
- * - pincel: no desktop, arrastar no papel pinta pinceladas que secam e somem;
+ * - pincel: arrastar no papel pinta pinceladas que secam e somem (no toque o
+ *   gesto precisa ser mais horizontal que o scroll, para não roubá-lo);
  * - som: chave opcional (desligada por padrão) com sons sintetizados;
  * - modo tinta: ↑↑↓↓←→←→BA inverte papel e tinta; assinatura no console;
  * - carimbo: botões e links afundam como um carimbo ao clicar.
@@ -354,7 +355,10 @@ function brush(sfx: Sfx, wake: () => void): Fx & { painted: () => boolean } {
     // zera sempre: um traço que terminou sem "click" (soltou fora da janela,
     // em cima de um link) não pode engolir o próximo clique num link
     paintedFlag = false
-    if (e.button !== 0 || e.pointerType !== 'mouse') return
+    if (e.button !== 0) return
+    // mouse e toque: no toque o gesto precisa ser mais horizontal que o
+    // scroll (ver onMove), senão a página continua rolando.
+    if (e.pointerType !== 'mouse' && e.pointerType !== 'touch' && e.pointerType !== 'pen') return
     const t = e.target as Element | null
     if (!t || t.closest(NO_PAINT) || hasOwnText(t)) return
     down = { x: e.clientX, y: e.clientY }
@@ -362,12 +366,21 @@ function brush(sfx: Sfx, wake: () => void): Fx & { painted: () => boolean } {
   const onMove = (e: PointerEvent) => {
     if (!down) return
     // botão solto fora da janela: o pointerup nunca chegou
-    if (e.buttons === 0) return onUp()
+    if (e.pointerType === 'mouse' && e.buttons === 0) return onUp()
     const x = e.clientX + window.scrollX
     const y = e.clientY + window.scrollY
     const now = performance.now()
     if (!cur) {
-      if (Math.hypot(e.clientX - down.x, e.clientY - down.y) < 5) return
+      const dx = e.clientX - down.x
+      const dy = e.clientY - down.y
+      const dist = Math.hypot(dx, dy)
+      // mouse: 5px; toque: 28px e predominante horizontal (não rouba o scroll)
+      const touch = e.pointerType === 'touch'
+      if (dist < (touch ? 28 : 5)) return
+      if (touch && Math.abs(dy) >= Math.abs(dx) * 0.85) {
+        down = null
+        return
+      }
       document.documentElement.classList.add('is-painting')
       window.getSelection()?.removeAllRanges()
       count++
@@ -406,10 +419,15 @@ function brush(sfx: Sfx, wake: () => void): Fx & { painted: () => boolean } {
       paintedFlag = false
     }
   }
+  // touchmove não-passivo só enquanto pinta: segura o scroll da página
+  const onTouchMove = (e: TouchEvent) => {
+    if (cur) e.preventDefault()
+  }
   window.addEventListener('pointerdown', onDown, { passive: true })
   window.addEventListener('pointermove', onMove, { passive: true })
   window.addEventListener('pointerup', onUp, { passive: true })
   window.addEventListener('pointercancel', onUp, { passive: true })
+  window.addEventListener('touchmove', onTouchMove, { passive: false })
   window.addEventListener('click', onClick, true)
   window.addEventListener('resize', size)
 
@@ -466,6 +484,7 @@ function brush(sfx: Sfx, wake: () => void): Fx & { painted: () => boolean } {
       window.removeEventListener('pointermove', onMove)
       window.removeEventListener('pointerup', onUp)
       window.removeEventListener('pointercancel', onUp)
+      window.removeEventListener('touchmove', onTouchMove)
       window.removeEventListener('click', onClick, true)
       window.removeEventListener('resize', size)
       document.documentElement.classList.remove('is-painting')
@@ -618,7 +637,8 @@ export function mountPress(opts: { fine: boolean }): () => void {
   if (heads.length) effects.push(press(heads, sfx))
   const bends = Array.from(document.querySelectorAll<HTMLElement>('.m-display, .m-case__h2, .m-contact__title, .m-case__finale-title'))
   if (bends.length) effects.push(velocityType(bends, () => vel))
-  if (opts.fine) effects.push(brush(sfx, wake))
+  // Pincel também no toque: gesto predominantemente horizontal (ver brush).
+  effects.push(brush(sfx, wake))
   cleanups.push(stamps(sfx), konami(sfx), sfx.mountToggle())
   try {
     if (sessionStorage.getItem('gt-tinta') === '1') setInkMode(true, undefined, false)

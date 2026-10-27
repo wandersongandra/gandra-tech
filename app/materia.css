@@ -666,7 +666,8 @@ body {
   color: var(--m-muted);
 }
 
-.m-hero__hint::before {
+.m-hero__hint::before,
+.m-hero__hint-touch::before {
   content: '';
   display: inline-block;
   width: 7px;
@@ -679,13 +680,26 @@ body {
 
 /* A dica de cursor só aparece onde existe cursor de verdade (mouse/trackpad)
    e com movimento ativo. Em toque, híbridos sem hover e reduced-motion fica oculta. */
-.m-hero__hint {
+.m-hero__hint,
+.m-hero__hint-touch {
   display: none;
 }
 
 @media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
   .m-hero__hint {
     display: inline;
+  }
+}
+
+@media (hover: none), (pointer: coarse) {
+  .m-hero__hint-touch {
+    display: inline;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .m-hero__hint-touch {
+    display: none;
   }
 }
 
@@ -696,6 +710,8 @@ body {
   overflow: clip;
   line-height: 0.78;
   user-select: none;
+  touch-action: manipulation;
+  cursor: pointer;
 }
 
 .kinetic__inner {
@@ -1079,13 +1095,13 @@ body {
     font-size: clamp(28px, 8.4vw, 40px);
   }
   .m-services__link {
-    grid-template-columns: 32px minmax(0, 1fr) 40px;
-    min-height: 0;
+    grid-template-columns: 32px minmax(0, 1fr) 44px;
+    min-height: 56px;
     padding: 22px 0;
   }
   .m-services__arrow {
-    width: 40px;
-    height: 40px;
+    width: 44px;
+    height: 44px;
     font-size: 15px;
   }
 }
@@ -1237,7 +1253,7 @@ body {
   transition: transform var(--m-dur) var(--m-ease-out);
 }
 
-/* prévia do site no ar: só existe no DOM com ponteiro fino e movimento */
+/* prévia do site no ar: hover no desktop; is-peek no toque */
 .work-row__peek {
   position: absolute;
   left: 0;
@@ -1286,6 +1302,30 @@ body {
   }
   /* as outras linhas recuam enquanto uma está em foco */
   .work-rows:hover .work-row__link:not(:hover) {
+    color: var(--m-muted);
+  }
+}
+
+/* Toque: a linha mais próxima do centro da tela mostra a prévia. */
+@media (hover: none), (pointer: coarse) {
+  .work-rows.is-touch-peek .work-row__peek {
+    width: min(68vw, 280px);
+    box-shadow: 6px 6px 0 var(--m-ink);
+  }
+  .work-row__link.is-peek {
+    color: var(--m-ink);
+  }
+  .work-row__link.is-peek .work-row__name-text {
+    transform: translateX(8px);
+  }
+  .work-row__link.is-peek .work-row__go > span[aria-hidden] {
+    color: var(--m-signal);
+  }
+  .work-row__link.is-peek .work-row__peek {
+    opacity: 1;
+    clip-path: inset(0 0 0 0);
+  }
+  .work-rows.is-touch-peek .work-row__link:not(.is-peek) {
     color: var(--m-muted);
   }
 }
@@ -1737,6 +1777,7 @@ body {
 .m-contact__email {
   position: relative;
   display: inline-block;
+  padding-block: 10px;
   color: var(--m-paper);
   font-size: clamp(28px, 4.4vw, 72px);
   font-weight: 500;
@@ -1824,7 +1865,7 @@ body {
 
 .m-footer .m-link {
   color: var(--m-paper);
-  min-height: 36px;
+  min-height: 44px;
 }
 
 .m-footer__mark {
@@ -2495,13 +2536,14 @@ html.is-menu-open .m-sound {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  min-height: 40px;
+  min-width: 44px;
+  min-height: 44px;
   padding: 0 14px;
   border: 1px solid var(--m-ink);
   border-radius: 999px;
   background: var(--m-paper);
   color: var(--m-ink);
-  font-size: 11px;
+  font-size: 12px;
   letter-spacing: 0.08em;
   text-transform: uppercase;
   cursor: pointer;
@@ -2661,8 +2703,9 @@ html[data-tinta='on'] .m-press__wet {
 
 @media (max-width: 767px) {
   .m-sound {
-    min-width: 40px;
-    padding: 0 13px;
+    min-width: 44px;
+    min-height: 44px;
+    padding: 0 14px;
   }
   .m-sound__label {
     position: absolute;
@@ -2671,6 +2714,29 @@ html[data-tinta='on'] .m-press__wet {
     overflow: hidden;
     clip-path: inset(50%);
     white-space: nowrap;
+  }
+}
+
+/* --- Toque: alvos ≥44px e hierarquia -------------------------------------- */
+@media (hover: none), (pointer: coarse) {
+  .m-hero__hint-touch {
+    display: inline;
+  }
+
+  .work-row__go {
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+  }
+
+  .m-services__link {
+    min-height: 56px;
+  }
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .m-hero__hint-touch {
+    display: none;
   }
 }
 

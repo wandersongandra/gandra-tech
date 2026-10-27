@@ -18,8 +18,10 @@ type Props = {
  * saem do fluxo e são posicionadas só por transform — sem layout shift nem
  * overflow.
  *
- * Toque: uma onda lenta percorre as letras enquanto a seção está visível.
- * prefers-reduced-motion: nada se move; fica o desenho estático.
+ * Toque: uma onda lenta percorre as letras enquanto a seção está visível;
+ * um toque na palavra dispara um pulso forte (a tinta "responde"). A onda
+ * de fundo dorme depois de alguns ciclos para poupar bateria e acorda no
+ * scroll ou no toque. prefers-reduced-motion: nada se move.
  */
 export default function KineticWordmark({ text, className }: Props) {
   const rootRef = useRef<HTMLSpanElement>(null)
@@ -35,7 +37,6 @@ export default function KineticWordmark({ text, className }: Props) {
     const REST = { wdth: 100, wght: 640 }
 
     const fit = () => {
-      // scrollWidth ignora o transform do próprio elemento: uma leitura só.
       const scale = root.clientWidth / Math.max(1, inner.scrollWidth)
       inner.style.transform = `scaleX(${scale.toFixed(4)})`
     }
@@ -48,8 +49,6 @@ export default function KineticWordmark({ text, className }: Props) {
       return () => ro.disconnect()
     }
 
-    // Tira as letras do fluxo: cada uma passa a ser posicionada só por
-    // transform. Assim a largura variável não move caixas de layout (CLS 0).
     const masks = letters.map((el) => el.parentElement as HTMLSpanElement)
     const letterH0 = Math.max(1, letters[0]?.offsetHeight ?? 1)
     const topRatio =
@@ -78,7 +77,12 @@ export default function KineticWordmark({ text, className }: Props) {
     let visible = true
     let raf = 0
     let start = performance.now()
-    let squeeze = 0 // 0..1 vindo do scroll: comprime a palavra ao sair
+    let squeeze = 0
+    // Toque: impulsos extras por letra (0..1) que somam à onda de fundo.
+    const pulse = letters.map(() => 0)
+    let pulseUntil = 0
+    // Em toque a onda de fundo roda ~4s e dorme; scroll/toque a acordam.
+    let idleUntil = fine ? Number.POSITIVE_INFINITY : performance.now() + 4200
 
     const centers = () => {
       const r = root.getBoundingClientRect()
@@ -90,7 +94,6 @@ export default function KineticWordmark({ text, className }: Props) {
     const tick = (now: number) => {
       raf = 0
       if (!visible) return
-      // Em toque a onda roda a ~30 fps para poupar bateria.
       if (!fine && now - lastFrame < 32) {
         raf = requestAnimationFrame(tick)
         return
@@ -99,16 +102,26 @@ export default function KineticWordmark({ text, className }: Props) {
       const vw = window.innerWidth
       const sigma = vw * 0.13
       let moving = false
+      const pulsing = now < pulseUntil
+      const background = fine || now < idleUntil || pulsing
       letters.forEach((el, i) => {
         let f: number
         if (fine && pointer.active) {
           const d = (pointer.x - cached[i]) / sigma
           f = Math.exp(-d * d)
-        } else {
-          // Onda lenta para toque e para quando o cursor está fora.
+        } else if (background) {
           const t = (now - start) / 1000
           f = 0.5 + 0.5 * Math.sin(t * 1.15 - i * 0.75)
           f = f * f * 0.85
+        } else {
+          f = 0
+        }
+        if (pulse[i] > 0.01) {
+          f = Math.min(1, f + pulse[i])
+          pulse[i] *= Math.pow(0.92, (now - lastFrame || 16) / 16)
+          moving = true
+        } else {
+          pulse[i] = 0
         }
         const targetW = (62 + f * 63) * (1 - squeeze * 0.35)
         const targetG = 260 + f * 640 - squeeze * 120
@@ -119,11 +132,9 @@ export default function KineticWordmark({ text, className }: Props) {
         el.style.fontVariationSettings = `"wdth" ${s.wdth.toFixed(1)}, "wght" ${Math.round(s.wght)}`
       })
       place()
-      // Com cursor parado, o loop dorme até o próximo movimento.
-      if (moving || !(fine && pointer.active)) raf = requestAnimationFrame(tick)
+      const keepGoing = moving || (fine && pointer.active) || (!fine && background)
+      if (keepGoing) raf = requestAnimationFrame(tick)
     }
-    // Em toque a onda só começa depois do carregamento: a primeira pintura
-    // e a hidratação não disputam CPU com o layout dos eixos variáveis.
     let armed = fine
     const wake = () => {
       if (armed && !raf && visible) raf = requestAnimationFrame(tick)
@@ -133,6 +144,7 @@ export default function KineticWordmark({ text, className }: Props) {
       armTimer = window.setTimeout(() => {
         armed = true
         start = performance.now()
+        if (!fine) idleUntil = performance.now() + 4200
         wake()
       }, 1200)
     }
@@ -162,6 +174,25 @@ export default function KineticWordmark({ text, className }: Props) {
       const r = root.getBoundingClientRect()
       squeeze = Math.min(1, Math.max(0, 1 - r.bottom / window.innerHeight)) * 0.9
       cached = centers()
+      if (!fine && visible) idleUntil = Math.max(idleUntil, performance.now() + 2800)
+      wake()
+    }
+    // Toque na palavra: onda forte da esquerda para a direita + acorda o melt.
+    const onPointerDown = (e: PointerEvent) => {
+      if (fine && e.pointerType === 'mouse') return
+      if (e.pointerType === 'mouse' && e.button !== 0) return
+      const now = performance.now()
+      letters.forEach((_, i) => {
+        pulse[i] = 1
+      })
+      // atraso em cascata via valores iniciais decrescentes
+      letters.forEach((_, i) => {
+        pulse[i] = 0.15 + (1 - i / Math.max(1, letters.length - 1)) * 0.85
+      })
+      pulseUntil = now + 1600
+      idleUntil = now + 4200
+      start = now
+      root.dispatchEvent(new CustomEvent('gt:wordmark-pulse', { bubbles: true }))
       wake()
     }
 
@@ -169,6 +200,7 @@ export default function KineticWordmark({ text, className }: Props) {
       visible = entry.isIntersecting
       if (visible) {
         cached = centers()
+        if (!fine) idleUntil = performance.now() + 3600
         wake()
       }
     })
@@ -178,6 +210,7 @@ export default function KineticWordmark({ text, className }: Props) {
     document.documentElement.addEventListener('pointerleave', onLeave)
     window.addEventListener('resize', onResize)
     window.addEventListener('scroll', onScroll, { passive: true })
+    root.addEventListener('pointerdown', onPointerDown, { passive: true })
     const onVisibility = () => {
       visible = document.visibilityState === 'visible'
       if (visible) wake()
@@ -194,6 +227,7 @@ export default function KineticWordmark({ text, className }: Props) {
       document.documentElement.removeEventListener('pointerleave', onLeave)
       window.removeEventListener('resize', onResize)
       window.removeEventListener('scroll', onScroll)
+      root.removeEventListener('pointerdown', onPointerDown)
       document.removeEventListener('visibilitychange', onVisibility)
       root.classList.remove('is-free')
       root.style.removeProperty('height')

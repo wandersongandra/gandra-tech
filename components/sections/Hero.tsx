@@ -54,6 +54,7 @@ export default function Hero() {
         <div className="m-hero__mark-foot mono" aria-hidden="true">
           <span>Tech®</span>
           <span className="m-hero__hint">Mova o cursor sobre a palavra</span>
+          <span className="m-hero__hint-touch">Toque a palavra</span>
           <span>Código · Interface · Movimento</span>
         </div>
       </div>
