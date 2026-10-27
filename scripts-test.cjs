@@ -42,3 +42,17 @@ assertLab.doesNotMatch(swSrc, /cache\.addAll\(/, 'sw: cache.addAll guarda respos
 // Lenis mede a página com atraso: medir de novo antes de rolar para âncora.
 const scrollSrc = require('node:fs').readFileSync(require('node:path').join(__dirname, 'lib/scroll.ts'), 'utf8')
 assertLab.match(scrollSrc, /resize\?\.\(\)[\s\S]*scrollTo\(selector/, 'scroll: Lenis precisa de resize() antes de scrollTo(âncora)')
+
+// Fluido de tinta 2026-10: chunk lazy em components/surreal/fluid, sem three.js.
+{
+  const fluidDir = require('node:path').join(__dirname, 'components/surreal/fluid')
+  assertLab.ok(require('node:fs').existsSync(require('node:path').join(fluidDir, 'mount.ts')), 'fluid/mount.ts ausente')
+  assertLab.ok(require('node:fs').existsSync(require('node:path').join(fluidDir, 'sim.ts')), 'fluid/sim.ts ausente')
+  const loader = require('node:fs').readFileSync(require('node:path').join(__dirname, 'components/surreal/SurrealLoader.tsx'), 'utf8')
+  assertLab.match(loader, /fluid\/mount/, 'SurrealLoader deve importar o fluido lazy')
+  const pkg = require('node:fs').readFileSync(require('node:path').join(__dirname, 'package.json'), 'utf8')
+  assertLab.doesNotMatch(pkg, /three|ogl|regl|babylon/i, 'sem libs 3D pesadas no package.json')
+  // worker-src continua self (sem blob:) — o fluido não usa Worker/blob.
+  const cspGen = require('node:fs').readFileSync(require('node:path').join(__dirname, 'scripts/generate-csp.mjs'), 'utf8')
+  assertLab.match(cspGen, /worker-src 'self'/, "CSP worker-src deve permanecer 'self'")
+}

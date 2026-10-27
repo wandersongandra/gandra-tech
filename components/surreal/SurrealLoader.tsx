@@ -47,17 +47,32 @@ export default function SurrealLoader() {
         const offEngine = engine.mount({ fine })
         cleanup = offEngine
         document.documentElement.dataset.surreal = 'on'
+        // Fluido de tinta no hero (home): chunk separado, só com hero na tela.
+        let offFluid: (() => void) | undefined
+        if (pathname === '/' || pathname === '') {
+          import('./fluid/mount').then((fluid) => {
+            if (cancelled) return
+            offFluid = fluid.mountFluid({ fine })
+            const prev = cleanup
+            cleanup = () => {
+              offFluid?.()
+              prev?.()
+            }
+          })
+        }
         // fase 4: a prensa (meio-tom, rolo, pincel, som, modo tinta)
         import('./press').then((press) => {
           if (cancelled) return
           const offPress = press.mountPress({ fine })
           cleanup = () => {
+            offFluid?.()
             offPress()
             offEngine()
           }
           document.documentElement.dataset.press = 'on'
           folio((offFolio) => {
             cleanup = () => {
+              offFluid?.()
               offFolio()
               offPress()
               offEngine()
@@ -98,6 +113,7 @@ export default function SurrealLoader() {
       delete document.documentElement.dataset.surreal
       delete document.documentElement.dataset.press
       delete document.documentElement.dataset.folio
+      delete document.documentElement.dataset.fluid
     }
   }, [pathname])
 

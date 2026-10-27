@@ -455,7 +455,7 @@ async function main() {
       assert.equal(await page.locator('.work-rail').count(), 0, viewport.name + ': rail horizontal antigo ainda renderizado')
       assert.equal(await page.locator('#laboratorio').count(), 0, viewport.name + ': seção do laboratório 3D não deveria existir')
       // Só os rastros de tinta 2D (.m-ink-trail) podem existir; nada de WebGL.
-      assert.equal(await page.locator('canvas:not(.m-ink-trail):not(.m-halftone):not(.m-brush)').count(), 0, viewport.name + ': nenhum canvas WebGL deveria ser montado na home')
+      assert.equal(await page.locator('canvas:not(.m-ink-trail):not(.m-halftone):not(.m-brush):not(.m-ink-fluid)').count(), 0, viewport.name + ': nenhum canvas WebGL deveria ser montado na home')
       // Prévia do site no ar (ponteiro fino): <picture> responsivo, só decoração.
       const peeks = await page.evaluate(() => [...document.querySelectorAll('.work-row__peek picture')].map(pic => ({
         avif: !!pic.querySelector('source[type="image/avif"][srcset]'),
@@ -488,6 +488,26 @@ async function main() {
       // Camada surreal (fase 3): monta depois do load, sem erros.
       await page.waitForFunction(() => document.documentElement.dataset.surreal === 'on', null, { timeout: 10000 })
       assert.ok(await page.locator('.m-hero .m-drip').count() >= 6, viewport.name + ': gotas do GANDRA ausentes')
+      // Fluido: se WebGL existir, o canvas lazy aparece; se não, fallback silencioso.
+      {
+        const hasGL = await page.evaluate(() => {
+          try {
+            const c = document.createElement('canvas')
+            return !!(c.getContext('webgl') || c.getContext('experimental-webgl'))
+          } catch { return false }
+        })
+        if (hasGL) {
+          await page.waitForFunction(() => document.documentElement.dataset.fluid === 'on' || document.querySelector('canvas.m-ink-fluid'), null, { timeout: 12000 }).catch(() => {})
+          const fluidOn = await page.evaluate(() => document.documentElement.dataset.fluid === 'on')
+          if (fluidOn) {
+            assert.equal(await page.locator('canvas.m-ink-fluid').count(), 1, viewport.name + ': canvas do fluido ausente com data-fluid')
+            // pointer move should keep rAF alive briefly
+            await page.mouse.move(200, 300)
+            await page.mouse.move(260, 340)
+            await page.waitForTimeout(200)
+          }
+        }
+      }
       assert.equal(await page.evaluate(() => getComputedStyle(document.querySelector('.m-manifesto__word')).display), 'inline-block', viewport.name + ': palavras do manifesto sem inline-block')
       // Prensa (fase 4): abertura terminou; meio-tom, rolo, som e modo tinta.
       await page.waitForFunction(() => !document.documentElement.hasAttribute('data-intro'), null, { timeout: 3000 })
@@ -496,7 +516,7 @@ async function main() {
       await page.waitForFunction(() => document.documentElement.dataset.press === 'on', null, { timeout: 10000 })
       assert.ok(await page.locator('.m-press .m-press__roller').count() >= 1, viewport.name + ': rolo da prensa ausente nos títulos')
       assert.equal(await page.locator('button.m-sound[aria-pressed="false"]').count(), 1, viewport.name + ': chave de som deveria nascer desligada')
-      assert.equal(await page.evaluate(() => document.querySelectorAll('canvas:not(.m-ink-trail):not(.m-halftone):not(.m-brush)').length), 0, viewport.name + ': canvas inesperado')
+      assert.equal(await page.evaluate(() => document.querySelectorAll('canvas:not(.m-ink-trail):not(.m-halftone):not(.m-brush):not(.m-ink-fluid)').length), 0, viewport.name + ': canvas inesperado')
       if (viewport.name === 'desktop') {
         const konami = ['ArrowUp', 'ArrowUp', 'ArrowDown', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'ArrowLeft', 'ArrowRight', 'b', 'a']
         // Foca o documento: sem foco alguns engines engolem a sequência.
