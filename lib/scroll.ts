@@ -17,11 +17,15 @@ function scrollBehavior(): ScrollBehavior {
   return window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth'
 }
 
-export function scrollToSection(selector: string) {
+export function scrollToSection(selector: string, { immediate = false }: { immediate?: boolean } = {}) {
   if (window.__lenis) {
-    window.__lenis.scrollTo(selector, { offset: HEADER_OFFSET })
+    window.__lenis.scrollTo(selector, { offset: HEADER_OFFSET, immediate })
   } else {
-    document.querySelector(selector)?.scrollIntoView({ behavior: scrollBehavior() })
+    const el = document.querySelector(selector)
+    if (!el) return
+    // Mesmo deslocamento do Lenis: a seção não fica sob o cabeçalho fixo.
+    const top = el.getBoundingClientRect().top + window.scrollY + HEADER_OFFSET
+    window.scrollTo({ top: Math.max(0, top), behavior: immediate ? 'auto' : scrollBehavior() })
   }
 }
 

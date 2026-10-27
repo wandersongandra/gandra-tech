@@ -104,6 +104,7 @@ export default function WorkList() {
         })
       }
     }, section)
+    window.dispatchEvent(new Event('gt:works-ready'))
 
     return () => {
       ctx.revert()

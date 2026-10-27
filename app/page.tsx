@@ -8,6 +8,7 @@ import Process from '@/components/sections/Process'
 import ClientMarquee from '@/components/materia/ClientMarquee'
 import { DeferredManifesto } from '@/components/sections/HomeDeferredMotion'
 import StructuredData from '@/components/StructuredData'
+import HashScroll from '@/components/HashScroll'
 import { createServiceJsonLd } from '@/lib/seo'
 import { services } from '@/lib/services'
 import { siteDescription, siteUrl } from '@/lib/site'
@@ -39,6 +40,7 @@ export default function Home() {
         <Contact />
       </main>
       <Footer />
+      <HashScroll />
     </>
   )
 }

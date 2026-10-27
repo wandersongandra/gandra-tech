@@ -315,12 +315,25 @@ body {
   padding-top: env(safe-area-inset-top, 0px);
   padding-bottom: 0;
   color: var(--m-ink);
-  background: rgba(236, 232, 223, 0.86);
+  background: transparent;
   border-bottom: 1px solid transparent;
-  -webkit-backdrop-filter: saturate(1.2) blur(14px);
-  backdrop-filter: saturate(1.2) blur(14px);
   transition: transform 0.5s var(--m-ease-out), border-color 0.3s ease;
   gap: 24px;
+}
+
+/* O vidro fica num pseudo-elemento: backdrop-filter no próprio header vira
+   bloco de contenção para filhos position:fixed e prendia o menu mobile
+   (inset: 0) dentro dos 64px do cabeçalho. */
+.m-header::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: rgba(236, 232, 223, 0.86);
+  -webkit-backdrop-filter: saturate(1.2) blur(14px);
+  backdrop-filter: saturate(1.2) blur(14px);
+  pointer-events: none;
+  transition: background 0.3s ease;
 }
 
 .m-header.is-scrolled {
@@ -499,8 +512,11 @@ body {
 
 /* Header escuro quando o menu mobile está aberto. */
 .m-header:has(.site-header__menu-toggle[aria-expanded='true']) {
-  background: var(--m-ink);
   transform: none;
+}
+
+.m-header:has(.site-header__menu-toggle[aria-expanded='true'])::before {
+  background: var(--m-ink);
 }
 
 .m-header:has(.site-header__menu-toggle[aria-expanded='true']) .site-header__logo {
@@ -1763,20 +1779,39 @@ body {
   fill: var(--m-ink);
 }
 
+/* Cortina tipográfica: o nome do destino sobe de dentro de uma máscara. */
+.curtain__mask {
+  position: relative;
+  display: block;
+  max-width: calc(100vw - 2 * var(--m-gutter));
+  overflow: hidden;
+  padding: 0 0.04em 0.08em;
+}
+
 .curtain__logo {
+  display: block;
   font-family: var(--m-font);
-  font-size: clamp(40px, 8vw, 120px);
+  font-size: clamp(44px, 10vw, 168px);
   font-weight: 640;
-  font-stretch: 76%;
-  letter-spacing: -0.04em;
+  font-stretch: 72%;
+  line-height: 0.95;
+  letter-spacing: -0.045em;
+  text-align: center;
   text-transform: none;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  opacity: 1;
   animation: none;
+  transform: translateY(105%);
 }
 
 .curtain__count {
   font-family: var(--m-mono);
+  font-size: 12px;
   color: var(--m-signal);
   letter-spacing: 0.08em;
+  text-transform: none;
 }
 
 /* Grão de papel estático: textura sem repintar a tela inteira a cada frame. */
@@ -1845,10 +1880,34 @@ body {
   letter-spacing: 0.04em;
 }
 
+.breadcrumbs-wrap {
+  background: transparent;
+  border-bottom: 1px solid var(--m-line);
+}
+
+.breadcrumbs {
+  max-width: var(--m-max);
+  padding: 10px var(--m-gutter);
+}
+
 .breadcrumbs ol {
+  align-items: center;
   font-family: var(--m-mono);
   font-size: 12px;
+  line-height: 1;
   text-transform: uppercase;
+}
+
+/* Alvo de toque com 44px de altura, sem empurrar o texto para fora da grade. */
+.breadcrumbs a {
+  justify-content: flex-start;
+  min-width: 0;
+  padding: 16px 0;
+  margin: -16px 0;
+}
+
+.breadcrumbs [aria-current='page'] {
+  color: var(--m-ink);
 }
 
 /* ==========================================================================
