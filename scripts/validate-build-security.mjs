@@ -1,3 +1,4 @@
+import crypto from 'node:crypto'
 import fs from 'node:fs'
 import path from 'node:path'
 
@@ -166,6 +167,41 @@ if (!fs.existsSync(outDir) || !fs.statSync(outDir).isDirectory()) {
     if (!csp.includes("form-action 'none'")) failures.push("CSP deve usar form-action 'none'")
     if (!csp.includes("object-src 'none'")) failures.push("CSP deve usar object-src 'none'")
     if (!csp.includes("frame-ancestors 'none'")) failures.push("CSP deve usar frame-ancestors 'none'")
+  }
+
+  // Cloudflare Pages descarta linhas do _headers acima de 2.000 caracteres
+  // e aceita no máximo 100 regras. Uma CSP descartada some da produção.
+  const headerLines = headers.split('\n')
+  headerLines.forEach((line, index) => {
+    if (line.length > 2000) failures.push(`_headers linha ${index + 1} tem ${line.length} caracteres (limite 2000)`)
+  })
+  const ruleCount = headerLines.filter((line) => /^\S/.test(line) && !line.startsWith('#')).length
+  if (ruleCount > 100) failures.push(`_headers tem ${ruleCount} regras (limite 100)`)
+
+  // Cada rota HTML precisa de uma CSP própria que contenha os hashes dos
+  // scripts inline daquela página; o fallback global cobre o 404.
+  const routePolicies = new Map()
+  let currentRule = null
+  for (const line of headerLines) {
+    if (/^\S/.test(line) && !line.startsWith('#')) currentRule = line.trim()
+    const policy = line.match(/^\s+Content-Security-Policy:\s*(.+)$/)
+    if (policy && currentRule) routePolicies.set(currentRule, policy[1])
+  }
+  for (const file of htmlFiles) {
+    const relative = path.relative(outDir, file).split(path.sep).join('/')
+    if (relative === 'offline.html') continue
+    const route = relative === 'index.html' ? '/' : `/${relative.replace(/(?:\/index)?\.html$/i, '')}`
+    const policy = route === '/404' ? routePolicies.get('/*') : routePolicies.get(route)
+    if (!policy) {
+      failures.push(`rota ${route} sem CSP própria no _headers`)
+      continue
+    }
+    const html = fs.readFileSync(file, 'utf8')
+    for (const match of html.matchAll(/<script(?![^>]*\bsrc=)([^>]*)>([\s\S]*?)<\/script>/gi)) {
+      if (/type\s*=\s*["']?application\/ld\+json/i.test(match[1]) || !match[2].trim()) continue
+      const digest = crypto.createHash('sha256').update(match[2], 'utf8').digest('base64')
+      if (!policy.includes(`'sha256-${digest}'`)) failures.push(`rota ${route}: script inline sem hash na CSP`)
+    }
   }
 
   const securityTxt = fs.readFileSync(path.join(outDir, '.well-known/security.txt'), 'utf8')
