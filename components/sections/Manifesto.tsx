@@ -1,10 +1,8 @@
 'use client'
-import { useRef, useEffect } from 'react'
+import { useEffect, useRef } from 'react'
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
-import WordReveal from '@/components/motion/WordReveal'
-import DrawArrow from '@/components/motion/DrawArrow'
-import { getReducedMotionQuery } from '@/components/motion/reducedMotion'
+import { useMotionPrefs } from '@/components/motion/useMotion'
 
 gsap.registerPlugin(ScrollTrigger)
 
@@ -23,207 +21,77 @@ const capabilities = [
   },
 ]
 
+const statement =
+  'Antes de escolher a tecnologia, entendemos o que precisa ser comunicado, simplificado ou colocado para funcionar melhor. A solução nasce desse contexto e evolui com o negócio.'
+
+/**
+ * Manifesto. O texto já está completo e legível no HTML; com movimento
+ * liberado as palavras "ganham tinta" conforme o scroll avança (só a cor,
+ * nada some do layout) e as capacidades sobem em cascata.
+ */
 export default function Manifesto() {
   const sectionRef = useRef<HTMLElement>(null)
-  const statementRef = useRef<HTMLDivElement>(null)
-  const textRef = useRef<HTMLParagraphElement>(null)
-  const capsRef = useRef<HTMLDivElement>(null)
+  const { ready, reduced } = useMotionPrefs()
 
   useEffect(() => {
-    const statement = statementRef.current
     const section = sectionRef.current
-    const text = textRef.current
-    const caps = capsRef.current
-    if (!statement || !section) return
-    const motionQuery = getReducedMotionQuery()
-    const compact = window.matchMedia('(max-width: 767px)').matches
-    const coarsePointer = window.matchMedia('(pointer: coarse)').matches
-    const lowPowerMode = compact || coarsePointer
-    let cleanupMotion: (() => void) | null = null
-
-    const setFinal = () => {
-      cleanupMotion?.()
-      cleanupMotion = null
-      gsap.killTweensOf(statement)
-      if (text) gsap.killTweensOf(text)
-      if (caps) gsap.killTweensOf(caps.querySelectorAll('.capability-row, .capability-row__arrow'))
-      gsap.set(statement, { opacity: 1, y: 0, scale: 1, clearProps: 'transform' })
-      if (text) gsap.set(text, { opacity: 1, y: 0, filter: 'none', clearProps: 'transform,filter' })
-      if (caps) gsap.set(caps.querySelectorAll('.capability-row'), { opacity: 1, x: 0, clearProps: 'transform' })
-      if (caps) gsap.set(caps.querySelectorAll('.capability-row__arrow'), { x: 0, clearProps: 'transform' })
-    }
-
-    const setup = () => {
-      cleanupMotion?.()
-      cleanupMotion = null
-
-      if (motionQuery.matches || lowPowerMode) {
-        setFinal()
-        return
-      }
-
-      const from = { opacity: 0, y: 32, scale: 0.97 }
-      const entryTrigger = ScrollTrigger.create({
-        trigger: statement,
-        start: 'top 85%',
-        onEnter: () =>
-          gsap.fromTo(statement, from, { opacity: 1, y: 0, scale: 1, duration: 0.9, ease: 'power2.out' }),
-        onLeaveBack: () => gsap.set(statement, from),
-      })
-
-      const parallax = gsap.fromTo(statement, { yPercent: 3 }, {
-        yPercent: -5,
-        ease: 'none',
-        scrollTrigger: { trigger: section, start: 'top bottom', end: 'bottom top', scrub: true },
-      })
-
-      // Parágrafo entra com desfoque saindo, no mesmo vocabulário do WordReveal.
-      const textFrom = { opacity: 0, y: 24, filter: 'blur(8px)' }
-      let textTrigger: ScrollTrigger | null = null
-      if (text) {
-        gsap.set(text, textFrom)
-        textTrigger = ScrollTrigger.create({
-          trigger: text,
-          start: 'top 88%',
-          onEnter: () =>
-            gsap.to(text, {
-              opacity: 1,
-              y: 0,
-              filter: 'blur(0px)',
-              duration: 0.9,
-              ease: 'power3.out',
-              clearProps: 'filter',
-            }),
-          onLeaveBack: () => gsap.set(text, textFrom),
-        })
-      }
-
-      // As linhas de capacidade entram em cascata, cada uma deslizando da
-      // esquerda com a seta chegando depois.
-      let capsTrigger: ScrollTrigger | null = null
-      if (caps) {
-        const rows = caps.querySelectorAll<HTMLElement>('.capability-row')
-        // Só a posição da seta é animada — a opacidade dela pertence ao
-        // :hover do CSS, e dois donos para a mesma propriedade brigam.
-        const arrows = caps.querySelectorAll<HTMLElement>('.capability-row__arrow')
-        const rowsFrom = { opacity: 0, x: -28 }
-        const arrowsFrom = { x: -10 }
-        gsap.set(rows, rowsFrom)
-        gsap.set(arrows, arrowsFrom)
-
-        capsTrigger = ScrollTrigger.create({
-          trigger: caps,
-          start: 'top 88%',
-          onEnter: () => {
-            const tl = gsap.timeline({ defaults: { ease: 'power3.out' } })
-            tl.to(rows, { opacity: 1, x: 0, duration: 0.7, stagger: 0.12 })
-              .to(arrows, { x: 0, duration: 0.5, stagger: 0.12, clearProps: 'transform' }, 0.18)
+    if (!section || !ready || reduced) return
+    const ctx = gsap.context(() => {
+      const words = gsap.utils.toArray<HTMLElement>('.m-manifesto__word')
+      gsap.fromTo(
+        words,
+        { opacity: 0.16 },
+        {
+          opacity: 1,
+          stagger: 0.05,
+          ease: 'none',
+          scrollTrigger: {
+            trigger: '.m-manifesto__statement',
+            start: 'top 80%',
+            end: 'bottom 45%',
+            scrub: true,
           },
-          onLeaveBack: () => {
-            gsap.set(rows, rowsFrom)
-            gsap.set(arrows, arrowsFrom)
-          },
-        })
-      }
-
-      // Intensidade progressiva: as palavras do título nascem quase
-      // fantasmas e ganham tinta conforme o scroll desce — medidor de
-      // intensidade. Só `color`, para não brigar com a entrada do WordReveal.
-      const title = section.querySelector('.manifesto__title')
-      const words = title?.querySelectorAll('[data-word]')
-      let wordsTrigger: ScrollTrigger | null = null
-      if (title && words?.length) {
-        const tween = gsap.fromTo(
-          words,
-          { color: 'rgba(17, 17, 17, 0.13)' },
-          {
-            color: '#111111',
-            stagger: 0.08,
-            ease: 'none',
-            scrollTrigger: {
-              trigger: title,
-              start: 'top 92%',
-              end: 'bottom 45%',
-              scrub: true,
-            },
-          }
-        )
-        wordsTrigger = tween.scrollTrigger ?? null
-      }
-
-      cleanupMotion = () => {
-        entryTrigger.kill()
-        parallax.scrollTrigger?.kill()
-        parallax.kill()
-        textTrigger?.kill()
-        capsTrigger?.kill()
-        wordsTrigger?.kill()
-      }
-    }
-
-    setup()
-    motionQuery.addEventListener('change', setup)
-
-    return () => {
-      motionQuery.removeEventListener('change', setup)
-      cleanupMotion?.()
-    }
-  }, [])
+        }
+      )
+      gsap.from('.m-manifesto__cap', {
+        yPercent: 30,
+        opacity: 0,
+        stagger: 0.1,
+        duration: 0.9,
+        ease: 'expo.out',
+        scrollTrigger: { trigger: '.m-manifesto__caps', start: 'top 85%', once: true },
+      })
+    }, section)
+    return () => ctx.revert()
+  }, [ready, reduced])
 
   return (
-    <section ref={sectionRef} className="manifesto stack-card">
-      {/* data-stack-inner: o encolhimento do CardStack acontece só no
-          conteúdo — o fundo claro da seção segue full-bleed e não aparece
-          fresta cinza (card escurecido) contra a página clara. */}
-      <div className="container" data-stack-inner>
-        <WordReveal
-          as="h2"
-          className="manifesto__title"
-          y={34}
-          blur={10}
-          stagger={0.05}
-          duration={0.9}
-        >
+    <section ref={sectionRef} className="m-manifesto" aria-labelledby="manifesto-title">
+      <div className="m-shell">
+        <div className="m-section-head mono">
+          <span>(04) Abordagem</span>
+          <span>Da ideia ao produto no ar</span>
+          <span aria-hidden="true">Atendimento remoto / Brasil</span>
+        </div>
+        <h2 id="manifesto-title" className="m-manifesto__title mono">
           Produtos digitais que fazem sentido para o negócio.
-        </WordReveal>
-
-        <div ref={statementRef} className="manifesto__statement" style={{ opacity: 0 }}>
-          <div className="manifesto__statement-head">
-            <span>DA IDEIA AO PRODUTO NO AR</span>
-            <span>GANDRA / TECH</span>
-          </div>
-          <p className="manifesto__statement-lead">
-            A Gandra Tecnologia transforma objetivos de negócio em sites institucionais,
-            portfólios profissionais, sistemas sob medida, automações e aplicações web.
-          </p>
-          <div className="manifesto__statement-foot">
-            <span>CADA PROJETO COMEÇA PELO CONTEXTO</span>
-            <span>ATENDIMENTO REMOTO / BRASIL</span>
-          </div>
-        </div>
-
-        <p ref={textRef} className="manifesto__text">
-          Antes de escolher a tecnologia, entendemos o que precisa ser comunicado, simplificado
-          ou colocado para funcionar melhor. A solução nasce desse contexto e evolui com o negócio.
-        </p>
-
-        <div ref={capsRef} className="manifesto__capabilities">
-          {capabilities.map((capability, i) => (
-            <div
-              key={capability.title}
-              className={`capability-row${i === capabilities.length - 1 ? ' capability-row--last' : ''}`}
-            >
-              <span className="capability-row__index">{String(i + 1).padStart(2, '0')}</span>
-              <span className="capability-row__copy">
-                <strong>{capability.title}</strong>
-                <span>{capability.description}</span>
-              </span>
-              <span className="capability-row__arrow">
-                <DrawArrow size={13} delay={0.3 + i * 0.12} />
-              </span>
-            </div>
+        </h2>
+        <p className="m-manifesto__statement">
+          {statement.split(' ').map((word, index) => (
+            <span key={`${word}-${index}`} className="m-manifesto__word">
+              {word}{' '}
+            </span>
           ))}
-        </div>
+        </p>
+        <ul className="m-manifesto__caps">
+          {capabilities.map((capability, index) => (
+            <li key={capability.title} className="m-manifesto__cap">
+              <span className="m-manifesto__cap-num mono">{String(index + 1).padStart(2, '0')}</span>
+              <strong className="m-manifesto__cap-title">{capability.title}</strong>
+              <span className="m-manifesto__cap-desc">{capability.description}</span>
+            </li>
+          ))}
+        </ul>
       </div>
     </section>
   )

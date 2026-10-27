@@ -63,8 +63,8 @@ void main() {
   }
 
   float atmosphere = exp(-length(uv * vec2(0.85, 1.0)) * 2.9);
-  vec3 color = vec3(0.015, 0.022, 0.045) * atmosphere;
-  color += vec3(0.045, 0.048, 0.11) * pow(atmosphere, 3.0);
+  vec3 color = vec3(0.045, 0.040, 0.034) * atmosphere;
+  color += vec3(0.16, 0.05, 0.02) * pow(atmosphere, 3.0);
 
   if (hit > 0.5 && dist < 9.0) {
     vec3 n = normalAt(pos);
@@ -75,12 +75,12 @@ void main() {
     float specular = pow(max(dot(reflect(-light, n), -rd), 0.0), 45.0);
     float secondSpec = pow(max(dot(reflect(-rimLight, n), -rd), 0.0), 20.0);
     float coreMaterial = 1.0 - smoothstep(0.49, 0.53, length(transformSpace(pos)));
-    vec3 metal = mix(vec3(0.20, 0.22, 0.41), vec3(0.62, 0.68, 1.0), diffuse);
-    metal = mix(metal, vec3(0.27, 0.30, 0.53), coreMaterial * 0.5);
+    vec3 metal = mix(vec3(0.10, 0.095, 0.085), vec3(0.78, 0.75, 0.70), diffuse);
+    metal = mix(metal, vec3(0.90, 0.25, 0.10), coreMaterial * 0.75);
     color = metal * (0.26 + diffuse * 0.55);
-    color += vec3(0.83, 0.85, 1.0) * specular * 1.65;
-    color += vec3(0.39, 0.45, 1.0) * secondSpec * 0.48;
-    color += vec3(0.48, 0.52, 1.0) * rim * 0.8;
+    color += vec3(1.0, 0.96, 0.90) * specular * 1.5;
+    color += vec3(0.90, 0.25, 0.10) * secondSpec * 0.55;
+    color += vec3(0.90, 0.25, 0.10) * rim * 0.9;
     color *= 1.0 - 0.18 * smoothstep(3.0, 7.0, dist);
   }
 

@@ -1,99 +1,94 @@
 'use client'
-import { useRef, useEffect } from 'react'
-import WordReveal from '@/components/motion/WordReveal'
-import FadeIn from '@/components/motion/FadeIn'
+import { useEffect, useRef } from 'react'
+import gsap from 'gsap'
+import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import MagneticButton from '@/components/motion/MagneticButton'
+import { useMotionPrefs } from '@/components/motion/useMotion'
 import { activeSocialLinks, contactEmail, contactMailto, contactNotes } from '@/lib/site'
 
+gsap.registerPlugin(ScrollTrigger)
+
+/**
+ * Contato. O título sobe linha por linha, máscara por máscara, e o e-mail
+ * é a ação principal — grande, magnético, sublinhado que se desenha.
+ */
 export default function Contact() {
   const sectionRef = useRef<HTMLElement>(null)
+  const { ready, reduced } = useMotionPrefs()
 
-  // Lanterna: o texto escondido só existe dentro do círculo de luz que
-  // persegue o cursor (variáveis --mx/--my consumidas pela máscara CSS).
   useEffect(() => {
-    const s = sectionRef.current
-    if (!s) return
-    const compact = window.matchMedia('(max-width: 767px)').matches
-    const coarsePointer = window.matchMedia('(pointer: coarse)').matches
-    if (compact || coarsePointer) return
-
-    const onMove = (e: MouseEvent) => {
-      const r = s.getBoundingClientRect()
-      s.style.setProperty('--mx', `${e.clientX - r.left}px`)
-      s.style.setProperty('--my', `${e.clientY - r.top}px`)
-    }
-    s.addEventListener('mousemove', onMove)
-    return () => s.removeEventListener('mousemove', onMove)
-  }, [])
+    const section = sectionRef.current
+    if (!section || !ready || reduced) return
+    const ctx = gsap.context(() => {
+      gsap.from('.m-contact__line > span', {
+        yPercent: 110,
+        duration: 1.2,
+        stagger: 0.1,
+        ease: 'expo.out',
+        scrollTrigger: { trigger: section, start: 'top 70%', once: true },
+      })
+      gsap.from('.m-contact__col', {
+        y: 24,
+        opacity: 0,
+        duration: 0.9,
+        stagger: 0.08,
+        ease: 'power3.out',
+        scrollTrigger: { trigger: '.m-contact__grid', start: 'top 90%', once: true },
+      })
+    }, section)
+    return () => ctx.revert()
+  }, [ready, reduced])
 
   return (
-    <section ref={sectionRef} className="contact">
-      <div className="contact__secret" aria-hidden="true">
-        Detalhes criam memória.
-      </div>
-      <div className="container">
-        <div className="section-label section-label--dark">
-          <span>CONTATO</span>
-          <span>2026</span>
+    <section ref={sectionRef} className="contact m-contact" aria-labelledby="contact-title">
+      <span id="contato" className="m-anchor" />
+      <div className="m-shell">
+        <div className="m-section-head mono">
+          <span>(06) Contato</span>
+          <span>Vamos conversar</span>
+          <span aria-hidden="true">2026</span>
         </div>
-        <span id="contato" style={{ display: 'block', height: 0 }} />
-        <WordReveal
-          as="h2"
-          className="contact__title"
-          y={36}
-          blur={10}
-          stagger={0.07}
-          duration={0.9}
-          animateOpacity={false}
-        >
-          Trabalho bom deixa um rastro.
-        </WordReveal>
-        <div className="contact__grid">
-          <div className="contact__col contact__col--main">
-            <FadeIn as="div" className="contact__col-label contact__col-label--accent" y={16} duration={0.6}>
-              VAMOS CONVERSAR
-            </FadeIn>
-            {/* O e-mail é a ação principal da seção: entra por último e
-                com mais presença que o resto. */}
-            <FadeIn y={30} scale={0.96} duration={0.85} delay={0.12}>
-              <MagneticButton>
-                <a href={contactMailto} className="contact__email">
-                  {contactEmail} ↗
-                </a>
-              </MagneticButton>
-            </FadeIn>
+        <h2 id="contact-title" className="m-contact__title">
+          <span className="m-contact__line">
+            <span>Trabalho bom</span>
+          </span>
+          <span className="m-contact__line">
+            <span>
+              deixa um <em className="m-italic">rastro.</em>
+            </span>
+          </span>
+        </h2>
+
+        <div className="m-contact__grid">
+          <div className="m-contact__col m-contact__col--main">
+            <span className="contact__col-label m-label">Escreva para</span>
+            <MagneticButton strength={0.15}>
+              <a href={contactMailto} className="m-contact__email" data-cursor="Escrever">
+                {contactEmail}
+                <span aria-hidden="true"> ↗</span>
+              </a>
+            </MagneticButton>
           </div>
-          <div className="contact__col">
-            <FadeIn as="div" className="contact__col-label" y={16} duration={0.6} delay={0.08}>
-              NOTAS
-            </FadeIn>
-            <div className="contact__notes">
-              {contactNotes.map((n, i) => (
-                <FadeIn key={n} as="div" y={18} duration={0.6} delay={0.18 + i * 0.1}>
-                  {n}
-                </FadeIn>
+          <div className="m-contact__col">
+            <span className="contact__col-label m-label">Notas</span>
+            <ul className="m-contact__notes">
+              {contactNotes.map((note) => (
+                <li key={note}>{note}</li>
               ))}
-            </div>
+            </ul>
           </div>
           {activeSocialLinks.length > 0 && (
-            <div className="contact__col">
-              <FadeIn as="div" className="contact__col-label" y={16} duration={0.6} delay={0.16}>
-                POR AÍ
-              </FadeIn>
-              <div className="contact__links">
-                {activeSocialLinks.map((link, i) => (
-                  <FadeIn key={link.label} y={18} duration={0.6} delay={0.26 + i * 0.08}>
-                    <a
-                      href={link.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="contact__social-link"
-                    >
+            <div className="m-contact__col">
+              <span className="contact__col-label m-label">Por aí</span>
+              <ul className="m-contact__notes">
+                {activeSocialLinks.map((link) => (
+                  <li key={link.label}>
+                    <a href={link.url} target="_blank" rel="noopener noreferrer" className="m-link">
                       {link.label}
                     </a>
-                  </FadeIn>
+                  </li>
                 ))}
-              </div>
+              </ul>
             </div>
           )}
         </div>

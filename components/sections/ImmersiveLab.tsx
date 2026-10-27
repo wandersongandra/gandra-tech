@@ -14,8 +14,8 @@ export default function ImmersiveLab() {
   return (
     <section className="lab" id="laboratorio" aria-labelledby="lab-heading">
       <div className="container lab__topline">
-        <span>02 / LABORATÓRIO CRIATIVO</span>
-        <span>GANDRA TECH® — EXPERIÊNCIA DIGITAL</span>
+        <span>(02) Laboratório criativo</span>
+        <span>Gandra Tech® — experiência digital</span>
       </div>
 
       <div className="lab__stage">
