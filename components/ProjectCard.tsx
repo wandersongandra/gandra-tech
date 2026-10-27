@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import Picture from '@/components/materia/Picture'
-import type { Project } from '@/lib/projects'
+import { previewImage, type Project } from '@/lib/projects'
 
 type ProjectCardProps = {
   project: Project
@@ -23,8 +23,8 @@ export default function ProjectCard({ project, index, compact = false, total }: 
         <div className="project-card__media">
           <div className="project-card__media-inner">
             <Picture
-              src={project.workImage}
-              alt={`Imagem real do projeto ${project.name}`}
+              src={previewImage(project)}
+              alt={project.siteImage ? `Página inicial do site de ${project.name} no ar` : `Imagem real do projeto ${project.name}`}
               sizes={compact ? '(min-width: 900px) 50vw, 118vw' : '(min-width: 1024px) 46vw, 118vw'}
               className="m-fill"
             />
