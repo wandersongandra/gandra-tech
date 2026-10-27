@@ -8,6 +8,8 @@ export const metadata: Metadata = {
   title: 'Página não encontrada',
   description: 'O endereço informado não corresponde a uma página publicada pela Gandra Tech.',
   robots: { index: false, follow: false },
+  // sem canonical herdado do layout (apontava a 404 para a home)
+  alternates: { canonical: null },
 }
 
 export default function NotFound() {
