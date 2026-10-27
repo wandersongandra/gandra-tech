@@ -51,3 +51,7 @@ continua limitado pelo JS do framework (React + router) e pelo GSAP.
 Carregar GSAP/ScrollTrigger sob demanda (`import()` nas 18 seções que usam)
 tiraria ~46 KB do caminho crítico simulado. Ficou fora desta fase pelo risco
 de regressão na cortina e nas entradas.
+
+---
+
+Próxima: [fase 4 — A prensa](./DESIGN-AUDIT-2026-10-FASE-4.md).
