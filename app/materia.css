@@ -2383,6 +2383,12 @@ html.is-painting * {
 }
 
 /* --- Chave de som ---------------------------------------------------------- */
+/* menu mobile aberto: a chave (z-index 60) ficava por cima do painel e
+   recebia o toque */
+html.is-menu-open .m-sound {
+  visibility: hidden;
+}
+
 .m-sound {
   position: fixed;
   left: calc(14px + env(safe-area-inset-left, 0px));
