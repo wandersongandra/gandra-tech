@@ -1,10 +1,8 @@
 'use client'
 import { useRef, useEffect, ElementType } from 'react'
-import gsap from 'gsap'
-import { ScrollTrigger } from 'gsap/ScrollTrigger'
+import type { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { getReducedMotionQuery } from './reducedMotion'
-
-gsap.registerPlugin(ScrollTrigger)
+import { withGsap } from '@/lib/gsap'
 
 interface Props {
   children: string
@@ -40,7 +38,7 @@ export default function WordReveal({
   const ref = useRef<HTMLElement>(null)
   const words = children.split(' ')
 
-  useEffect(() => {
+  useEffect(() => withGsap(({ gsap, ScrollTrigger }) => {
     const el = ref.current
     if (!el) return
 
@@ -131,7 +129,10 @@ export default function WordReveal({
       tween?.kill()
       st?.kill()
     }
-  }, [animateOpacity, blur, delay, duration, repeat, rotation, stagger, start, trigger, y])
+  }, () => {
+    // sem GSAP: mostra as palavras paradas em vez de deixá-las invisíveis
+    ref.current?.querySelectorAll<HTMLElement>('[data-word]').forEach((w) => (w.style.opacity = '1'))
+  }), [animateOpacity, blur, delay, duration, repeat, rotation, stagger, start, trigger, y])
 
   const T = Tag
 

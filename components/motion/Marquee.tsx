@@ -1,6 +1,5 @@
 'use client'
 import { useRef, useEffect } from 'react'
-import gsap from 'gsap'
 
 const items = [
   'PRODUTO',
@@ -98,7 +97,7 @@ export default function Marquee({ inverted = false, speed = 32 }: Props) {
       // então rolar rápido para cima pode vencer a base e inverter o sentido.
       const push = velSmooth * 0.12 * (inverted ? -1 : 1)
       pos += (dir * base * currentSpeedFactor + push * currentSpeedFactor) * dt
-      pos = gsap.utils.wrap(-width, 0, pos)
+      pos = ((((pos + width) % width) + width) % width) - width
       track.style.transform = `translate3d(${pos}px, 0, 0)`
 
       raf = requestAnimationFrame(tick)

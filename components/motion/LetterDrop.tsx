@@ -1,7 +1,7 @@
 'use client'
 import { useCallback, useEffect, useRef, useState } from 'react'
-import gsap from 'gsap'
 import { useMotionPrefs } from './useMotion'
+import { loadGsap } from '@/lib/gsap'
 
 /**
  * Easter egg do rodapé: "Soltar as letras". A assinatura Gandra.tech
@@ -150,7 +150,7 @@ export default function LetterDrop({ targetSelector }: { targetSelector: string 
     const bodies = bodiesRef.current
     const mark = document.querySelector<HTMLElement>(targetSelector)
     if (!stage) return
-    gsap.to(bodies, {
+    void loadGsap().then(({ gsap }) => gsap.to(bodies, {
       x: (i: number) => bodies[i].home.x,
       y: (i: number) => bodies[i].home.y,
       r: 0,
@@ -166,7 +166,7 @@ export default function LetterDrop({ targetSelector }: { targetSelector: string 
         stageRef.current = null
         bodiesRef.current = []
       },
-    })
+    }))
   }, [stop, targetSelector])
 
   const toggle = () => {

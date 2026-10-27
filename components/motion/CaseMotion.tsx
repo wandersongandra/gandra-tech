@@ -1,8 +1,7 @@
 'use client'
 import { useEffect } from 'react'
-import gsap from 'gsap'
-import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { useMotionPrefs } from './useMotion'
+import { withGsap } from '@/lib/gsap'
 
 /**
  * Coreografia da página de case, ligada por atributos data-* do markup de
@@ -18,7 +17,7 @@ import { useMotionPrefs } from './useMotion'
 export default function CaseMotion() {
   const { ready, reduced, fine } = useMotionPrefs()
 
-  useEffect(() => {
+  useEffect(() => withGsap(({ gsap, ScrollTrigger }) => {
     const root = document.querySelector<HTMLElement>('[data-case-root]')
     if (!root) return
 
@@ -39,8 +38,6 @@ export default function CaseMotion() {
     }
 
     if (!ready || reduced) return () => io?.disconnect()
-
-    gsap.registerPlugin(ScrollTrigger)
     let scrubIo: IntersectionObserver | null = null
     const ctx = gsap.context(() => {
       const plate = root.querySelector<HTMLElement>('[data-plate]')
@@ -133,7 +130,7 @@ export default function CaseMotion() {
       scrubIo?.disconnect()
       ctx.revert()
     }
-  }, [ready, reduced, fine])
+  }), [ready, reduced, fine])
 
   return null
 }

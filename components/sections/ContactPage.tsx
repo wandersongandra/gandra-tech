@@ -11,7 +11,7 @@ export default function ContactPage() {
   return (
     <PageTransition>
       {/* Hero */}
-      <section className="cp-hero">
+      <section className="cp-hero" data-glyphs data-no-stain>
         <div className="container">
           <FadeIn as="div" className="cp-hero__label" trigger="load" y={12} duration={0.5}>
             VAMOS CONVERSAR
@@ -33,7 +33,7 @@ export default function ContactPage() {
             sem promessa vazia.
           </FadeIn>
           <FadeIn trigger="load" delay={0.5} y={16} duration={0.7} animateOpacity={false}>
-            <a href={contactMailto} className="cp-hero__email">
+            <a href={contactMailto} className="cp-hero__email" data-no-stain>
               {contactEmail} ↗
             </a>
           </FadeIn>

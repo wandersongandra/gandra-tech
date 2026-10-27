@@ -1,6 +1,6 @@
 'use client'
 import { useRef, useEffect, ReactNode } from 'react'
-import gsap from 'gsap'
+import { withGsap } from '@/lib/gsap'
 
 interface Props {
   children: ReactNode
@@ -12,7 +12,7 @@ export default function MagneticButton({ children, strength = 0.38, className }:
   const wrapRef = useRef<HTMLDivElement>(null)
   const innerRef = useRef<HTMLDivElement>(null)
 
-  useEffect(() => {
+  useEffect(() => withGsap(({ gsap }) => {
     const wrap = wrapRef.current
     const inner = innerRef.current
     if (!wrap || !inner) return
@@ -37,7 +37,7 @@ export default function MagneticButton({ children, strength = 0.38, className }:
       wrap.removeEventListener('mousemove', onMove)
       wrap.removeEventListener('mouseleave', onLeave)
     }
-  }, [strength])
+  }), [strength])
 
   return (
     <div ref={wrapRef} className={`magnetic-wrap${className ? ` ${className}` : ''}`}>

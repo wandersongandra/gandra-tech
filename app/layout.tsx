@@ -5,7 +5,10 @@ import PageCurtain from '@/components/motion/PageCurtain'
 import StudioCursor from '@/components/motion/StudioCursor'
 import InkRipple from '@/components/motion/InkRipple'
 import SurrealLoader from '@/components/surreal/SurrealLoader'
+import Intro from '@/components/surreal/Intro'
+import { INTRO_SCRIPT } from '@/lib/intro'
 import ServiceWorkerRegister from '@/components/ServiceWorkerRegister'
+import ScrollMemory from '@/components/ScrollMemory'
 import { contactEmail, brandName, siteDescription, siteName, siteUrl } from '@/lib/site'
 import './globals.css'
 import './materia.css'
@@ -115,8 +118,12 @@ const structuredData = [
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="pt-BR" className={`${archivo.variable} ${instrumentSerif.variable} ${jetbrains.variable}`}>
+    <html lang="pt-BR" className={`${archivo.variable} ${instrumentSerif.variable} ${jetbrains.variable}`} suppressHydrationWarning>
+      <head>
+        <script>{INTRO_SCRIPT}</script>
+      </head>
       <body>
+        <Intro />
         {structuredData.map((data) => (
           <script key={data['@type']} type="application/ld+json">
             {JSON.stringify(data)}
@@ -129,6 +136,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
         <StudioCursor />
         <InkRipple />
         <SurrealLoader />
+        <ScrollMemory />
         <LenisProvider>
           {children}
         </LenisProvider>

@@ -1,10 +1,8 @@
 'use client'
 import { useRef, useEffect, ElementType } from 'react'
-import gsap from 'gsap'
-import { ScrollTrigger } from 'gsap/ScrollTrigger'
+import type { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { getReducedMotionQuery } from './reducedMotion'
-
-gsap.registerPlugin(ScrollTrigger)
+import { withGsap } from '@/lib/gsap'
 
 interface Props {
   children: React.ReactNode
@@ -41,7 +39,7 @@ export default function FadeIn({
 }: Props) {
   const ref = useRef<HTMLElement>(null)
 
-  useEffect(() => {
+  useEffect(() => withGsap(({ gsap, ScrollTrigger }) => {
     const el = ref.current
     if (!el) return
 
@@ -133,7 +131,10 @@ export default function FadeIn({
       tween?.kill()
       st?.kill()
     }
-  }, [animateOpacity, delay, duration, repeat, rotation, scale, start, trigger, x, y])
+  }, () => {
+    // sem GSAP: mostra o conteúdo parado em vez de deixá-lo invisível
+    if (ref.current) ref.current.style.opacity = '1'
+  }), [animateOpacity, delay, duration, repeat, rotation, scale, start, trigger, x, y])
 
   const T = Tag
 

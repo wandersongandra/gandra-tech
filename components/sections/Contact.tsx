@@ -1,13 +1,10 @@
 'use client'
 import { useEffect, useRef } from 'react'
-import gsap from 'gsap'
-import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import MagneticButton from '@/components/motion/MagneticButton'
 import InkTrail from '@/components/motion/InkTrail'
 import { useMotionPrefs } from '@/components/motion/useMotion'
 import { activeSocialLinks, contactEmail, contactMailto, contactNotes } from '@/lib/site'
-
-gsap.registerPlugin(ScrollTrigger)
+import { withGsap } from '@/lib/gsap'
 
 /**
  * Contato. O título sobe linha por linha, máscara por máscara, e o e-mail
@@ -17,7 +14,7 @@ export default function Contact() {
   const sectionRef = useRef<HTMLElement>(null)
   const { ready, reduced } = useMotionPrefs()
 
-  useEffect(() => {
+  useEffect(() => withGsap(({ gsap }) => {
     const section = sectionRef.current
     if (!section || !ready || reduced) return
     const ctx = gsap.context(() => {
@@ -38,7 +35,7 @@ export default function Contact() {
       })
     }, section)
     return () => ctx.revert()
-  }, [ready, reduced])
+  }), [ready, reduced])
 
   return (
     <section ref={sectionRef} className="contact m-contact" aria-labelledby="contact-title">
@@ -66,7 +63,7 @@ export default function Contact() {
           <div className="m-contact__col m-contact__col--main">
             <span className="contact__col-label m-label">Escreva para</span>
             <MagneticButton strength={0.15}>
-              <a href={contactMailto} className="m-contact__email" data-cursor="Escrever">
+              <a href={contactMailto} className="m-contact__email" data-cursor="Escrever" data-no-stain>
                 {contactEmail}
                 <span aria-hidden="true"> ↗</span>
               </a>

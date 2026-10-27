@@ -1,13 +1,10 @@
 'use client'
 import { useEffect, useRef } from 'react'
 import Link from 'next/link'
-import gsap from 'gsap'
-import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import ProjectCard from '@/components/ProjectCard'
 import { useMotionPrefs } from '@/components/motion/useMotion'
 import { projects } from '@/lib/projects'
-
-gsap.registerPlugin(ScrollTrigger)
+import { withGsap } from '@/lib/gsap'
 
 /**
  * Trabalhos selecionados. Em telas largas com movimento liberado a seção é
@@ -22,7 +19,7 @@ export default function WorkList() {
   const progressRef = useRef<HTMLSpanElement>(null)
   const { ready, reduced, wide } = useMotionPrefs()
 
-  useEffect(() => {
+  useEffect(() => withGsap(({ gsap }) => {
     const section = sectionRef.current
     const track = trackRef.current
     if (!section || !track || !ready || reduced) return
@@ -110,9 +107,10 @@ export default function WorkList() {
       ctx.revert()
       section.classList.remove('is-pinned')
     }
-  }, [ready, reduced, wide])
+  }), [ready, reduced, wide])
 
   return (
+    <>
     <section id="trabalhos" ref={sectionRef} className="work-list m-works" aria-labelledby="works-title">
       <div className="m-works__stage">
         <div className="m-shell m-works__head">
@@ -148,5 +146,15 @@ export default function WorkList() {
         </div>
       </div>
     </section>
+    {/* Fase 5: mergulho num ponto da retícula até a próxima seção. Só
+        decoração (aria-hidden); com reduced-motion vira uma faixa vermelha. */}
+    <div className="m-dive" aria-hidden="true">
+      <div className="m-dive__stage">
+        <span className="m-dive__dot" />
+        <span className="m-dive__flood" />
+        <span className="m-dive__cap mono">Ampliação 80× · ponto de retícula</span>
+      </div>
+    </div>
+    </>
   )
 }

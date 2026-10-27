@@ -8,8 +8,8 @@ import { blobPath, dotPath, rng } from './blob'
  * Momentos:
  * - hero: o GANDRA amolece — escorre tinta das letras com a velocidade do
  *   scroll/cursor e as gotas voltam para dentro quando tudo para;
- * - trabalhos: as fotos nascem de uma mancha que se abre; no desktop uma
- *   lente de tinta amplia a foto sob o cursor;
+ * - trabalhos: no desktop uma lente de tinta amplia a foto sob o cursor
+ *   (a chegada das fotos agora é o meio-tom de press.ts);
  * - manifesto: lidas, as palavras caem para cima;
  * - processo: as etapas pendem de fios e balançam com o scroll;
  * - contato / final do case: a tinta inunda o papel e vira a seção escura;
@@ -288,54 +288,6 @@ function melt(mark: HTMLElement, ctx: Ctx, defs: SVGElement): Effect | null {
 /* --------------------------------------------------------------------- */
 /* Fotos dos cards: nascem de uma mancha; lente de tinta no desktop.       */
 /* --------------------------------------------------------------------- */
-function blotReveal(media: HTMLElement[]): Effect {
-  const vh = window.innerHeight
-  const items = media
-    .filter((el) => el.getBoundingClientRect().top > vh * 0.92)
-    .map((el, i) => {
-      const rand = rng(i * 17 + 5)
-      el.style.clipPath = 'inset(50%)'
-      return { el, start: 0, ox: 0.25 + rand() * 0.5, oy: 0.3 + rand() * 0.4, seed: rand() * 6 }
-    })
-  const io = new IntersectionObserver(
-    (entries) => {
-      for (const e of entries) {
-        if (!e.isIntersecting) continue
-        const it = items.find((x) => x.el === e.target)
-        if (it && !it.start) it.start = performance.now()
-        io.unobserve(e.target)
-      }
-      wakeLoop()
-    },
-    { rootMargin: '0px 0px -12% 0px' }
-  )
-  items.forEach((it) => io.observe(it.el))
-  return {
-    frame(now) {
-      let busy = false
-      for (const it of items) {
-        if (!it.start || it.start < 0) continue
-        const p = clamp((now - it.start) / 1150)
-        if (p >= 1) {
-          it.el.style.clipPath = ''
-          it.start = -1
-          continue
-        }
-        busy = true
-        const w = it.el.clientWidth
-        const h = it.el.clientHeight
-        const R = Math.pow(p, 0.8) * Math.hypot(w, h) * 0.85
-        it.el.style.clipPath = `path('${blobPath(w * it.ox, h * it.oy, R, now / 600, it.seed, 1.4 - p, 14)}')`
-      }
-      return busy
-    },
-    destroy() {
-      io.disconnect()
-      items.forEach((it) => (it.el.style.clipPath = ''))
-    },
-  }
-}
-
 function lens(media: HTMLElement[]): () => void {
   const off: (() => void)[] = []
   for (const el of media) {
@@ -406,11 +358,28 @@ function stains(): () => void {
   layer.setAttribute('focusable', 'false')
   document.body.appendChild(layer)
   let seed = 1
+  let lastStain: { el: SVGPathElement; t: number } | null = null
+  // Mede pelo <body> (a camada é absoluta e não entra na altura dele), nunca
+  // pelo scrollHeight: a camada entrava na conta, nunca encolhia e deixava
+  // papel em branco depois do rodapé ao girar o celular ou redimensionar a
+  // janela (os pins do GSAP só encolhem a página depois do refresh).
   const resize = () => {
     layer.setAttribute('width', String(document.documentElement.clientWidth))
-    layer.setAttribute('height', String(document.documentElement.scrollHeight))
+    layer.setAttribute('height', String(Math.max(document.body.offsetHeight, window.innerHeight)))
   }
   resize()
+  let rq = 0
+  const onResize = () => {
+    cancelAnimationFrame(rq)
+    rq = requestAnimationFrame(resize)
+  }
+  const ro = typeof ResizeObserver === 'function' ? new ResizeObserver(onResize) : null
+  ro?.observe(document.body)
+  // começou um traço de pincel: a mancha do clique inicial sai
+  const onBrush = () => {
+    if (lastStain && performance.now() - lastStain.t < 1000) lastStain.el.remove()
+    lastStain = null
+  }
   const onDown = (e: PointerEvent) => {
     if (e.button !== 0) return
     const t = e.target as Element | null
@@ -442,11 +411,18 @@ function stains(): () => void {
       { duration: 9000, easing: 'ease-out', fill: 'forwards' }
     )
     anim.onfinish = () => path.remove()
+    lastStain = { el: path, t: performance.now() }
     while (layer.childNodes.length > 14) layer.firstChild?.remove()
   }
   window.addEventListener('pointerdown', onDown, { passive: true })
+  window.addEventListener('resize', onResize)
+  window.addEventListener('gt:brush-start', onBrush)
   return () => {
+    cancelAnimationFrame(rq)
+    ro?.disconnect()
     window.removeEventListener('pointerdown', onDown)
+    window.removeEventListener('resize', onResize)
+    window.removeEventListener('gt:brush-start', onBrush)
     layer.remove()
   }
 }
@@ -565,7 +541,6 @@ export function mount(opts: { fine: boolean }): () => void {
   document.querySelectorAll<HTMLElement>('.m-contact, .m-case__finale').forEach((el) => effects.push(flood(el)))
   const media = Array.from(document.querySelectorAll<HTMLElement>('.project-card__media'))
   if (media.length) {
-    effects.push(blotReveal(media))
     if (opts.fine) cleanups.push(lens(media))
   }
   const nf = document.querySelector<HTMLElement>('.nf-play')

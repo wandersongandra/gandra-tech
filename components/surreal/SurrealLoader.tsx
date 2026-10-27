@@ -16,20 +16,63 @@ export default function SurrealLoader() {
     let cancelled = false
     let cleanup: (() => void) | undefined
     let idle = 0
+    let started = false
     const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
     const fine = window.matchMedia('(hover: hover) and (pointer: fine)').matches
 
     const start = () => {
       removeTriggers()
-      if (cancelled) return
+      // Uma interação antes do ocioso (toque durante o carregamento) e o
+      // próprio ocioso chamavam start duas vezes: duas camadas de manchas,
+      // dois pincéis e um engine que nunca era desmontado.
+      if (cancelled || started) return
+      started = true
+      cancelIdle()
       import('./engine').then((engine) => {
         if (cancelled) return
         engine.paperHour()
-        if (reduced) return
+        // fase 5: o fólio monta também com reduced-motion (versões paradas)
+        const folio = (then: (off: () => void) => void) =>
+          import('./folio').then((m) => {
+            if (!cancelled) then(m.mountFolio({ fine, reduced }))
+          })
+        if (reduced) {
+          folio((off) => {
+            cleanup = off
+            document.documentElement.dataset.folio = 'on'
+          })
+          return
+        }
         // espera a cortina/entrada do hero assentarem antes de mexer no DOM
-        cleanup = engine.mount({ fine })
+        const offEngine = engine.mount({ fine })
+        cleanup = offEngine
         document.documentElement.dataset.surreal = 'on'
+        // fase 4: a prensa (meio-tom, rolo, pincel, som, modo tinta)
+        import('./press').then((press) => {
+          if (cancelled) return
+          const offPress = press.mountPress({ fine })
+          cleanup = () => {
+            offPress()
+            offEngine()
+          }
+          document.documentElement.dataset.press = 'on'
+          folio((offFolio) => {
+            cleanup = () => {
+              offFolio()
+              offPress()
+              offEngine()
+            }
+            document.documentElement.dataset.folio = 'on'
+          })
+        })
       })
+    }
+    const cancelIdle = () => {
+      if (!idle) return
+      const cic = (window as Window & { cancelIdleCallback?: (id: number) => void }).cancelIdleCallback
+      if (cic) cic(idle)
+      else clearTimeout(idle)
+      idle = 0
     }
     const schedule = () => {
       const ric = (window as Window & { requestIdleCallback?: (cb: () => void, o?: { timeout: number }) => number }).requestIdleCallback
@@ -50,11 +93,11 @@ export default function SurrealLoader() {
     return () => {
       cancelled = true
       removeTriggers()
-      const cic = (window as Window & { cancelIdleCallback?: (id: number) => void }).cancelIdleCallback
-      if (cic) cic(idle)
-      else clearTimeout(idle)
+      cancelIdle()
       cleanup?.()
       delete document.documentElement.dataset.surreal
+      delete document.documentElement.dataset.press
+      delete document.documentElement.dataset.folio
     }
   }, [pathname])
 

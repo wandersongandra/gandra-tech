@@ -1,6 +1,6 @@
 'use client'
 import { useEffect, useRef } from 'react'
-import gsap from 'gsap'
+import { withGsap } from '@/lib/gsap'
 
 /**
  * Cursor de estúdio. O cursor nativo continua sempre visível (a versão
@@ -13,7 +13,7 @@ export default function StudioCursor() {
   const ref = useRef<HTMLDivElement>(null)
   const labelRef = useRef<HTMLSpanElement>(null)
 
-  useEffect(() => {
+  useEffect(() => withGsap(({ gsap }) => {
     const el = ref.current
     const label = labelRef.current
     if (!el || !label) return
@@ -57,7 +57,7 @@ export default function StudioCursor() {
       window.removeEventListener('pointerup', onUp)
       window.removeEventListener('gt:curtain-open', onLeave)
     }
-  }, [])
+  }), [])
 
   return (
     <div ref={ref} className="studio-cursor" aria-hidden="true">

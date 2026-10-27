@@ -76,6 +76,10 @@ export default function ProjectView({ project, next }: { project: Project; next:
   return (
     <PageTransition>
       <article className="m-case" data-case-root>
+        {/* régua de progresso da leitura (animation-timeline: scroll(root)) */}
+        <div className="m-case__ruler" aria-hidden="true">
+          <span className="m-case__ruler-fill" />
+        </div>
         {/* --- Abertura ------------------------------------------------- */}
         <header className="m-case__hero m-shell">
           <div className="m-case__meta mono">
@@ -142,6 +146,12 @@ export default function ProjectView({ project, next }: { project: Project; next:
           <h2 id="case-sheet-title" className="m-label">
             Ficha técnica
           </h2>
+          <div className="m-case__sheet-plate">
+            {/* marcas de registro da prova (decoração) */}
+            <span className="m-case__reg m-case__reg--tl" aria-hidden="true" />
+            <span className="m-case__reg m-case__reg--tr" aria-hidden="true" />
+            <span className="m-case__reg m-case__reg--bl" aria-hidden="true" />
+            <span className="m-case__reg m-case__reg--br" aria-hidden="true" />
           <dl className="m-case__sheet-grid">
             <div>
               <dt className="mono">Projeto</dt>
@@ -193,6 +203,7 @@ export default function ProjectView({ project, next }: { project: Project; next:
               </div>
             ) : null}
           </dl>
+          </div>
         </section>
 
         {/* --- Narrativa: o texto acende conforme a leitura -------------- */}

@@ -1160,6 +1160,13 @@ body {
   overflow: hidden;
 }
 
+/* iPad/Safari: 100vh é a viewport grande; a barra cobria o rodapé do palco. */
+@supports (height: 100svh) {
+  .m-works.is-pinned .m-works__stage {
+    height: 100svh;
+  }
+}
+
 .m-works.is-pinned .m-section-head {
   margin-bottom: 24px;
 }
@@ -2120,4 +2127,739 @@ body {
   background: currentColor;
   pointer-events: none;
   transform-origin: 50% 50%;
+}
+
+/* ==========================================================================
+   FASE 4 — A PRENSA
+   ========================================================================== */
+
+/* --- Abertura: uma gota cai, floresce em GANDRA e a folha sobe --------------
+   Só existe com html[data-intro] (script do <head>, 1ª visita da sessão,
+   sem reduced-motion). A camada termina em 1,15 s e fica visibility:hidden;
+   o conteúdo está no DOM o tempo todo — crawlers e leitores não esperam. */
+.m-intro {
+  display: none;
+}
+
+html[data-intro] .m-intro {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  display: block;
+  overflow: hidden;
+  background: var(--m-paper);
+  pointer-events: none;
+  animation: m-intro-out 0.46s var(--m-ease-in-out) 0.69s both;
+}
+
+.m-intro__drop,
+.m-intro__ring,
+.m-intro__dot {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  border-radius: 50%;
+  background: var(--m-ink);
+}
+
+.m-intro__drop {
+  width: 5.2vmin;
+  height: 5.2vmin;
+  margin: -2.6vmin 0 0 -2.6vmin;
+  animation: m-intro-drop 0.26s cubic-bezier(0.55, 0, 1, 0.45) both, m-intro-splat 0.36s var(--m-ease-out) 0.26s both;
+}
+
+.m-intro__ring {
+  width: 10vmin;
+  height: 10vmin;
+  margin: -5vmin 0 0 -5vmin;
+  background: none;
+  border: 1.4vmin solid var(--m-ink);
+  opacity: 0;
+  animation: m-intro-ring 0.5s var(--m-ease-out) 0.25s both;
+}
+
+.m-intro__dot {
+  width: 1.6vmin;
+  height: 1.6vmin;
+  margin: -0.8vmin 0 0 -0.8vmin;
+  opacity: 0;
+  animation: m-intro-dot 0.55s var(--m-ease-out) 0.25s both;
+}
+
+.m-intro__dot:nth-child(4n) {
+  background: var(--m-signal);
+}
+
+.m-intro__mark {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: min(78vw, 980px);
+  height: auto;
+  overflow: visible;
+  transform: translate(-50%, -54%);
+}
+
+.m-intro__glyph {
+  fill: var(--m-ink);
+  transform-box: fill-box;
+  transform-origin: 50% 100%;
+  animation: m-intro-glyph 0.42s var(--m-ease-out) calc(0.27s + var(--i) * 0.035s) both;
+}
+
+.m-intro__glyph:nth-child(5) {
+  fill: var(--m-signal);
+}
+
+/* borda de tinta fresca na base da folha que sobe */
+.m-intro__edge {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 6px;
+  background: var(--m-signal);
+  transform-origin: left center;
+  animation: m-intro-edge 0.34s var(--m-ease-out) 0.48s both;
+}
+
+@keyframes m-intro-drop {
+  from { transform: translate3d(0, -60vh, 0) scale(0.7, 1.5); }
+  to { transform: translate3d(0, 0, 0) scale(1.05, 0.95); }
+}
+@keyframes m-intro-splat {
+  0% { transform: scale(1.05, 0.95); }
+  35% { transform: scale(2.6, 1.6); border-radius: 46% 54% 42% 58%; }
+  100% { transform: scale(0); opacity: 0; }
+}
+@keyframes m-intro-ring {
+  0% { transform: scale(0.3); opacity: 1; border-width: 2.2vmin; }
+  100% { transform: scale(6); opacity: 0; border-width: 0.1vmin; }
+}
+@keyframes m-intro-dot {
+  0% { transform: rotate(var(--a)) translateX(0) scale(var(--s)); opacity: 1; }
+  80% { opacity: 1; }
+  100% { transform: rotate(var(--a)) translateX(var(--r)) scale(0); opacity: 0; }
+}
+@keyframes m-intro-glyph {
+  0% { transform: scale(0.2, 0.05); opacity: 0; filter: blur(6px); }
+  45% { opacity: 1; filter: blur(0); }
+  70% { transform: scale(1.06, 1.12); }
+  100% { transform: none; opacity: 1; }
+}
+@keyframes m-intro-edge {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
+}
+@keyframes m-intro-out {
+  0% { transform: none; visibility: visible; }
+  99% { visibility: visible; }
+  100% { transform: translate3d(0, -102%, 0); visibility: hidden; }
+}
+
+/* A página "revela" como cópia saindo do banho: superexposta e lavada,
+   ganha contraste enquanto a folha sobe. */
+html[data-intro] main {
+  animation: m-develop 0.9s ease-out 0.62s both;
+}
+@keyframes m-develop {
+  from { filter: grayscale(1) contrast(0.55) brightness(1.28); }
+  to { filter: none; }
+}
+
+/* As entradas do hero esperam a folha sair (o h1 já nasce visível: LCP). */
+html[data-intro] .m-hero .split__word {
+  animation-delay: calc(0.7s + var(--d, 0s));
+}
+html[data-intro] .m-hero .kinetic__letter {
+  animation-delay: calc(0.8s + var(--i, 0) * 0.06s);
+}
+html[data-intro] .m-hero__lead {
+  animation-delay: 1.05s;
+}
+html[data-intro] .m-hero__actions {
+  animation-delay: 1.15s;
+}
+
+/* Pular: tecla ou toque encurtam tudo para ~0,2 s. */
+html[data-intro='skip'] .m-intro {
+  animation: m-intro-out 0.22s var(--m-ease-in-out) both;
+}
+html[data-intro='skip'] main {
+  animation-duration: 0.3s;
+  animation-delay: 0s;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html[data-intro] .m-intro {
+    display: none;
+  }
+  html[data-intro] main {
+    animation: none;
+  }
+}
+
+/* --- Meio-tom: a foto chega como retícula riso ---------------------------- */
+.m-halftone {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+/* --- Prensa: relevo seco → rolo → tinta ----------------------------------- */
+.m-press {
+  position: relative;
+}
+
+.m-press__blind,
+.m-press__wet {
+  position: absolute;
+  inset: 0;
+  padding: inherit;
+  pointer-events: none;
+  user-select: none;
+}
+
+.m-press__blind {
+  z-index: 1;
+  color: var(--press-bg, var(--m-paper));
+  -webkit-text-stroke: 3px var(--press-bg, var(--m-paper));
+  paint-order: stroke fill;
+  text-shadow:
+    -1px -1px 0 rgba(255, 255, 255, 0.55),
+    1px 1px 1px rgba(18, 17, 14, 0.2);
+}
+
+.m-press__blind *,
+.m-press__wet * {
+  color: inherit !important;
+}
+
+.m-press__wet {
+  color: var(--m-signal);
+  mix-blend-mode: multiply;
+  transform: translate3d(0.05em, 0.035em, 0);
+}
+
+.m-press__roller {
+  position: absolute;
+  z-index: 2;
+  top: -0.14em;
+  bottom: -0.14em;
+  left: 0;
+  width: 0.34em;
+  margin-left: -0.17em;
+  border-radius: 0.17em;
+  background: linear-gradient(90deg, #050505 0%, #34312c 30%, #8d867a 46%, #2a2824 62%, #050505 100%);
+  box-shadow: 0.1em 0.12em 0.32em rgba(18, 17, 14, 0.28), inset 0 0 0 1px rgba(0, 0, 0, 0.45);
+  opacity: 0;
+  pointer-events: none;
+  will-change: transform;
+}
+
+.m-press__roller::after {
+  content: '';
+  position: absolute;
+  top: 6%;
+  bottom: 6%;
+  right: -3px;
+  width: 3px;
+  border-radius: 2px;
+  background: var(--m-signal);
+  opacity: 0.85;
+}
+
+/* --- Pincel (desktop) ----------------------------------------------------- */
+.m-brush {
+  position: fixed;
+  inset: 0;
+  z-index: 30;
+  width: 100vw;
+  height: 100vh;
+  pointer-events: none;
+}
+
+html.is-painting,
+html.is-painting * {
+  cursor: crosshair;
+  user-select: none;
+}
+
+/* --- Chave de som ---------------------------------------------------------- */
+/* menu mobile aberto: a chave (z-index 60) ficava por cima do painel e
+   recebia o toque */
+html.is-menu-open .m-sound {
+  visibility: hidden;
+}
+
+.m-sound {
+  position: fixed;
+  left: calc(14px + env(safe-area-inset-left, 0px));
+  bottom: calc(14px + env(safe-area-inset-bottom, 0px));
+  z-index: 60;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 40px;
+  padding: 0 14px;
+  border: 1px solid var(--m-ink);
+  border-radius: 999px;
+  background: var(--m-paper);
+  color: var(--m-ink);
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: pointer;
+  opacity: 0;
+  transform: translate3d(0, 12px, 0);
+  transition: opacity 0.5s var(--m-ease-out), transform 0.5s var(--m-ease-out), background-color 0.3s, color 0.3s;
+}
+
+.m-sound.is-in {
+  opacity: 1;
+  transform: none;
+}
+
+.m-sound:focus-visible {
+  outline: 2px solid var(--m-signal);
+  outline-offset: 3px;
+}
+
+.m-sound[aria-pressed='true'] {
+  background: var(--m-ink);
+  color: var(--m-paper);
+}
+
+.m-sound__bars {
+  display: inline-flex;
+  align-items: flex-end;
+  gap: 2px;
+  height: 12px;
+}
+
+.m-sound__bars i {
+  width: 2px;
+  height: 100%;
+  background: currentColor;
+  transform: scaleY(0.25);
+  transform-origin: bottom;
+}
+
+.m-sound[aria-pressed='true'] .m-sound__bars i {
+  animation: m-eq 0.9s ease-in-out infinite alternate;
+}
+
+.m-sound[aria-pressed='true'] .m-sound__bars i:nth-child(2) { animation-delay: -0.3s; }
+.m-sound[aria-pressed='true'] .m-sound__bars i:nth-child(3) { animation-delay: -0.6s; }
+.m-sound[aria-pressed='true'] .m-sound__bars i:nth-child(4) { animation-delay: -0.15s; }
+
+@keyframes m-eq {
+  from { transform: scaleY(0.25); }
+  to { transform: scaleY(1); }
+}
+
+/* --- Modo tinta (↑↑↓↓←→←→BA) --------------------------------------------- */
+html[data-tinta='on'] {
+  color-scheme: dark;
+  --m-paper: #12110e;
+  --m-paper-2: #1d1b17;
+  --m-ink: #ece8df;
+  --m-ink-2: #e2ddd1;
+  --m-muted: #a39d92;
+  --m-muted-dark: #5a554d;
+  --m-signal-ink: #f26a43;
+  --m-line: rgba(236, 232, 223, 0.16);
+  --m-line-dark: rgba(18, 17, 14, 0.16);
+  --black: #ece8df;
+  --paper: #12110e;
+  --ink: #ece8df;
+  --rule: #ece8df;
+  --muted: #a39d92;
+  --dim: #b5afa4;
+}
+
+html[data-tinta='on'] .m-header::before {
+  background: rgba(18, 17, 14, 0.86);
+}
+
+.m-tinta-flood {
+  position: fixed;
+  inset: 0;
+  z-index: 9000;
+  pointer-events: none;
+}
+
+.m-toast {
+  position: fixed;
+  left: 50%;
+  bottom: calc(18px + env(safe-area-inset-bottom, 0px));
+  z-index: 70;
+  max-width: min(92vw, 520px);
+  padding: 12px 18px;
+  border-radius: 999px;
+  background: var(--m-ink);
+  color: var(--m-paper);
+  font-size: 12px;
+  text-align: center;
+  opacity: 0;
+  transform: translate3d(-50%, 16px, 0);
+  pointer-events: none;
+}
+
+.m-toast.is-on {
+  animation: m-toast 3.6s var(--m-ease-out) both;
+}
+
+@keyframes m-toast {
+  0% { opacity: 0; transform: translate3d(-50%, 16px, 0); }
+  10%, 85% { opacity: 1; transform: translate3d(-50%, 0, 0); }
+  100% { opacity: 0; transform: translate3d(-50%, 8px, 0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .m-halftone,
+  .m-press__blind,
+  .m-press__wet,
+  .m-press__roller,
+  .m-brush {
+    display: none;
+  }
+}
+
+/* Herói do contato/404: fundo var(--black) vira papel no modo tinta, mas o
+   texto secundário era rgba claro fixo — sumia no fundo claro. */
+/* vermelho de sinal sobre papel claro (seções invertidas no modo tinta)
+   ficava em 3,4:1 — o tom queimado passa de 4,5:1 */
+html[data-tinta='on'] .cp-hero__label,
+html[data-tinta='on'] .m-manifesto__title,
+html[data-tinta='on'] .m-manifesto__cap-num {
+  color: #a32b0c;
+}
+/* legenda da capa do case: o fundo da placa vem da imagem (não inverte),
+   então a legenda continua clara em vez de seguir --m-paper */
+html[data-tinta='on'] .m-case__plate-cap {
+  color: #ece8df;
+}
+html[data-tinta='on'] .cp-hero__sub {
+  color: rgba(18, 17, 14, 0.74);
+}
+html[data-tinta='on'] .cp-hero__email {
+  border-bottom-color: rgba(18, 17, 14, 0.25);
+}
+html[data-tinta='on'] .cp-hero__email:hover {
+  color: rgba(18, 17, 14, 0.7);
+  border-color: rgba(18, 17, 14, 0.55);
+}
+html[data-tinta='on'] .cp-email-fallback {
+  color: rgba(18, 17, 14, 0.68);
+}
+html[data-tinta='on'] .cp-email-fallback__address {
+  border-color: rgba(18, 17, 14, 0.22);
+}
+html[data-tinta='on'] .cp-email-fallback button {
+  border-color: rgba(18, 17, 14, 0.42);
+}
+
+html[data-tinta='on'] .m-press__wet {
+  mix-blend-mode: screen;
+}
+
+@media (max-width: 767px) {
+  .m-sound {
+    min-width: 40px;
+    padding: 0 13px;
+  }
+  .m-sound__label {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+}
+
+/* --- Impressão ---------------------------------------------------------------
+   Sem camadas decorativas (cortina, pincel, manchas, grão, cursor, chave de
+   som, lupa, meio-tom) e sem o header grudado em cada folha; os cases saem
+   em pilha em vez do trilho horizontal cortado. */
+@media print {
+  .curtain,
+  .grain,
+  .studio-cursor,
+  .m-ink-trail,
+  .m-intro,
+  .m-brush,
+  .m-stains,
+  .m-sound,
+  .m-lens,
+  .m-drip,
+  .m-puddle,
+  .m-halftone,
+  .m-toast,
+  .m-tinta-flood,
+  .m-header__progress,
+  .mobile-menu,
+  .skip-link {
+    display: none !important;
+  }
+  .site-header {
+    position: static !important;
+    transform: none !important;
+  }
+  .m-works__track {
+    transform: none !important;
+    flex-wrap: wrap !important;
+  }
+  .pin-spacer {
+    height: auto !important;
+    padding: 0 !important;
+  }
+  .m-works__stage,
+  .m-works__viewport {
+    position: static !important;
+    transform: none !important;
+    width: auto !important;
+    height: auto !important;
+    max-height: none !important;
+    overflow: visible !important;
+  }
+  .project-card__media {
+    clip-path: none !important;
+  }
+  .project-card {
+    break-inside: avoid;
+  }
+}
+
+/* === Fase 5: morph card → case (View Transitions) ======================== */
+::view-transition-group(gt-plate) {
+  animation-duration: 0.8s;
+  animation-timing-function: cubic-bezier(0.77, 0, 0.175, 1);
+}
+
+::view-transition-old(gt-plate),
+::view-transition-new(gt-plate) {
+  height: 100%;
+  object-fit: cover;
+  animation-duration: 0.8s;
+  animation-timing-function: cubic-bezier(0.77, 0, 0.175, 1);
+}
+
+::view-transition-old(root) {
+  animation: gt-vt-out 0.4s cubic-bezier(0.4, 0, 1, 1) both;
+}
+
+::view-transition-new(root) {
+  animation: gt-vt-in 0.5s 0.25s cubic-bezier(0, 0, 0.2, 1) both;
+}
+
+@keyframes gt-vt-out {
+  to { opacity: 0; }
+}
+
+@keyframes gt-vt-in {
+  from { opacity: 0; }
+}
+
+/* === Fase 5: mergulho na retícula (fim dos trabalhos) ===================== */
+/* Padrão (e reduced-motion): uma faixa vermelha separa as seções. */
+.m-dive {
+  position: relative;
+  height: 14px;
+  background: var(--m-signal);
+}
+
+.m-dive__stage {
+  display: none;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .m-dive {
+    height: 220vh;
+    background: var(--m-paper);
+  }
+
+  .m-dive__stage {
+    position: sticky;
+    top: 0;
+    display: grid;
+    place-items: center;
+    height: 100vh;
+    overflow: hidden;
+    background-image: radial-gradient(circle, var(--m-line) 0 1.5px, transparent 2px);
+    background-size: 14px 14px;
+    background-position: center;
+  }
+
+  .m-dive__dot {
+    grid-area: 1 / 1;
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    background: radial-gradient(circle, var(--m-signal) 0 58%, rgba(229, 64, 26, 0.55) 66%, transparent 71%);
+  }
+
+  .m-dive__flood {
+    position: absolute;
+    inset: 0;
+    background: var(--m-ink);
+    clip-path: circle(0% at 50% 50%);
+  }
+
+  .m-dive__cap {
+    position: absolute;
+    left: var(--m-gutter);
+    bottom: calc(24px + env(safe-area-inset-bottom, 0px));
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--m-muted);
+  }
+}
+
+@supports (height: 100svh) {
+  @media (prefers-reduced-motion: no-preference) {
+    .m-dive__stage {
+      height: 100svh;
+    }
+  }
+}
+
+/* No celular o mergulho é mais curto. */
+@media (prefers-reduced-motion: no-preference) and (max-width: 760px) {
+  .m-dive {
+    height: 150vh;
+  }
+}
+
+@media print {
+  .m-dive {
+    display: none;
+  }
+}
+
+/* === Fase 5: campo de tipos móveis (hero do /contato) ===================== */
+.cp-hero[data-glyphs] {
+  position: relative;
+  isolation: isolate;
+}
+
+.m-glyphs {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+@media print {
+  .m-glyphs { display: none; }
+}
+
+/* Fase 5 · peça 6 — texto líquido. Com movimento, o fólio passa um filtro
+   SVG (turbulência 0→8→0 + feOffset) no link sob o cursor ou com foco.
+   Em reduced-motion fica só a troca de cor, com contraste AA. */
+@media (prefers-reduced-motion: reduce) {
+  .site-header__link:not(.site-header__logo):is(:hover, :focus-visible),
+  .m-link:is(:hover, :focus-visible),
+  .site-footer__legal a:is(:hover, :focus-visible),
+  .link-arrow:is(:hover, :focus-visible) {
+    color: var(--m-signal-ink);
+    transition: color var(--m-dur-fast) ease;
+  }
+  .m-footer .m-link:is(:hover, :focus-visible),
+  .m-footer .site-footer__legal a:is(:hover, :focus-visible),
+  html[data-tinta='on'] :is(.site-header__link, .m-link, .link-arrow):is(:hover, :focus-visible) {
+    color: var(--m-signal);
+  }
+}
+
+/* Fase 5 · peça 7 — segurar para carimbar. O clique curto abre o e-mail na
+   hora; segurar ~0,55 s (ou manter a tecla) carimba. No toque, sem menu de
+   contexto nem seleção, e sem o atraso de duplo toque. */
+.m-contact__email,
+.cp-hero__email[href^='mailto:'] {
+  touch-action: manipulation;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .m-contact__email,
+  .cp-hero__email[href^='mailto:'] {
+    transition: color 0.4s ease, transform 0.55s cubic-bezier(0.3, 0, 0.2, 1);
+  }
+  .m-contact__email.is-charging,
+  .cp-hero__email.is-charging {
+    transform: scale(0.97);
+  }
+}
+
+.m-stamp {
+  position: absolute;
+  z-index: 60;
+  padding: 0.45em 0.8em 0.4em;
+  color: var(--m-signal);
+  font-size: clamp(13px, 1.4vw, 20px);
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  line-height: 1;
+  white-space: nowrap;
+  border: 3px double currentColor;
+  border-radius: 4px;
+  opacity: 0.92;
+  pointer-events: none;
+  transform: translate(-50%, -50%) rotate(var(--rot, -4deg));
+}
+
+@media print {
+  .m-stamp { display: none; }
+}
+
+/* Fase 5 · peça 8 — origami nos serviços e a 404 amassada. Os estados
+   fechados só existem com movimento (classes postas pelo fólio). */
+.service-page__item.is-folded {
+  clip-path: inset(0 0 100% 0);
+}
+.service-page__item.is-unfolding {
+  transform-origin: 50% 0;
+  backface-visibility: hidden;
+}
+
+.nf-sheet {
+  position: relative;
+}
+.nf-sheet.is-crumpled {
+  cursor: pointer;
+  transform-origin: 50% 140px;
+}
+.nf-sheet::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background:
+    linear-gradient(118deg, transparent 38%, rgba(18, 17, 14, 0.16) 39%, transparent 41%),
+    linear-gradient(62deg, transparent 52%, rgba(18, 17, 14, 0.12) 53%, transparent 56%),
+    linear-gradient(170deg, transparent 30%, rgba(18, 17, 14, 0.1) 31%, transparent 34%),
+    radial-gradient(circle at 46% 36%, #f6f3ec, var(--m-paper) 45%, #cfc8b9);
+  opacity: 0;
+  transition: opacity 0.6s ease;
+}
+.nf-sheet.is-ball::before {
+  opacity: 1;
+  transition-duration: 0.25s;
+}
+
+@media print {
+  .service-page__item.is-folded { clip-path: none; }
+  .nf-sheet::before { display: none; }
 }

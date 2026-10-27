@@ -1,6 +1,6 @@
 'use client'
 import { useEffect, useRef } from 'react'
-import gsap from 'gsap'
+import { withGsap } from '@/lib/gsap'
 
 /**
  * Hover de "papel molhado" nas imagens dos cartões de projeto: um filtro
@@ -14,7 +14,7 @@ export default function InkRipple() {
   const mapRef = useRef<SVGFEDisplacementMapElement>(null)
   const noiseRef = useRef<SVGFETurbulenceElement>(null)
 
-  useEffect(() => {
+  useEffect(() => withGsap(({ gsap }) => {
     const map = mapRef.current
     const noise = noiseRef.current
     if (!map || !noise) return
@@ -53,7 +53,7 @@ export default function InkRipple() {
       tween?.kill()
       release()
     }
-  }, [])
+  }), [])
 
   return (
     <svg className="m-svg-defs" aria-hidden="true" focusable="false" width="0" height="0">

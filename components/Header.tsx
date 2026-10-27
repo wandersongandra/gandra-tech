@@ -77,8 +77,14 @@ export default function Header() {
   useEffect(() => {
     if (!isMenuOpen) return
 
-    const previousOverflow = document.body.style.overflow
-    document.body.style.overflow = 'hidden'
+    // Trava no <html>, não no <body>: com html { overflow-x: clip } o
+    // overflow do body não sobe para a viewport — o body virava um
+    // container de rolagem, o header sticky "grudava" no topo do documento e
+    // fechar o menu com o foco no botão jogava a página para o topo.
+    const root = document.documentElement
+    const previousOverflow = root.style.overflow
+    root.style.overflow = 'hidden'
+    root.classList.add('is-menu-open')
     const focusTimer = window.setTimeout(() => firstMenuLinkRef.current?.focus(), 0)
 
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -93,19 +99,24 @@ export default function Header() {
       const panel = mobileMenuPanelRef.current
       if (!panel) return
 
-      const focusable = Array.from(panel.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR)).filter(
-        (element) => element.getClientRects().length > 0,
-      )
+      // o botão de fechar faz parte do ciclo de foco (fica fora do painel)
+      const toggle = menuButtonRef.current
+      const focusable = [
+        ...(toggle ? [toggle] : []),
+        ...Array.from(panel.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR)),
+      ].filter((element) => element.getClientRects().length > 0)
       if (!focusable.length) return
 
       const first = focusable[0]
       const last = focusable[focusable.length - 1]
       const active = document.activeElement
 
-      if (event.shiftKey && (active === first || !panel.contains(active))) {
+      const inside = !!active && focusable.includes(active as HTMLElement)
+
+      if (event.shiftKey && (active === first || !inside)) {
         event.preventDefault()
         last.focus()
-      } else if (!event.shiftKey && (active === last || !panel.contains(active))) {
+      } else if (!event.shiftKey && (active === last || !inside)) {
         event.preventDefault()
         first.focus()
       }
@@ -115,7 +126,8 @@ export default function Header() {
     return () => {
       window.clearTimeout(focusTimer)
       document.removeEventListener('keydown', handleKeyDown)
-      document.body.style.overflow = previousOverflow
+      root.style.overflow = previousOverflow
+      root.classList.remove('is-menu-open')
     }
   }, [closeMenu, isMenuOpen])
 

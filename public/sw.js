@@ -1,4 +1,5 @@
-const VERSION = 'materia-2026-10-v1'
+const VERSION = 'materia-2026-10-v2'
+const STATIC_LIMIT = 120
 const SHELL_CACHE = `gandra-shell-${VERSION}`
 const STATIC_CACHE = `gandra-static-${VERSION}`
 const RUNTIME_CACHE = `gandra-runtime-${VERSION}`
@@ -66,10 +67,12 @@ async function networkFirstNavigation(request, url) {
     }
     return response
   } catch {
+    // Sem rede: a própria página se estiver guardada; senão a página offline.
+    // (Antes caía na home, servida no endereço errado.)
     return (
       (canPersist ? await cache.match(url.pathname) : undefined) ||
-      (await cache.match('/')) ||
-      (await cache.match('/offline.html'))
+      (await cache.match('/offline.html')) ||
+      new Response('Offline', { status: 503, headers: { 'Content-Type': 'text/plain; charset=utf-8' } })
     )
   }
 }
@@ -84,8 +87,16 @@ async function cacheFirst(request, url) {
   if (isSafeCacheableResponse(response)) {
     const cache = await caches.open(STATIC_CACHE)
     await cache.put(request, response.clone())
+    await trim(cache, STATIC_LIMIT)
   }
   return response
+}
+
+// Os chunks têm hash: a cada deploy chegam arquivos novos e os velhos
+// ficariam para sempre. Mantém só os mais recentes.
+async function trim(cache, limit) {
+  const keys = await cache.keys()
+  for (let i = 0; i < keys.length - limit; i++) await cache.delete(keys[i])
 }
 
 async function staleWhileRevalidate(request, url) {
@@ -108,7 +119,8 @@ async function staleWhileRevalidate(request, url) {
   const response = await fresh
   if (response) return response
 
-  return (await caches.match('/offline.html')) || new Response('', { status: 504, statusText: 'Offline' })
+  // imagem/fonte nunca recebe HTML no lugar
+  return new Response('', { status: 504, statusText: 'Offline' })
 }
 
 self.addEventListener('fetch', (event) => {

@@ -1,8 +1,7 @@
 'use client'
 import { useEffect } from 'react'
-import gsap from 'gsap'
-import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { scrollToSection } from '@/lib/scroll'
+import { withGsap } from '@/lib/gsap'
 
 /**
  * Âncoras vindas de outra página (ex.: /#trabalhos a partir de /servicos).
@@ -12,7 +11,7 @@ import { scrollToSection } from '@/lib/scroll'
  * rolamos até a âncora, sem animação.
  */
 export default function HashScroll() {
-  useEffect(() => {
+  useEffect(() => withGsap(({ gsap, ScrollTrigger }) => {
     const hash = window.location.hash
     if (!hash || hash.length < 2) return
     let target: Element | null = null
@@ -22,7 +21,6 @@ export default function HashScroll() {
       return
     }
     if (!target) return
-    gsap.registerPlugin(ScrollTrigger)
     let cancelled = false
     const go = () => {
       if (cancelled) return
@@ -47,6 +45,6 @@ export default function HashScroll() {
       window.clearTimeout(timer)
       window.removeEventListener('gt:works-ready', once)
     }
-  }, [])
+  }), [])
   return null
 }
