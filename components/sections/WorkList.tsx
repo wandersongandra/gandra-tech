@@ -14,9 +14,9 @@ const pad = (n: number) => String(n).padStart(2, '0')
  * leva ao case (/trabalhos/<slug>); o convite para abrir o site do cliente
  * fica dentro do case. Sem fotos soltas na home.
  *
- * Movimento: as linhas entram por fios que se desenham e, com ponteiro fino,
- * uma prévia do site no ar acompanha o cursor sobre a linha. Em toque ou
- * movimento reduzido a lista é estática e a prévia nem é baixada.
+ * Movimento: as linhas entram por fios que se desenham. Com ponteiro fino a
+ * prévia do site acompanha o cursor; em toque a prévia aparece quando a
+ * linha passa pelo centro da tela (sem hover). Com reduced-motion some.
  */
 export default function WorkList() {
   const sectionRef = useRef<HTMLElement>(null)
@@ -44,32 +44,82 @@ export default function WorkList() {
     if (ready) window.dispatchEvent(new Event('gt:works-ready'))
   }, [ready])
 
-  // Prévia que segue o cursor (só ponteiro fino e com movimento liberado).
+  // Prévia: no desktop segue o cursor; no toque a linha mais próxima do
+  // centro da tela ganha a prévia (sem hover e sem gesto extra).
   useEffect(() => {
     const list = listRef.current
-    if (!list || !ready || reduced || !fine) return
-    let raf = 0
-    let x = 0
-    let y = 0
-    const move = (e: PointerEvent) => {
-      const row = (e.target as Element | null)?.closest?.<HTMLElement>('.work-row__link')
-      if (!row) return
-      const r = row.getBoundingClientRect()
-      x = e.clientX - r.left
-      y = e.clientY - r.top
-      if (raf) return
-      raf = requestAnimationFrame(() => {
-        raf = 0
-        row.style.setProperty('--peek-x', `${x.toFixed(1)}px`)
-        row.style.setProperty('--peek-y', `${y.toFixed(1)}px`)
-      })
+    if (!list || !ready || reduced) return
+    if (fine) {
+      let raf = 0
+      let x = 0
+      let y = 0
+      const move = (e: PointerEvent) => {
+        const row = (e.target as Element | null)?.closest?.<HTMLElement>('.work-row__link')
+        if (!row) return
+        const r = row.getBoundingClientRect()
+        x = e.clientX - r.left
+        y = e.clientY - r.top
+        if (raf) return
+        raf = requestAnimationFrame(() => {
+          raf = 0
+          row.style.setProperty('--peek-x', `${x.toFixed(1)}px`)
+          row.style.setProperty('--peek-y', `${y.toFixed(1)}px`)
+        })
+      }
+      list.classList.add('is-following')
+      list.addEventListener('pointermove', move, { passive: true })
+      return () => {
+        cancelAnimationFrame(raf)
+        list.classList.remove('is-following')
+        list.removeEventListener('pointermove', move)
+      }
     }
-    list.classList.add('is-following')
-    list.addEventListener('pointermove', move, { passive: true })
+    const links = Array.from(list.querySelectorAll<HTMLElement>('.work-row__link'))
+    let current: HTMLElement | null = null
+    let raf = 0
+    const pick = () => {
+      raf = 0
+      const mid = window.innerHeight * 0.48
+      let best: HTMLElement | null = null
+      let bestDist = Infinity
+      for (const link of links) {
+        const r = link.getBoundingClientRect()
+        if (r.bottom < 80 || r.top > window.innerHeight - 40) continue
+        const dist = Math.abs(r.top + r.height / 2 - mid)
+        if (dist < bestDist) {
+          bestDist = dist
+          best = link
+        }
+      }
+      if (best !== current) {
+        current?.classList.remove('is-peek')
+        current = best
+        current?.classList.add('is-peek')
+      }
+      // Recalcula posição também no resize (mesma linha pode continuar selecionada).
+      if (current) {
+        const r = current.getBoundingClientRect()
+        // CSS: translateX(peek-x + 28). Largura touch = min(68vw, 280).
+        const peekW = Math.min(window.innerWidth * 0.68, 280)
+        const maxX = window.innerWidth - r.left - peekW - 28 - 12
+        const peekX = Math.max(8, Math.min(r.width * 0.42, maxX))
+        current.style.setProperty('--peek-x', `${peekX.toFixed(1)}px`)
+        current.style.setProperty('--peek-y', `${(r.height * 0.55).toFixed(1)}px`)
+      }
+    }
+    const onScroll = () => {
+      if (!raf) raf = requestAnimationFrame(pick)
+    }
+    list.classList.add('is-touch-peek')
+    pick()
+    window.addEventListener('scroll', onScroll, { passive: true })
+    window.addEventListener('resize', onScroll)
     return () => {
       cancelAnimationFrame(raf)
-      list.classList.remove('is-following')
-      list.removeEventListener('pointermove', move)
+      list.classList.remove('is-touch-peek')
+      current?.classList.remove('is-peek')
+      window.removeEventListener('scroll', onScroll)
+      window.removeEventListener('resize', onScroll)
     }
   }, [ready, reduced, fine])
 
@@ -129,7 +179,7 @@ export default function WorkList() {
                     <span className="work-row__go-label">Ver case</span>
                     <span aria-hidden="true"> →</span>
                   </span>
-                  {fine && !reduced ? (
+                  {!reduced ? (
                     <span className="work-row__peek" aria-hidden="true">
                       <Picture src={previewImage(project)} alt="" sizes="360px" className="m-fill" focus="50% 0%" />
                     </span>

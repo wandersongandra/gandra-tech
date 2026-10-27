@@ -302,6 +302,134 @@ async function bugSweep(browser) {
   }
 }
 
+
+async function touchMobileQa(browser) {
+  // Emulação real de toque: hover:none + pointer:coarse. Garante que as
+  // adaptações mobile (dica, prévia por scroll, alvos ≥44px) existem.
+  const ctx = await browser.newContext({
+    viewport: { width: 390, height: 844 },
+    isMobile: true,
+    hasTouch: true,
+    deviceScaleFactor: 3,
+  })
+  const page = await ctx.newPage()
+  await page.goto(origin, { waitUntil: 'domcontentloaded' })
+  await page.waitForTimeout(1800)
+  const media = await page.evaluate(() => ({
+    fine: matchMedia('(hover: hover) and (pointer: fine)').matches,
+    coarse: matchMedia('(pointer: coarse)').matches,
+  }))
+  assert.equal(media.fine, false, 'touch-qa: deveria reportar ponteiro não-fino')
+  assert.equal(media.coarse, true, 'touch-qa: deveria reportar ponteiro coarse')
+
+  const hint = await page.evaluate(() => {
+    const t = document.querySelector('.m-hero__hint-touch')
+    const d = document.querySelector('.m-hero__hint')
+    return {
+      touch: t ? getComputedStyle(t).display : 'missing',
+      desk: d ? getComputedStyle(d).display : 'missing',
+    }
+  })
+  assert.ok(hint.touch !== 'none' && hint.touch !== 'missing', 'touch-qa: dica "Toque a palavra" ausente (' + hint.touch + ')')
+  assert.equal(hint.desk, 'none', 'touch-qa: dica de cursor ainda visível no toque')
+
+  const sizes = await page.evaluate(() => {
+    const box = (sel) => {
+      const el = document.querySelector(sel)
+      if (!el) return null
+      const b = el.getBoundingClientRect()
+      return { w: Math.round(b.width), h: Math.round(b.height) }
+    }
+    return {
+      sound: box('.m-sound'),
+      toggle: box('.site-header__menu-toggle'),
+    }
+  })
+  assert.ok(sizes.toggle && sizes.toggle.w >= 44 && sizes.toggle.h >= 44, 'touch-qa: menu < 44px')
+  // a chave de som só aparece depois do idle; se já estiver no DOM, checa
+  if (sizes.sound) {
+    assert.ok(sizes.sound.w >= 44 && sizes.sound.h >= 44, 'touch-qa: chave de som < 44px')
+  }
+
+  // Prévia por scroll: a linha central ganha is-peek
+  await page.evaluate(() => document.querySelector('#trabalhos')?.scrollIntoView({ block: 'center' }))
+  await page.waitForTimeout(900)
+  await page.evaluate(() => {
+    const mid = innerHeight * 0.48
+    const links = [...document.querySelectorAll('.work-row__link')]
+    let best = null, bestD = Infinity
+    for (const l of links) {
+      const r = l.getBoundingClientRect()
+      const d = Math.abs(r.top + r.height / 2 - mid)
+      if (d < bestD) { bestD = d; best = l }
+    }
+    window.scrollBy(0, (best?.getBoundingClientRect().top + best?.getBoundingClientRect().height / 2) - mid)
+  })
+  await page.waitForTimeout(500)
+  const peeked = await page.evaluate(() => document.querySelectorAll('.work-row__link.is-peek').length)
+  assert.ok(peeked >= 1, 'touch-qa: nenhuma linha com prévia por scroll')
+  const peekBox = await page.evaluate(() => {
+    const peek = document.querySelector('.work-row__link.is-peek .work-row__peek')
+    if (!peek) return null
+    const r = peek.getBoundingClientRect()
+    return { left: Math.round(r.left), right: Math.round(r.right), w: Math.round(r.width), vw: window.innerWidth }
+  })
+  assert.ok(peekBox, 'touch-qa: elemento da prévia de trabalhos ausente')
+  assert.ok(peekBox.left >= -4, 'touch-qa: prévia trabalhos cortada à esquerda: ' + JSON.stringify(peekBox))
+  assert.ok(peekBox.right <= peekBox.vw + 4, 'touch-qa: prévia trabalhos cortada à direita: ' + JSON.stringify(peekBox))
+
+  // Serviços: prévia por scroll deve caber na viewport (borda direita ancorada)
+  await page.evaluate(() => document.querySelector('#servicos')?.scrollIntoView({ block: 'center' }))
+  await page.waitForTimeout(900)
+  await page.evaluate(() => {
+    const mid = innerHeight * 0.5
+    const rows = [...document.querySelectorAll('.m-services__list [data-preview]')]
+    let best = null, bestD = Infinity
+    for (const row of rows) {
+      const r = row.getBoundingClientRect()
+      const d = Math.abs(r.top + r.height / 2 - mid)
+      if (d < bestD) { bestD = d; best = row }
+    }
+    if (best) window.scrollBy(0, (best.getBoundingClientRect().top + best.getBoundingClientRect().height / 2) - mid)
+  })
+  await page.waitForTimeout(900) // espera a transição de scale da prévia
+  const svcPrev = await page.evaluate(() => {
+    const el = document.querySelector('.m-services__preview')
+    if (!el) return { missing: true }
+    const r = el.getBoundingClientRect()
+    const cs = getComputedStyle(el)
+    return {
+      visible: el.classList.contains('is-visible'),
+      touch: el.classList.contains('is-touch'),
+      left: Math.round(r.left),
+      right: Math.round(r.right),
+      w: Math.round(r.width),
+      cssW: parseFloat(cs.width) || 0,
+      vw: window.innerWidth,
+    }
+  })
+  assert.ok(!svcPrev.missing, 'touch-qa: prévia de serviços ausente')
+  assert.ok(svcPrev.touch, 'touch-qa: prévia de serviços sem is-touch')
+  assert.ok(svcPrev.visible, 'touch-qa: prévia de serviços não ficou visível no scroll')
+  assert.ok(svcPrev.left >= -2, 'touch-qa: prévia de serviços cortada à esquerda: ' + JSON.stringify(svcPrev))
+  assert.ok(svcPrev.right <= svcPrev.vw + 2, 'touch-qa: prévia de serviços cortada à direita: ' + JSON.stringify(svcPrev))
+  assert.ok(svcPrev.cssW >= 140 || svcPrev.w >= 140, 'touch-qa: prévia de serviços estreita demais: ' + JSON.stringify(svcPrev))
+
+  // Footer: links de navegação ≥44px
+  await page.evaluate(() => document.querySelector('footer')?.scrollIntoView())
+  await page.waitForTimeout(600)
+  const foot = await page.evaluate(() => [...document.querySelectorAll('.m-footer .m-link')].map((a) => {
+    const b = a.getBoundingClientRect()
+    return { t: a.textContent.trim().slice(0, 20), h: Math.round(b.height) }
+  }))
+  assert.ok(foot.length >= 3, 'touch-qa: links do rodapé ausentes')
+  assert.ok(foot.every((f) => f.h >= 44), 'touch-qa: link do rodapé < 44px: ' + JSON.stringify(foot))
+
+  const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth)
+  assert.ok(overflow <= 2, 'touch-qa: overflow ' + overflow)
+  await ctx.close()
+}
+
 async function main() {
   const browser = await chromium.launch({ headless: true, executablePath: process.env.QA_CHROME || undefined })
   try {
@@ -432,10 +560,14 @@ async function main() {
     // Espera a hidratação; antes dela o link navega sem a cortina.
     await casePage.waitForLoadState('networkidle')
     await casePage.waitForTimeout(800)
+    const expected = await casePage.locator('.m-case__next').getAttribute('data-curtain')
     await casePage.locator('.m-case__next').click({ noWaitAfter: true })
-    await casePage.waitForTimeout(150)
+    await casePage.waitForFunction(
+      (exp) => document.querySelector('.curtain__logo')?.textContent === exp,
+      expected,
+      { timeout: 2500 }
+    )
     const label = await casePage.evaluate(() => document.querySelector('.curtain__logo')?.textContent || '')
-    const expected = await casePage.evaluate(() => document.querySelector('.m-case__next')?.getAttribute('data-curtain') || '')
     assert.equal(label, expected, 'cortina: rótulo do destino não apareceu')
     await casePage.waitForURL(/\/trabalhos\/(?!gisley)/, { timeout: 5000 })
     await caseContext.close()
@@ -443,6 +575,7 @@ async function main() {
     await fase5(browser)
     await bugSweep(browser)
     process.stdout.write('QA: desktop, mobile, camada surreal, prensa (abertura, meio-tom, rolo, som, modo tinta), reduced-motion, menu, projetos reais, galeria e rotas exportadas e regressões da caça a bugs e fase 5 (fólio) passaram.\n')
+    await touchMobileQa(browser)
   } finally {
     await browser.close()
   }

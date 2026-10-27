@@ -231,6 +231,12 @@ function melt(mark: HTMLElement, ctx: Ctx, defs: SVGElement): Effect | null {
     py = e.clientY
   }
   window.addEventListener('pointermove', onMove, { passive: true })
+  // Toque na palavra (KineticWordmark): a tinta escorre sem pedir sensor.
+  const onPulse = () => {
+    energy = Math.min(1.6, energy + 1.1)
+    wakeLoop() // acorda o rAF se o loop estiver dormindo no idle
+  }
+  root.addEventListener('gt:wordmark-pulse', onPulse)
 
   return {
     frame(now, dt) {
@@ -277,6 +283,7 @@ function melt(mark: HTMLElement, ctx: Ctx, defs: SVGElement): Effect | null {
     },
     destroy() {
       window.removeEventListener('pointermove', onMove)
+      root.removeEventListener('gt:wordmark-pulse', onPulse)
       drips.forEach((d) => d.el.remove())
       root.classList.remove('is-molten')
       root.style.filter = ''
