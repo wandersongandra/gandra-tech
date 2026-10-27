@@ -1,12 +1,12 @@
 'use client'
 import { useRef, useEffect } from 'react'
-import gsap from 'gsap'
 import { getReducedMotionQuery } from './reducedMotion'
+import { withGsap } from '@/lib/gsap'
 
 export default function PageTransition({ children }: { children: React.ReactNode }) {
   const ref = useRef<HTMLDivElement>(null)
 
-  useEffect(() => {
+  useEffect(() => withGsap(({ gsap }) => {
     const el = ref.current
     if (!el) return
     const motionQuery = getReducedMotionQuery()
@@ -43,7 +43,7 @@ export default function PageTransition({ children }: { children: React.ReactNode
       motionQuery.removeEventListener('change', handleMotionChange)
       tween?.kill()
     }
-  }, [])
+  }), [])
 
   return (
     <div ref={ref} data-motion-hidden="true" style={{ opacity: 1 }}>

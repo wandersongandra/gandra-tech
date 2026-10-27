@@ -1,10 +1,7 @@
 'use client'
 import { useEffect, useRef } from 'react'
-import gsap from 'gsap'
-import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { useMotionPrefs } from '@/components/motion/useMotion'
-
-gsap.registerPlugin(ScrollTrigger)
+import { withGsap } from '@/lib/gsap'
 
 const capabilities = [
   {
@@ -33,7 +30,7 @@ export default function Manifesto() {
   const sectionRef = useRef<HTMLElement>(null)
   const { ready, reduced } = useMotionPrefs()
 
-  useEffect(() => {
+  useEffect(() => withGsap(({ gsap }) => {
     const section = sectionRef.current
     if (!section || !ready || reduced) return
     const ctx = gsap.context(() => {
@@ -63,7 +60,7 @@ export default function Manifesto() {
       })
     }, section)
     return () => ctx.revert()
-  }, [ready, reduced])
+  }), [ready, reduced])
 
   return (
     <section ref={sectionRef} className="m-manifesto" aria-labelledby="manifesto-title">

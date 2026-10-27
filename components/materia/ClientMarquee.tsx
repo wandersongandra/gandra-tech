@@ -1,11 +1,8 @@
 'use client'
 import { useEffect, useRef } from 'react'
-import gsap from 'gsap'
-import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { projects } from '@/lib/projects'
 import { useMotionPrefs } from '@/components/motion/useMotion'
-
-gsap.registerPlugin(ScrollTrigger)
+import { withGsap } from '@/lib/gsap'
 
 /**
  * Faixa com os clientes reais do portfólio (lib/projects). O trilho roda em
@@ -17,7 +14,7 @@ export default function ClientMarquee() {
   const trackRef = useRef<HTMLDivElement>(null)
   const { ready, reduced } = useMotionPrefs()
 
-  useEffect(() => {
+  useEffect(() => withGsap(({ gsap, ScrollTrigger }) => {
     const track = trackRef.current
     if (!track || !ready || reduced) return
     const animation = track.getAnimations()[0]
@@ -48,7 +45,7 @@ export default function ClientMarquee() {
       settle?.kill()
       animation.playbackRate = 1
     }
-  }, [ready, reduced])
+  }), [ready, reduced])
 
   const names = projects.map((project) => project.name)
   const run = [...names, ...names]

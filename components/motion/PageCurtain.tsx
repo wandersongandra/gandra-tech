@@ -1,8 +1,8 @@
 'use client'
 import { useEffect, useRef } from 'react'
 import { useRouter, usePathname } from 'next/navigation'
-import gsap from 'gsap'
 import { getReducedMotionQuery } from './reducedMotion'
+import { withGsap } from '@/lib/gsap'
 
 /**
  * Cortina de página em blob: um path SVG cobre a viewport e a borda
@@ -50,7 +50,7 @@ export default function PageCurtain() {
   const pathname = usePathname()
 
   // Entrance: animate panel out on mount / route change
-  useEffect(() => {
+  useEffect(() => withGsap(({ gsap }) => {
     const panel = panelRef.current
     const path = pathRef.current
     const logo = logoRef.current
@@ -121,10 +121,10 @@ export default function PageCurtain() {
       motionQuery.removeEventListener('change', handleMotionChange)
       hidePanel()
     }
-  }, [pathname])
+  }), [pathname])
 
   // Global link click interception → animate panel in, then navigate
-  useEffect(() => {
+  useEffect(() => withGsap(({ gsap }) => {
     const panel = panelRef.current
     const path = pathRef.current
     if (!panel || !path) return
@@ -194,7 +194,7 @@ export default function PageCurtain() {
     // nunca tocava e só a saída aparecia.
     document.addEventListener('click', onClick, true)
     return () => document.removeEventListener('click', onClick, true)
-  }, [pathname, router])
+  }), [pathname, router])
 
   return (
     <div ref={panelRef} className="curtain" aria-hidden="true" inert>

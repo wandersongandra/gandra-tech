@@ -1,11 +1,8 @@
 'use client'
 import { useEffect, useRef } from 'react'
-import gsap from 'gsap'
-import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { useMotionPrefs } from '@/components/motion/useMotion'
 import { contactSteps } from '@/lib/process'
-
-gsap.registerPlugin(ScrollTrigger)
+import { withGsap } from '@/lib/gsap'
 
 /**
  * O que acontece depois do contato — as mesmas três etapas publicadas em
@@ -16,7 +13,7 @@ export default function Process() {
   const sectionRef = useRef<HTMLElement>(null)
   const { ready, reduced } = useMotionPrefs()
 
-  useEffect(() => {
+  useEffect(() => withGsap(({ gsap, ScrollTrigger }) => {
     const section = sectionRef.current
     if (!section || !ready || reduced) return
     const ctx = gsap.context(() => {
@@ -48,7 +45,7 @@ export default function Process() {
       })
     }, section)
     return () => ctx.revert()
-  }, [ready, reduced])
+  }), [ready, reduced])
 
   return (
     <section ref={sectionRef} className="m-process" aria-labelledby="process-title">

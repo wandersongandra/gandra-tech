@@ -1,16 +1,13 @@
 'use client'
 import { useEffect, useRef } from 'react'
 import Link from 'next/link'
-import gsap from 'gsap'
-import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import Picture from '@/components/materia/Picture'
 import MagneticButton from '@/components/motion/MagneticButton'
 import { useMotionPrefs } from '@/components/motion/useMotion'
 import { services } from '@/lib/services'
 import { getProject } from '@/lib/projects'
 import { contactMailto } from '@/lib/site'
-
-gsap.registerPlugin(ScrollTrigger)
+import { withGsap } from '@/lib/gsap'
 
 /**
  * Serviços como um índice tipográfico. No hover (ponteiro fino) a linha é
@@ -23,7 +20,7 @@ export default function Services() {
   const previewRef = useRef<HTMLDivElement>(null)
   const { ready, reduced, fine } = useMotionPrefs()
 
-  useEffect(() => {
+  useEffect(() => withGsap(({ gsap }) => {
     const section = sectionRef.current
     if (!section || !ready || reduced) return
     const ctx = gsap.context(() => {
@@ -39,9 +36,9 @@ export default function Services() {
       })
     }, section)
     return () => ctx.revert()
-  }, [ready, reduced])
+  }), [ready, reduced])
 
-  useEffect(() => {
+  useEffect(() => withGsap(({ gsap }) => {
     const section = sectionRef.current
     const preview = previewRef.current
     if (!section || !preview || !ready || reduced || !fine) return
@@ -78,7 +75,7 @@ export default function Services() {
       list.removeEventListener('pointerover', onOver)
       list.removeEventListener('pointerleave', onLeave)
     }
-  }, [ready, reduced, fine])
+  }), [ready, reduced, fine])
 
   const previews = Array.from(
     new Set(services.map((service) => service.relatedProjectSlug).filter(Boolean) as string[])

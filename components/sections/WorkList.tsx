@@ -1,13 +1,10 @@
 'use client'
 import { useEffect, useRef } from 'react'
 import Link from 'next/link'
-import gsap from 'gsap'
-import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import ProjectCard from '@/components/ProjectCard'
 import { useMotionPrefs } from '@/components/motion/useMotion'
 import { projects } from '@/lib/projects'
-
-gsap.registerPlugin(ScrollTrigger)
+import { withGsap } from '@/lib/gsap'
 
 /**
  * Trabalhos selecionados. Em telas largas com movimento liberado a seção é
@@ -22,7 +19,7 @@ export default function WorkList() {
   const progressRef = useRef<HTMLSpanElement>(null)
   const { ready, reduced, wide } = useMotionPrefs()
 
-  useEffect(() => {
+  useEffect(() => withGsap(({ gsap }) => {
     const section = sectionRef.current
     const track = trackRef.current
     if (!section || !track || !ready || reduced) return
@@ -110,7 +107,7 @@ export default function WorkList() {
       ctx.revert()
       section.classList.remove('is-pinned')
     }
-  }, [ready, reduced, wide])
+  }), [ready, reduced, wide])
 
   return (
     <section id="trabalhos" ref={sectionRef} className="work-list m-works" aria-labelledby="works-title">

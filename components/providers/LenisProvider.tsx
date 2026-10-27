@@ -1,7 +1,7 @@
 'use client'
 import { useEffect } from 'react'
 import type Lenis from 'lenis'
-import { ScrollTrigger } from 'gsap/ScrollTrigger'
+import { loadGsap } from '@/lib/gsap'
 
 type LenisGlobal = { __lenis?: Lenis }
 
@@ -14,6 +14,7 @@ export default function LenisProvider({ children }: { children: React.ReactNode 
     let rafId: number | null = null
     let disposed = false
     let loading = false
+    let stUpdate: (() => void) | null = null
 
     const shouldUseNativeScroll = () =>
       motionQuery.matches || compactQuery.matches || coarseQuery.matches
@@ -25,7 +26,7 @@ export default function LenisProvider({ children }: { children: React.ReactNode 
       }
 
       if (!lenis) return
-      lenis.off('scroll', ScrollTrigger.update)
+      if (stUpdate) lenis.off('scroll', stUpdate)
       lenis.destroy()
       lenis = null
       ;(window as unknown as LenisGlobal).__lenis = undefined
@@ -54,7 +55,11 @@ export default function LenisProvider({ children }: { children: React.ReactNode 
 
       ;(window as unknown as LenisGlobal).__lenis = instance
 
-      instance.on('scroll', ScrollTrigger.update)
+      void loadGsap().then(({ ScrollTrigger }) => {
+        if (lenis !== instance) return
+        stUpdate = ScrollTrigger.update
+        instance.on('scroll', stUpdate)
+      })
 
       const raf = (time: number) => {
         if (!lenis) return
