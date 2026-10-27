@@ -351,14 +351,18 @@ function brush(sfx: Sfx, wake: () => void): Fx & { painted: () => boolean } {
   let paintedFlag = false
 
   const onDown = (e: PointerEvent) => {
+    // zera sempre: um traço que terminou sem "click" (soltou fora da janela,
+    // em cima de um link) não pode engolir o próximo clique num link
+    paintedFlag = false
     if (e.button !== 0 || e.pointerType !== 'mouse') return
     const t = e.target as Element | null
     if (!t || t.closest(NO_PAINT) || hasOwnText(t)) return
     down = { x: e.clientX, y: e.clientY }
-    paintedFlag = false
   }
   const onMove = (e: PointerEvent) => {
     if (!down) return
+    // botão solto fora da janela: o pointerup nunca chegou
+    if (e.buttons === 0) return onUp()
     const x = e.clientX + window.scrollX
     const y = e.clientY + window.scrollY
     const now = performance.now()
@@ -372,6 +376,8 @@ function brush(sfx: Sfx, wake: () => void): Fx & { painted: () => boolean } {
       strokes.push(cur)
       while (strokes.length > 24) strokes.shift()
       paintedFlag = true
+      // a mancha do pointerdown não pertence a um traço de pincel
+      window.dispatchEvent(new Event('gt:brush-start'))
     }
     const sp = last ? Math.hypot(x - last.x, y - last.y) / Math.max(1, now - last.t) : 0
     const w = clamp(17 - sp * 7, 3, 17)
@@ -388,6 +394,9 @@ function brush(sfx: Sfx, wake: () => void): Fx & { painted: () => boolean } {
     last = null
     document.documentElement.classList.remove('is-painting')
     sfx.brush(0)
+    // o "click" (se vier) chega na mesma tarefa do pointerup; depois disso a
+    // trava não vale mais
+    if (paintedFlag) window.setTimeout(() => (paintedFlag = false), 0)
   }
   // um arrasto pintado não vira clique (nem mancha)
   const onClick = (e: MouseEvent) => {

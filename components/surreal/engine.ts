@@ -358,11 +358,26 @@ function stains(): () => void {
   layer.setAttribute('focusable', 'false')
   document.body.appendChild(layer)
   let seed = 1
+  let lastStain: { el: SVGPathElement; t: number } | null = null
+  // A própria camada entra no scrollHeight: sem zerar antes de medir, ela
+  // nunca encolhia e deixava papel em branco depois do rodapé (p. ex. ao
+  // girar o celular para paisagem).
   const resize = () => {
+    layer.setAttribute('height', '0')
     layer.setAttribute('width', String(document.documentElement.clientWidth))
     layer.setAttribute('height', String(document.documentElement.scrollHeight))
   }
   resize()
+  let rq = 0
+  const onResize = () => {
+    cancelAnimationFrame(rq)
+    rq = requestAnimationFrame(resize)
+  }
+  // começou um traço de pincel: a mancha do clique inicial sai
+  const onBrush = () => {
+    if (lastStain && performance.now() - lastStain.t < 1000) lastStain.el.remove()
+    lastStain = null
+  }
   const onDown = (e: PointerEvent) => {
     if (e.button !== 0) return
     const t = e.target as Element | null
@@ -394,11 +409,17 @@ function stains(): () => void {
       { duration: 9000, easing: 'ease-out', fill: 'forwards' }
     )
     anim.onfinish = () => path.remove()
+    lastStain = { el: path, t: performance.now() }
     while (layer.childNodes.length > 14) layer.firstChild?.remove()
   }
   window.addEventListener('pointerdown', onDown, { passive: true })
+  window.addEventListener('resize', onResize)
+  window.addEventListener('gt:brush-start', onBrush)
   return () => {
+    cancelAnimationFrame(rq)
     window.removeEventListener('pointerdown', onDown)
+    window.removeEventListener('resize', onResize)
+    window.removeEventListener('gt:brush-start', onBrush)
     layer.remove()
   }
 }
