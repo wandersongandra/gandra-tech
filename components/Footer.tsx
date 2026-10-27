@@ -1,9 +1,10 @@
 'use client'
+import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import KineticWordmark from '@/components/motion/KineticWordmark'
 import LetterDrop from '@/components/motion/LetterDrop'
 import { scrollToTop } from '@/lib/scroll'
-import { contactEmail, contactMailto } from '@/lib/site'
+import { contactEmail, contactMailto, siteLastModified } from '@/lib/site'
 
 const navigation = [
   { href: '/servicos', label: 'Serviços' },
@@ -11,7 +12,23 @@ const navigation = [
   { href: '/contato', label: 'Contato' },
 ]
 
+// Ano fixo no HTML estático (constante, igual no build e no navegador); o do
+// relógio do visitante entra só depois da hidratação. Ler new Date() direto
+// no render fazia o HTML (gerado no build) e o cliente discordarem a partir
+// de 1º de janeiro: erro de hidratação #418 em todas as páginas e a árvore
+// inteira re-renderizada no cliente.
+const BUILD_YEAR = Number(siteLastModified.slice(0, 4))
+
+function useCurrentYear() {
+  const [year, setYear] = useState(BUILD_YEAR)
+  useEffect(() => {
+    setYear(new Date().getFullYear())
+  }, [])
+  return year
+}
+
 export default function Footer() {
+  const year = useCurrentYear()
   return (
     <footer className="site-footer m-footer">
       <div className="m-shell">
@@ -48,7 +65,7 @@ export default function Footer() {
         </div>
 
         <div className="m-footer__bar mono">
-          <div className="site-footer__copy">© {new Date().getFullYear()} Gandra Tech</div>
+          <div className="site-footer__copy">© {year} Gandra Tech</div>
           <nav className="site-footer__legal" aria-label="Informações legais">
             <Link href="/termos-de-uso" prefetch={false}>
               Termos de Uso
