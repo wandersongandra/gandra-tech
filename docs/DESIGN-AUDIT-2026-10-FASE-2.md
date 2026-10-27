@@ -68,3 +68,6 @@ Tudo respeita `prefers-reduced-motion` e ponteiro grosso.
 
 O LCP observado é igual ao FCP (~0,3 s sem throttling); o 3,5 s é a
 estimativa simulada do Lighthouse, dominada pelo JavaScript do framework.
+
+
+Continua na [fase 3](./DESIGN-AUDIT-2026-10-FASE-3.md).
