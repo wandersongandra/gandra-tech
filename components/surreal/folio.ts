@@ -193,11 +193,235 @@ export function dive(el: HTMLElement): Off {
 }
 
 /* --------------------------------------------------------------------- */
+/* 5. Tipos móveis: uma caixa de tipos em JetBrains Mono que se levanta    */
+/*    perto do cursor; clicar compõe palavras na grade.                    */
+/* --------------------------------------------------------------------- */
+const SORTS = 'GANDRATECH{}<>/=+;:01*#&?!'
+const WORDS = ['OLÁ', 'GANDRA', 'CONTATO', 'SITES', 'SISTEMAS', 'CÓDIGO']
+
+export function glyphField(host: HTMLElement, opts: Opts): Off {
+  const cv = document.createElement('canvas')
+  cv.className = 'm-glyphs'
+  cv.setAttribute('aria-hidden', 'true')
+  host.prepend(cv)
+  const ctx = cv.getContext('2d')
+  if (!ctx) {
+    cv.remove()
+    return () => {}
+  }
+  const dpr = Math.min(window.devicePixelRatio || 1, 1.5)
+  const family = getComputedStyle(document.querySelector('.mono') ?? document.body).fontFamily
+  const touch = !opts.fine
+  let W = 0
+  let H = 0
+  let cw = 14
+  let ch = 22
+  let cols = 0
+  let rows = 0
+  let base = new Uint8Array(0)
+  let lift = new Float32Array(0)
+  // letras compostas pelo visitante: índice da célula → [letra, nascimento]
+  const set = new Map<number, [string, number]>()
+  let word = 0
+  const mouse = { x: -1e4, y: -1e4 }
+  let raf = 0
+  let visible = true
+  let color = '#ece8df'
+
+  const layout = () => {
+    const r = host.getBoundingClientRect()
+    W = Math.round(r.width)
+    H = Math.round(r.height)
+    const size = W < 600 ? 13 : 15
+    cw = Math.round(size * 0.92)
+    ch = Math.round(size * 1.6)
+    cols = Math.ceil(W / cw)
+    rows = Math.ceil(H / ch)
+    cv.width = Math.round(W * dpr)
+    cv.height = Math.round(H * dpr)
+    base = new Uint8Array(cols * rows)
+    lift = new Float32Array(cols * rows)
+    let seed = 7
+    for (let i = 0; i < base.length; i++) {
+      seed = (seed * 16807) % 2147483647
+      base[i] = seed % SORTS.length
+    }
+    set.clear()
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
+    ctx.font = `${size}px ${family}`
+    ctx.textBaseline = 'middle'
+    ctx.textAlign = 'center'
+    color = getComputedStyle(host).color
+    draw(performance.now(), true)
+  }
+
+  // Caixa parada pintada uma vez; por quadro só se repintam os tipos
+  // levantados perto do cursor e as letras compostas (WebKit agradece).
+  const bg = document.createElement('canvas')
+  let active: number[] = []
+  const cell = (i: number, now: number) => {
+    const x = i % cols
+    const y = (i / cols) | 0
+    const px = x * cw + cw / 2
+    const py = y * ch + ch / 2
+    let k = 0
+    if (!opts.reduced && !touch) {
+      const d = Math.hypot(px - mouse.x, py - mouse.y)
+      k = d < 150 ? 1 - d / 150 : 0
+    }
+    // o tipo sobe e desce com inércia (não salta)
+    const prev = lift[i]
+    const l = prev + (k - prev) * 0.18
+    lift[i] = Math.abs(l - k) < 0.002 ? k : l
+    const own = set.get(i)
+    // parado e sem letra: nada a repintar
+    if (!own && prev === lift[i]) return prev > 0
+    let alive = lift[i] > 0 || lift[i] !== k
+    ctx.clearRect(x * cw, y * ch, cw, ch)
+    if (own) {
+      const age = (now - own[1]) / 1000
+      const a = age < 6 ? 1 : Math.max(0, 1 - (age - 6) / 2)
+      if (a <= 0) set.delete(i)
+      else {
+        ctx.globalAlpha = a
+        ctx.fillStyle = '#e5401a'
+        ctx.fillText(own[0], px, py)
+        return true
+      }
+    }
+    const v = lift[i]
+    ctx.globalAlpha = 0.09 + v * 0.42
+    ctx.fillStyle = v > 0.62 ? '#e5401a' : color
+    ctx.fillText(SORTS[base[i]], px, py - v * 5)
+    return alive
+  }
+  const paintBase = () => {
+    bg.width = cv.width
+    bg.height = cv.height
+    const b = bg.getContext('2d')
+    if (!b) return
+    b.setTransform(dpr, 0, 0, dpr, 0, 0)
+    b.font = ctx.font
+    b.textBaseline = 'middle'
+    b.textAlign = 'center'
+    b.globalAlpha = 0.09
+    b.fillStyle = color
+    for (let i = 0; i < base.length; i++) b.fillText(SORTS[base[i]], (i % cols) * cw + cw / 2, ((i / cols) | 0) * ch + ch / 2)
+  }
+  const draw = (now: number, full = false) => {
+    if (full) {
+      paintBase()
+      active = []
+    }
+    ctx.globalAlpha = 1
+    if (full) {
+      ctx.clearRect(0, 0, W, H)
+      ctx.drawImage(bg, 0, 0, W, H)
+    }
+    const cand = new Set<number>(active)
+    set.forEach((_, i) => cand.add(i))
+    if (mouse.x > -1e3 && !touch && !opts.reduced) {
+      const x0 = Math.max(0, Math.floor((mouse.x - 160) / cw))
+      const x1 = Math.min(cols - 1, Math.ceil((mouse.x + 160) / cw))
+      const y0 = Math.max(0, Math.floor((mouse.y - 160) / ch))
+      const y1 = Math.min(rows - 1, Math.ceil((mouse.y + 160) / ch))
+      for (let y = y0; y <= y1; y++) for (let x = x0; x <= x1; x++) cand.add(y * cols + x)
+    }
+    const next: number[] = []
+    let busy = false
+    // as células repintadas apagam o tipo de base: redesenha a base nelas
+    cand.forEach((i) => {
+      const x = (i % cols) * cw
+      const y = ((i / cols) | 0) * ch
+      const before = lift[i]
+      const owned = set.has(i)
+      const live = cell(i, now)
+      if (!set.has(i) && lift[i] === 0 && (before !== 0 || owned)) {
+        ctx.clearRect(x, y, cw, ch)
+        ctx.globalAlpha = 1
+        ctx.drawImage(bg, x * dpr, y * dpr, cw * dpr, ch * dpr, x, y, cw, ch)
+      }
+      if (live || set.has(i)) {
+        next.push(i)
+        busy = true
+      }
+    })
+    active = next
+    ctx.globalAlpha = 1
+    return busy
+  }
+
+  const loop = (now: number) => {
+    raf = 0
+    if (draw(now) && visible) raf = requestAnimationFrame(loop)
+  }
+  const wake = () => {
+    if (!raf && visible && !opts.reduced) raf = requestAnimationFrame(loop)
+  }
+  const onMove = (e: PointerEvent) => {
+    if (e.pointerType !== 'mouse') return
+    const r = host.getBoundingClientRect()
+    mouse.x = e.clientX - r.left
+    mouse.y = e.clientY - r.top
+    wake()
+  }
+  const onLeave = () => {
+    mouse.x = mouse.y = -1e4
+    wake()
+  }
+  const onClick = (e: MouseEvent) => {
+    if (opts.reduced) return
+    if (e.target instanceof Element && e.target.closest('a, button, input, textarea, select, label')) return
+    const r = host.getBoundingClientRect()
+    const cx = Math.floor((e.clientX - r.left) / cw)
+    const cy = Math.floor((e.clientY - r.top) / ch)
+    const w = WORDS[word++ % WORDS.length]
+    const start = Math.max(0, Math.min(cols - w.length, cx - Math.floor(w.length / 2)))
+    const now = performance.now()
+    for (let j = 0; j < w.length; j++) set.set(cy * cols + start + j, [w[j], now + j * 40])
+    wake()
+  }
+
+  let ready = false
+  const ro = new ResizeObserver(() => {
+    if (ready) layout()
+  })
+  const io = new IntersectionObserver(([e]) => {
+    visible = e.isIntersecting
+    if (visible) wake()
+  })
+  host.addEventListener('pointermove', onMove)
+  host.addEventListener('pointerleave', onLeave)
+  host.addEventListener('click', onClick)
+  ro.observe(host)
+  io.observe(host)
+  // a fonte precisa estar carregada antes de desenhar a caixa
+  const font = document.fonts?.load ? document.fonts.load(`15px ${family}`) : Promise.resolve()
+  font.catch(() => {}).finally(() => {
+    ready = true
+    layout()
+    if (!opts.reduced) cv.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 900, easing: 'ease-out' })
+  })
+
+  return () => {
+    cancelAnimationFrame(raf)
+    ro.disconnect()
+    io.disconnect()
+    host.removeEventListener('pointermove', onMove)
+    host.removeEventListener('pointerleave', onLeave)
+    host.removeEventListener('click', onClick)
+    cv.remove()
+  }
+}
+
+/* --------------------------------------------------------------------- */
 export function mountFolio(opts: Opts): Off {
   const defs = defsLayer()
   const offs: Off[] = [inkBleed(defs, opts)]
   const diveEl = document.querySelector<HTMLElement>('.m-dive')
   if (diveEl && !opts.reduced) offs.push(dive(diveEl))
+  const glyphHost = document.querySelector<HTMLElement>('[data-glyphs]')
+  if (glyphHost) offs.push(glyphField(glyphHost, opts))
   return () => {
     offs.forEach((f) => f())
     defs.remove()

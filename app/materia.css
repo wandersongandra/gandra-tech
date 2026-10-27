@@ -2742,3 +2742,22 @@ html[data-tinta='on'] .m-press__wet {
     display: none;
   }
 }
+
+/* === Fase 5: campo de tipos móveis (hero do /contato) ===================== */
+.cp-hero[data-glyphs] {
+  position: relative;
+  isolation: isolate;
+}
+
+.m-glyphs {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+@media print {
+  .m-glyphs { display: none; }
+}
