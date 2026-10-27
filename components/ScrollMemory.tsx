@@ -2,14 +2,18 @@
 import { useEffect, useRef } from 'react'
 import { usePathname } from 'next/navigation'
 
-type LenisLike = { scrollTo: (y: number, o?: { immediate?: boolean; force?: boolean }) => void }
+type LenisLike = { scrollTo: (y: number, o?: { immediate?: boolean; force?: boolean }) => void; resize?: () => void }
 
 const KEY = 'gt-scroll'
 const norm = (p: string) => (p.length > 1 ? p.replace(/\/+$/, '') : p) || '/'
 
 function jump(y: number) {
   const lenis = (window as unknown as { __lenis?: LenisLike }).__lenis
-  if (lenis) lenis.scrollTo(y, { immediate: true, force: true })
+  if (lenis) {
+    // limite do Lenis pode ainda ser o da página anterior (resize com atraso)
+    lenis.resize?.()
+    lenis.scrollTo(y, { immediate: true, force: true })
+  }
   // 'instant': com scroll-behavior: smooth no html, scrollTo(0, y) virava
   // uma rolagem animada da posição antiga até o topo, visível na troca.
   else window.scrollTo({ top: y, left: 0, behavior: 'instant' as ScrollBehavior })
