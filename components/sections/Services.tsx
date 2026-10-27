@@ -76,9 +76,9 @@ export default function Services() {
       }
     }
 
-    // Toque: prévia fixa à direita da linha central da tela.
+    // Toque: prévia ancorada pela borda direita (fica dentro da viewport).
     preview.classList.add('is-touch')
-    gsap.set(preview, { xPercent: 0, yPercent: -50, x: 0, y: 0, rotation: 0 })
+    gsap.set(preview, { xPercent: -100, yPercent: -50, x: 0, y: 0, rotation: 0 })
     const rows = Array.from(list.querySelectorAll<HTMLElement>('[data-preview]'))
     let current = ''
     let raf = 0
@@ -103,7 +103,9 @@ export default function Services() {
       }
       if (best) {
         const r = best.getBoundingClientRect()
-        gsap.to(preview, { y: r.top + r.height / 2, x: Math.min(window.innerWidth - 16, r.right - 12), duration: 0.35, ease: 'power3.out', overwrite: 'auto' })
+        // x = borda direita desejada; xPercent -100 empurra a prévia para dentro.
+        const right = Math.min(window.innerWidth - 16, Math.max(16 + preview.offsetWidth, r.right - 12))
+        gsap.to(preview, { y: r.top + r.height / 2, x: right, duration: 0.35, ease: 'power3.out', overwrite: 'auto' })
       }
     }
     const onScroll = () => { if (!raf) raf = requestAnimationFrame(pick) }

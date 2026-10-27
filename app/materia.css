@@ -1030,6 +1030,10 @@ body {
   scale: 1;
 }
 
+.m-services__preview.is-touch {
+  width: clamp(160px, 42vw, 240px);
+}
+
 .m-services__preview-img {
   position: absolute;
   inset: 0;

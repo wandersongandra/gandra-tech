@@ -369,6 +369,43 @@ async function touchMobileQa(browser) {
   const peeked = await page.evaluate(() => document.querySelectorAll('.work-row__link.is-peek').length)
   assert.ok(peeked >= 1, 'touch-qa: nenhuma linha com prévia por scroll')
 
+  // Serviços: prévia por scroll deve caber na viewport (borda direita ancorada)
+  await page.evaluate(() => document.querySelector('#servicos')?.scrollIntoView({ block: 'center' }))
+  await page.waitForTimeout(900)
+  await page.evaluate(() => {
+    const mid = innerHeight * 0.5
+    const rows = [...document.querySelectorAll('.m-services__list [data-preview]')]
+    let best = null, bestD = Infinity
+    for (const row of rows) {
+      const r = row.getBoundingClientRect()
+      const d = Math.abs(r.top + r.height / 2 - mid)
+      if (d < bestD) { bestD = d; best = row }
+    }
+    if (best) window.scrollBy(0, (best.getBoundingClientRect().top + best.getBoundingClientRect().height / 2) - mid)
+  })
+  await page.waitForTimeout(900) // espera a transição de scale da prévia
+  const svcPrev = await page.evaluate(() => {
+    const el = document.querySelector('.m-services__preview')
+    if (!el) return { missing: true }
+    const r = el.getBoundingClientRect()
+    const cs = getComputedStyle(el)
+    return {
+      visible: el.classList.contains('is-visible'),
+      touch: el.classList.contains('is-touch'),
+      left: Math.round(r.left),
+      right: Math.round(r.right),
+      w: Math.round(r.width),
+      cssW: parseFloat(cs.width) || 0,
+      vw: window.innerWidth,
+    }
+  })
+  assert.ok(!svcPrev.missing, 'touch-qa: prévia de serviços ausente')
+  assert.ok(svcPrev.touch, 'touch-qa: prévia de serviços sem is-touch')
+  assert.ok(svcPrev.visible, 'touch-qa: prévia de serviços não ficou visível no scroll')
+  assert.ok(svcPrev.left >= -2, 'touch-qa: prévia de serviços cortada à esquerda: ' + JSON.stringify(svcPrev))
+  assert.ok(svcPrev.right <= svcPrev.vw + 2, 'touch-qa: prévia de serviços cortada à direita: ' + JSON.stringify(svcPrev))
+  assert.ok(svcPrev.cssW >= 140 || svcPrev.w >= 140, 'touch-qa: prévia de serviços estreita demais: ' + JSON.stringify(svcPrev))
+
   // Footer: links de navegação ≥44px
   await page.evaluate(() => document.querySelector('footer')?.scrollIntoView())
   await page.waitForTimeout(600)
@@ -514,10 +551,14 @@ async function main() {
     // Espera a hidratação; antes dela o link navega sem a cortina.
     await casePage.waitForLoadState('networkidle')
     await casePage.waitForTimeout(800)
+    const expected = await casePage.locator('.m-case__next').getAttribute('data-curtain')
     await casePage.locator('.m-case__next').click({ noWaitAfter: true })
-    await casePage.waitForTimeout(150)
+    await casePage.waitForFunction(
+      (exp) => document.querySelector('.curtain__logo')?.textContent === exp,
+      expected,
+      { timeout: 2500 }
+    )
     const label = await casePage.evaluate(() => document.querySelector('.curtain__logo')?.textContent || '')
-    const expected = await casePage.evaluate(() => document.querySelector('.m-case__next')?.getAttribute('data-curtain') || '')
     assert.equal(label, expected, 'cortina: rótulo do destino não apareceu')
     await casePage.waitForURL(/\/trabalhos\/(?!gisley)/, { timeout: 5000 })
     await caseContext.close()
