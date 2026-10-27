@@ -34,3 +34,11 @@ for (const removed of ['components/sections/ImmersiveLab.tsx', 'components/motio
   assertLab.ok(!require('node:fs').existsSync(require('node:path').join(__dirname, removed)), removed + ' deveria ter sido removido')
 }
 for (const slug of ['gisley-nunes-imoveis', 'ajn-consultoria-engenharia']) assertLab.ok(swSrc.includes("'/trabalhos/" + slug + "'"))
+
+// Caça a bugs 2026-10: o Pages responde /offline.html com 308 → /offline; uma
+// resposta "redirected" no cache quebra a navegação (net::ERR_FAILED).
+assertLab.ok(swSrc.includes('withoutRedirect'), 'sw: respostas redirecionadas precisam ser recriadas antes do cache')
+assertLab.doesNotMatch(swSrc, /cache\.addAll\(/, 'sw: cache.addAll guarda respostas redirecionadas')
+// Lenis mede a página com atraso: medir de novo antes de rolar para âncora.
+const scrollSrc = require('node:fs').readFileSync(require('node:path').join(__dirname, 'lib/scroll.ts'), 'utf8')
+assertLab.match(scrollSrc, /resize\?\.\(\)[\s\S]*scrollTo\(selector/, 'scroll: Lenis precisa de resize() antes de scrollTo(âncora)')

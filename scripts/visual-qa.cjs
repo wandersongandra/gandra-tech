@@ -245,6 +245,61 @@ async function regressions(browser) {
   }
 }
 
+// Caça a bugs 2026-10 (docs/BUG-SWEEP-2026-10.md).
+async function bugSweep(browser) {
+  const html = (n) => origin + '/' + n + '.html'
+  // B2) Ano do rodapé: no ano seguinte ao build não pode haver erro de hidratação.
+  {
+    const ctx = await browser.newContext({ viewport: { width: 1280, height: 800 } })
+    const page = await ctx.newPage()
+    const year = new Date().getFullYear() + 1
+    await page.clock.install({ time: new Date(year + '-01-03T12:00:00-03:00') })
+    const errors = []
+    page.on('pageerror', (e) => errors.push(e.message))
+    page.on('console', (m) => { if (m.type() === 'error') errors.push(m.text()) })
+    await page.goto(origin + '/', { waitUntil: 'load' })
+    await page.waitForTimeout(1500)
+    const copy = await page.locator('.site-footer__copy').textContent()
+    assert.ok(copy.includes(String(year)), 'rodapé: ano não atualizou no cliente (' + copy + ')')
+    assert.ok(!errors.some((t) => /418|[Hh]ydrat/.test(t)), 'rodapé: erro de hidratação com o ano trocado: ' + errors.join(' | '))
+    await ctx.close()
+  }
+  // B4) /#trabalhos vindo de uma página curta cai na seção (Lenis remedido).
+  {
+    const ctx = await browser.newContext({ viewport: { width: 1440, height: 900 } })
+    await ctx.addInitScript(() => sessionStorage.setItem('gt-intro', '1'))
+    const page = await ctx.newPage()
+    await page.goto(html('termos-de-uso'), { waitUntil: 'load' })
+    await page.waitForTimeout(1500)
+    await page.locator('.site-header__nav a', { hasText: 'Trabalhos' }).click()
+    await page.waitForURL(/#trabalhos$/, { timeout: 8000 })
+    await page.waitForTimeout(2500)
+    const top = await page.evaluate(() => Math.round(document.querySelector('#trabalhos').getBoundingClientRect().top))
+    assert.ok(Math.abs(top - 65) <= 6, 'âncora: /#trabalhos vindo de outra página parou fora da seção (top=' + top + ')')
+    await ctx.close()
+  }
+  // B3) Campo de glifos do /contato: sair da página ou colapsar o host não lança.
+  {
+    const ctx = await browser.newContext({ viewport: { width: 1440, height: 900 } })
+    await ctx.addInitScript(() => sessionStorage.setItem('gt-intro', '1'))
+    const page = await ctx.newPage()
+    const errors = []
+    page.on('pageerror', (e) => errors.push(e.message))
+    await page.goto(html('contato'), { waitUntil: 'load' })
+    await page.waitForTimeout(1500)
+    await page.evaluate(() => {
+      const host = document.querySelector('[data-glyphs]')
+      if (host) { host.style.width = '0px'; host.style.height = '0px'; window.dispatchEvent(new Event('resize')) }
+    })
+    await page.waitForTimeout(800)
+    await page.locator('.site-header a[href="/"]').first().click()
+    await page.waitForURL((u) => new URL(u).pathname === '/', { timeout: 8000 })
+    await page.waitForTimeout(2000)
+    assert.deepEqual(errors, [], 'contato: erro de canvas ao colapsar/sair: ' + errors.join(' | '))
+    await ctx.close()
+  }
+}
+
 async function main() {
   const browser = await chromium.launch({ headless: true, executablePath: process.env.QA_CHROME || undefined })
   try {
@@ -373,6 +428,7 @@ async function main() {
     await caseContext.close()
     await regressions(browser)
     await fase5(browser)
+    await bugSweep(browser)
     process.stdout.write('QA: desktop, mobile, camada surreal, prensa (abertura, meio-tom, rolo, som, modo tinta), reduced-motion, menu, projetos reais, galeria e rotas exportadas e regressões da caça a bugs e fase 5 (fólio) passaram.\n')
   } finally {
     await browser.close()
