@@ -1,4 +1,4 @@
-const VERSION = 'immersive-lab-2026-10-v2'
+const VERSION = 'materia-2026-10-v1'
 const SHELL_CACHE = `gandra-shell-${VERSION}`
 const STATIC_CACHE = `gandra-static-${VERSION}`
 const RUNTIME_CACHE = `gandra-runtime-${VERSION}`
