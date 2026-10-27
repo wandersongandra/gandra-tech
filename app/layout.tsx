@@ -8,6 +8,7 @@ import SurrealLoader from '@/components/surreal/SurrealLoader'
 import Intro from '@/components/surreal/Intro'
 import { INTRO_SCRIPT } from '@/lib/intro'
 import ServiceWorkerRegister from '@/components/ServiceWorkerRegister'
+import ScrollMemory from '@/components/ScrollMemory'
 import { contactEmail, brandName, siteDescription, siteName, siteUrl } from '@/lib/site'
 import './globals.css'
 import './materia.css'
@@ -135,6 +136,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
         <StudioCursor />
         <InkRipple />
         <SurrealLoader />
+        <ScrollMemory />
         <LenisProvider>
           {children}
         </LenisProvider>
