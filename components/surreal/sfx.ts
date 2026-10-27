@@ -22,6 +22,8 @@ export class Sfx {
   private rollLoop: Loop | null = null
   private brushLoop: Loop | null = null
   private lastStamp = 0
+  /** Já houve um gesto real (pointerup/touchend/click/tecla) com o som ligado. */
+  private unlocked = false
 
   private constructor() {
     try {
@@ -29,8 +31,16 @@ export class Sfx {
     } catch {}
   }
 
-  private ensure(): AudioContext | null {
+  /**
+   * Só um gesto de verdade cria ou retoma o AudioContext (regra de autoplay
+   * do Safari/iOS e do Chrome). Fora de gesto — rolo do scroll, pincel —
+   * nada acontece até o primeiro toque/clique/tecla: antes o contexto nascia
+   * no scroll, ficava "suspended" para sempre no iOS e o som nunca voltava
+   * sem desligar e ligar a chave de novo.
+   */
+  private ensure(gesture = false): AudioContext | null {
     if (!this.on) return null
+    if (!gesture && !this.unlocked) return null
     if (!this.ctx) {
       const AC = window.AudioContext || (window as unknown as { webkitAudioContext?: typeof AudioContext }).webkitAudioContext
       if (!AC) return null
@@ -48,7 +58,10 @@ export class Sfx {
         d[i] = b * 3.5
       }
     }
-    if (this.ctx.state === 'suspended') void this.ctx.resume()
+    if (gesture) {
+      this.unlocked = true
+      if (this.ctx.state !== 'running' && this.ctx.state !== 'closed') void this.ctx.resume().catch(() => {})
+    }
     return this.ctx
   }
 
@@ -58,7 +71,7 @@ export class Sfx {
       localStorage.setItem(KEY, on ? '1' : '0')
     } catch {}
     if (on) {
-      this.ensure()
+      this.ensure(true)
       this.stamp()
     } else {
       this.roll(0)
@@ -205,10 +218,17 @@ export class Sfx {
       this.set(!this.on)
       sync()
     }
+    // gestos que contam como ativação no iOS (pointerdown não conta)
+    const onGesture = () => {
+      if (this.on) this.ensure(true)
+    }
+    const gestures = ['pointerup', 'touchend', 'click', 'keydown'] as const
+    gestures.forEach((t) => window.addEventListener(t, onGesture, { capture: true, passive: true }))
     sync()
     b.addEventListener('click', onClick)
     requestAnimationFrame(() => b.classList.add('is-in'))
     return () => {
+      gestures.forEach((t) => window.removeEventListener(t, onGesture, { capture: true }))
       b.removeEventListener('click', onClick)
       b.remove()
     }
