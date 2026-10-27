@@ -31,7 +31,18 @@ export default function SurrealLoader() {
       import('./engine').then((engine) => {
         if (cancelled) return
         engine.paperHour()
-        if (reduced) return
+        // fase 5: o fólio monta também com reduced-motion (versões paradas)
+        const folio = (then: (off: () => void) => void) =>
+          import('./folio').then((m) => {
+            if (!cancelled) then(m.mountFolio({ fine, reduced }))
+          })
+        if (reduced) {
+          folio((off) => {
+            cleanup = off
+            document.documentElement.dataset.folio = 'on'
+          })
+          return
+        }
         // espera a cortina/entrada do hero assentarem antes de mexer no DOM
         const offEngine = engine.mount({ fine })
         cleanup = offEngine
@@ -45,6 +56,14 @@ export default function SurrealLoader() {
             offEngine()
           }
           document.documentElement.dataset.press = 'on'
+          folio((offFolio) => {
+            cleanup = () => {
+              offFolio()
+              offPress()
+              offEngine()
+            }
+            document.documentElement.dataset.folio = 'on'
+          })
         })
       })
     }
@@ -78,6 +97,7 @@ export default function SurrealLoader() {
       cleanup?.()
       delete document.documentElement.dataset.surreal
       delete document.documentElement.dataset.press
+      delete document.documentElement.dataset.folio
     }
   }, [pathname])
 
