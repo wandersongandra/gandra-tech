@@ -122,8 +122,23 @@ export default function KineticWordmark({ text, className }: Props) {
       // Com cursor parado, o loop dorme até o próximo movimento.
       if (moving || !(fine && pointer.active)) raf = requestAnimationFrame(tick)
     }
+    // Em toque a onda só começa depois do carregamento: a primeira pintura
+    // e a hidratação não disputam CPU com o layout dos eixos variáveis.
+    let armed = fine
     const wake = () => {
-      if (!raf && visible) raf = requestAnimationFrame(tick)
+      if (armed && !raf && visible) raf = requestAnimationFrame(tick)
+    }
+    let armTimer = 0
+    const arm = () => {
+      armTimer = window.setTimeout(() => {
+        armed = true
+        start = performance.now()
+        wake()
+      }, 1200)
+    }
+    if (!armed) {
+      if (document.readyState === 'complete') arm()
+      else window.addEventListener('load', arm, { once: true })
     }
 
     const onMove = (e: PointerEvent) => {
@@ -172,6 +187,8 @@ export default function KineticWordmark({ text, className }: Props) {
 
     return () => {
       cancelAnimationFrame(raf)
+      window.clearTimeout(armTimer)
+      window.removeEventListener('load', arm)
       io.disconnect()
       window.removeEventListener('pointermove', onMove)
       document.documentElement.removeEventListener('pointerleave', onLeave)

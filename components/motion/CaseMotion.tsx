@@ -41,6 +41,7 @@ export default function CaseMotion() {
     if (!ready || reduced) return () => io?.disconnect()
 
     gsap.registerPlugin(ScrollTrigger)
+    let scrubIo: IntersectionObserver | null = null
     const ctx = gsap.context(() => {
       const plate = root.querySelector<HTMLElement>('[data-plate]')
       if (plate) {
@@ -72,19 +73,36 @@ export default function CaseMotion() {
         if (img) tl.fromTo(img, { scale: 1.22 }, { scale: 1, ease: 'none' }, 0)
       })
 
-      root.querySelectorAll<HTMLElement>('[data-scrub]').forEach((p) => {
-        const words = p.querySelectorAll('.m-scrub__w')
-        gsap.fromTo(
-          words,
-          { opacity: 0.16 },
-          {
-            opacity: 1,
-            ease: 'none',
-            stagger: 0.08,
-            scrollTrigger: { trigger: p, start: 'top 82%', end: 'bottom 52%', scrub: true },
-          }
-        )
-      })
+      // As palavras só escurecem quando o parágrafo está a menos de uma tela
+      // de distância: o texto fora de alcance (e o que o leitor de tela ou o
+      // Lighthouse inspecionam no carregamento) fica com contraste integral.
+      const armScrub = (p: HTMLElement) =>
+        ctx.add(() => {
+          gsap.fromTo(
+            p.querySelectorAll('.m-scrub__w'),
+            { opacity: 0.16 },
+            {
+              opacity: 1,
+              ease: 'none',
+              stagger: 0.08,
+              scrollTrigger: { trigger: p, start: 'top 82%', end: 'bottom 52%', scrub: true },
+            }
+          )
+        })
+      scrubIo = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((e) => {
+            if (!e.isIntersecting) return
+            scrubIo?.unobserve(e.target)
+            const rect = e.target.getBoundingClientRect()
+            // Já visível no carregamento (ex.: âncora): não apaga o que está lido.
+            if (rect.top < window.innerHeight * 0.82) return
+            armScrub(e.target as HTMLElement)
+          })
+        },
+        { rootMargin: '0px 0px 80% 0px' }
+      )
+      root.querySelectorAll<HTMLElement>('[data-scrub]').forEach((p) => scrubIo?.observe(p))
 
       // Inclinação por velocidade: a galeria "arrasta" levemente com o scroll.
       const shots = root.querySelectorAll<HTMLElement>('.m-case__shot')
@@ -112,6 +130,7 @@ export default function CaseMotion() {
 
     return () => {
       io?.disconnect()
+      scrubIo?.disconnect()
       ctx.revert()
     }
   }, [ready, reduced, fine])
