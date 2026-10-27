@@ -1,6 +1,7 @@
 'use client'
 import Link from 'next/link'
 import KineticWordmark from '@/components/motion/KineticWordmark'
+import LetterDrop from '@/components/motion/LetterDrop'
 import { scrollToTop } from '@/lib/scroll'
 import { contactEmail, contactMailto } from '@/lib/site'
 
@@ -56,6 +57,7 @@ export default function Footer() {
               Privacidade
             </Link>
           </nav>
+          <LetterDrop targetSelector=".m-footer__mark" />
           <button type="button" onClick={scrollToTop} aria-label="Voltar ao topo" className="site-footer__top">
             ↑
           </button>

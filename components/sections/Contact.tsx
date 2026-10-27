@@ -3,6 +3,7 @@ import { useEffect, useRef } from 'react'
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import MagneticButton from '@/components/motion/MagneticButton'
+import InkTrail from '@/components/motion/InkTrail'
 import { useMotionPrefs } from '@/components/motion/useMotion'
 import { activeSocialLinks, contactEmail, contactMailto, contactNotes } from '@/lib/site'
 
@@ -42,7 +43,9 @@ export default function Contact() {
   return (
     <section ref={sectionRef} className="contact m-contact" aria-labelledby="contact-title">
       <span id="contato" className="m-anchor" />
-      <div className="m-shell">
+      {/* "Trabalho bom deixa um rastro" — e o cursor deixa um, em nanquim. */}
+      <InkTrail />
+      <div className="m-shell m-contact__inner">
         <div className="m-section-head mono">
           <span>(05) Contato</span>
           <span>Vamos conversar</span>

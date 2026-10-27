@@ -3,6 +3,7 @@ import { Archivo, Instrument_Serif, JetBrains_Mono } from 'next/font/google'
 import LenisProvider from '@/components/providers/LenisProvider'
 import PageCurtain from '@/components/motion/PageCurtain'
 import StudioCursor from '@/components/motion/StudioCursor'
+import InkRipple from '@/components/motion/InkRipple'
 import ServiceWorkerRegister from '@/components/ServiceWorkerRegister'
 import { contactEmail, brandName, siteDescription, siteName, siteUrl } from '@/lib/site'
 import './globals.css'
@@ -125,6 +126,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
         <div className="grain" aria-hidden="true" />
         <PageCurtain />
         <StudioCursor />
+        <InkRipple />
         <LenisProvider>
           {children}
         </LenisProvider>
