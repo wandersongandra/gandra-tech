@@ -2523,6 +2523,40 @@ html[data-tinta='on'] .m-header::before {
   }
 }
 
+/* Herói do contato/404: fundo var(--black) vira papel no modo tinta, mas o
+   texto secundário era rgba claro fixo — sumia no fundo claro. */
+/* vermelho de sinal sobre papel claro (seções invertidas no modo tinta)
+   ficava em 3,4:1 — o tom queimado passa de 4,5:1 */
+html[data-tinta='on'] .cp-hero__label,
+html[data-tinta='on'] .m-manifesto__title,
+html[data-tinta='on'] .m-manifesto__cap-num {
+  color: #a32b0c;
+}
+/* legenda da capa do case: o fundo da placa vem da imagem (não inverte),
+   então a legenda continua clara em vez de seguir --m-paper */
+html[data-tinta='on'] .m-case__plate-cap {
+  color: #ece8df;
+}
+html[data-tinta='on'] .cp-hero__sub {
+  color: rgba(18, 17, 14, 0.74);
+}
+html[data-tinta='on'] .cp-hero__email {
+  border-bottom-color: rgba(18, 17, 14, 0.25);
+}
+html[data-tinta='on'] .cp-hero__email:hover {
+  color: rgba(18, 17, 14, 0.7);
+  border-color: rgba(18, 17, 14, 0.55);
+}
+html[data-tinta='on'] .cp-email-fallback {
+  color: rgba(18, 17, 14, 0.68);
+}
+html[data-tinta='on'] .cp-email-fallback__address {
+  border-color: rgba(18, 17, 14, 0.22);
+}
+html[data-tinta='on'] .cp-email-fallback button {
+  border-color: rgba(18, 17, 14, 0.42);
+}
+
 html[data-tinta='on'] .m-press__wet {
   mix-blend-mode: screen;
 }
