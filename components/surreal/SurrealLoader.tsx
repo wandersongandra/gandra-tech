@@ -16,12 +16,18 @@ export default function SurrealLoader() {
     let cancelled = false
     let cleanup: (() => void) | undefined
     let idle = 0
+    let started = false
     const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
     const fine = window.matchMedia('(hover: hover) and (pointer: fine)').matches
 
     const start = () => {
       removeTriggers()
-      if (cancelled) return
+      // Uma interação antes do ocioso (toque durante o carregamento) e o
+      // próprio ocioso chamavam start duas vezes: duas camadas de manchas,
+      // dois pincéis e um engine que nunca era desmontado.
+      if (cancelled || started) return
+      started = true
+      cancelIdle()
       import('./engine').then((engine) => {
         if (cancelled) return
         engine.paperHour()
@@ -42,6 +48,13 @@ export default function SurrealLoader() {
         })
       })
     }
+    const cancelIdle = () => {
+      if (!idle) return
+      const cic = (window as Window & { cancelIdleCallback?: (id: number) => void }).cancelIdleCallback
+      if (cic) cic(idle)
+      else clearTimeout(idle)
+      idle = 0
+    }
     const schedule = () => {
       const ric = (window as Window & { requestIdleCallback?: (cb: () => void, o?: { timeout: number }) => number }).requestIdleCallback
       if (ric) idle = ric(start, { timeout: 2500 })
@@ -61,9 +74,7 @@ export default function SurrealLoader() {
     return () => {
       cancelled = true
       removeTriggers()
-      const cic = (window as Window & { cancelIdleCallback?: (id: number) => void }).cancelIdleCallback
-      if (cic) cic(idle)
-      else clearTimeout(idle)
+      cancelIdle()
       cleanup?.()
       delete document.documentElement.dataset.surreal
       delete document.documentElement.dataset.press
