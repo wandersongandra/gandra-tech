@@ -145,9 +145,59 @@ export function inkBleed(defs: SVGSVGElement, opts: Opts): Off {
 }
 
 /* --------------------------------------------------------------------- */
+/* 3. Mergulho: um ponto da retícula cresce 80× e vira a próxima seção.    */
+/* --------------------------------------------------------------------- */
+export function dive(el: HTMLElement): Off {
+  const dot = el.querySelector<HTMLElement>('.m-dive__dot')
+  const flood = el.querySelector<HTMLElement>('.m-dive__flood')
+  const cap = el.querySelector<HTMLElement>('.m-dive__cap')
+  if (!dot || !flood) return () => {}
+  let raf = 0
+  let last = -1
+  const frame = () => {
+    raf = 0
+    const r = el.getBoundingClientRect()
+    const span = Math.max(1, r.height - window.innerHeight)
+    const p = clamp(-r.top / span)
+    if (Math.abs(p - last) < 0.0005) return
+    last = p
+    // 0 → 0,72: o ponto cresce (exponencial: a lupa acelera); 0,55 → 1: a
+    // cor da próxima seção abre em círculo a partir do centro do ponto.
+    const g = clamp(p / 0.72)
+    dot.style.transform = `scale(${Math.pow(80, g).toFixed(3)})`
+    const f = clamp((p - 0.55) / 0.42)
+    flood.style.clipPath = `circle(${(easeOut(f) * 75).toFixed(2)}% at 50% 50%)`
+    if (cap) cap.style.opacity = String(1 - clamp(p / 0.25))
+  }
+  const onScroll = () => {
+    if (!raf) raf = requestAnimationFrame(frame)
+  }
+  let on = false
+  const io = new IntersectionObserver(([e]) => {
+    if (e.isIntersecting === on) return
+    on = e.isIntersecting
+    if (on) {
+      window.addEventListener('scroll', onScroll, { passive: true })
+      onScroll()
+    } else window.removeEventListener('scroll', onScroll)
+  })
+  io.observe(el)
+  return () => {
+    io.disconnect()
+    window.removeEventListener('scroll', onScroll)
+    cancelAnimationFrame(raf)
+    dot.style.transform = ''
+    flood.style.clipPath = ''
+    if (cap) cap.style.opacity = ''
+  }
+}
+
+/* --------------------------------------------------------------------- */
 export function mountFolio(opts: Opts): Off {
   const defs = defsLayer()
   const offs: Off[] = [inkBleed(defs, opts)]
+  const diveEl = document.querySelector<HTMLElement>('.m-dive')
+  if (diveEl && !opts.reduced) offs.push(dive(diveEl))
   return () => {
     offs.forEach((f) => f())
     defs.remove()

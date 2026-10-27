@@ -110,6 +110,7 @@ export default function WorkList() {
   }), [ready, reduced, wide])
 
   return (
+    <>
     <section id="trabalhos" ref={sectionRef} className="work-list m-works" aria-labelledby="works-title">
       <div className="m-works__stage">
         <div className="m-shell m-works__head">
@@ -145,5 +146,15 @@ export default function WorkList() {
         </div>
       </div>
     </section>
+    {/* Fase 5: mergulho num ponto da retícula até a próxima seção. Só
+        decoração (aria-hidden); com reduced-motion vira uma faixa vermelha. */}
+    <div className="m-dive" aria-hidden="true">
+      <div className="m-dive__stage">
+        <span className="m-dive__dot" />
+        <span className="m-dive__flood" />
+        <span className="m-dive__cap mono">Ampliação 80× · ponto de retícula</span>
+      </div>
+    </div>
+    </>
   )
 }

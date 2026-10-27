@@ -2665,3 +2665,80 @@ html[data-tinta='on'] .m-press__wet {
 @keyframes gt-vt-in {
   from { opacity: 0; }
 }
+
+/* === Fase 5: mergulho na retícula (fim dos trabalhos) ===================== */
+/* Padrão (e reduced-motion): uma faixa vermelha separa as seções. */
+.m-dive {
+  position: relative;
+  height: 14px;
+  background: var(--m-signal);
+}
+
+.m-dive__stage {
+  display: none;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .m-dive {
+    height: 220vh;
+    background: var(--m-paper);
+  }
+
+  .m-dive__stage {
+    position: sticky;
+    top: 0;
+    display: grid;
+    place-items: center;
+    height: 100vh;
+    overflow: hidden;
+    background-image: radial-gradient(circle, var(--m-line) 0 1.5px, transparent 2px);
+    background-size: 14px 14px;
+    background-position: center;
+  }
+
+  .m-dive__dot {
+    grid-area: 1 / 1;
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    background: radial-gradient(circle, var(--m-signal) 0 58%, rgba(229, 64, 26, 0.55) 66%, transparent 71%);
+  }
+
+  .m-dive__flood {
+    position: absolute;
+    inset: 0;
+    background: var(--m-ink);
+    clip-path: circle(0% at 50% 50%);
+  }
+
+  .m-dive__cap {
+    position: absolute;
+    left: var(--m-gutter);
+    bottom: calc(24px + env(safe-area-inset-bottom, 0px));
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--m-muted);
+  }
+}
+
+@supports (height: 100svh) {
+  @media (prefers-reduced-motion: no-preference) {
+    .m-dive__stage {
+      height: 100svh;
+    }
+  }
+}
+
+/* No celular o mergulho é mais curto. */
+@media (prefers-reduced-motion: no-preference) and (max-width: 760px) {
+  .m-dive {
+    height: 150vh;
+  }
+}
+
+@media print {
+  .m-dive {
+    display: none;
+  }
+}
