@@ -10,7 +10,9 @@ const norm = (p: string) => (p.length > 1 ? p.replace(/\/+$/, '') : p) || '/'
 function jump(y: number) {
   const lenis = (window as unknown as { __lenis?: LenisLike }).__lenis
   if (lenis) lenis.scrollTo(y, { immediate: true, force: true })
-  else window.scrollTo(0, y)
+  // 'instant': com scroll-behavior: smooth no html, scrollTo(0, y) virava
+  // uma rolagem animada da posição antiga até o topo, visível na troca.
+  else window.scrollTo({ top: y, left: 0, behavior: 'instant' as ScrollBehavior })
 }
 
 /**
