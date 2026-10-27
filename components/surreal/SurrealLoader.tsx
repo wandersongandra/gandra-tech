@@ -47,18 +47,23 @@ export default function SurrealLoader() {
         const offEngine = engine.mount({ fine })
         cleanup = offEngine
         document.documentElement.dataset.surreal = 'on'
-        // Fluido de tinta no hero (home): chunk separado, só com hero na tela.
+        // Fluido de tinta no hero (home): chunk separado, depois do LCP.
+        // Atraso ~1,8s após o engine para não disputar boot com prensa/fólio.
         let offFluid: (() => void) | undefined
         if (pathname === '/' || pathname === '') {
-          import('./fluid/mount').then((fluid) => {
-            if (cancelled) return
-            offFluid = fluid.mountFluid({ fine })
-            const prev = cleanup
-            cleanup = () => {
-              offFluid?.()
-              prev?.()
-            }
-          })
+          const bootFluid = () => {
+            if (cancelled || offFluid) return
+            import('./fluid/mount').then((fluid) => {
+              if (cancelled) return
+              offFluid = fluid.mountFluid({ fine })
+              const prev = cleanup
+              cleanup = () => {
+                offFluid?.()
+                prev?.()
+              }
+            })
+          }
+          window.setTimeout(bootFluid, 1800)
         }
         // fase 4: a prensa (meio-tom, rolo, pincel, som, modo tinta)
         import('./press').then((press) => {

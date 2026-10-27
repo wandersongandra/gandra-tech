@@ -75,7 +75,12 @@ export function mountFluid(opts: Opts): () => void {
     sim.splat(nx + 0.08, ny - 0.05, -12, -20, [0.15, 0.55, 0.12], 0.00028)
     sim.splat(nx - 0.06, ny + 0.04, 8, 10, [0.45, 0.06, 0.04], 0.00022)
   }
-  seed()
+  let seeded = false
+  const ensureSeed = () => {
+    if (seeded) return
+    seeded = true
+    seed()
+  }
 
   const stop = () => {
     if (raf) cancelAnimationFrame(raf)
@@ -131,6 +136,7 @@ export function mountFluid(opts: Opts): () => void {
 
   const wake = () => {
     if (dead || !sim || !pageVisible || !visible) return
+    ensureSeed()
     lastInteract = performance.now()
     if (running) return
     running = true
@@ -266,9 +272,14 @@ export function mountFluid(opts: Opts): () => void {
   }
   window.addEventListener('resize', onResize, { passive: true })
 
-  wake()
+  // Ambient: após LCP (~2s), uma mancha quieta se o hero ainda estiver visível.
+  const ambient = window.setTimeout(() => {
+    if (!dead && visible && pageVisible) wake()
+  }, 2000)
 
   function teardown() {
+    window.clearTimeout(ambient)
+
     if (dead) return
     dead = true
     stop()
