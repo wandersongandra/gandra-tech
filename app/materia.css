@@ -2541,3 +2541,56 @@ html[data-tinta='on'] .m-press__wet {
     white-space: nowrap;
   }
 }
+
+/* --- Impressão ---------------------------------------------------------------
+   Sem camadas decorativas (cortina, pincel, manchas, grão, cursor, chave de
+   som, lupa, meio-tom) e sem o header grudado em cada folha; os cases saem
+   em pilha em vez do trilho horizontal cortado. */
+@media print {
+  .curtain,
+  .grain,
+  .studio-cursor,
+  .m-ink-trail,
+  .m-intro,
+  .m-brush,
+  .m-stains,
+  .m-sound,
+  .m-lens,
+  .m-drip,
+  .m-puddle,
+  .m-halftone,
+  .m-toast,
+  .m-tinta-flood,
+  .m-header__progress,
+  .mobile-menu,
+  .skip-link {
+    display: none !important;
+  }
+  .site-header {
+    position: static !important;
+    transform: none !important;
+  }
+  .m-works__track {
+    transform: none !important;
+    flex-wrap: wrap !important;
+  }
+  .pin-spacer {
+    height: auto !important;
+    padding: 0 !important;
+  }
+  .m-works__stage,
+  .m-works__viewport {
+    position: static !important;
+    transform: none !important;
+    width: auto !important;
+    height: auto !important;
+    max-height: none !important;
+    overflow: visible !important;
+  }
+  .project-card__media {
+    clip-path: none !important;
+  }
+  .project-card {
+    break-inside: avoid;
+  }
+}
