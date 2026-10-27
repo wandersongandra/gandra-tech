@@ -64,3 +64,9 @@ Na montagem, três splats próximos do wordmark criam a primeira mancha (surpres
 
 ## Evidências
 `/workspace/gandra-audit/fluido/` — screenshots, vídeo desktop/mobile, Lighthouse before/after, FPS.
+
+## Revisões 2026-10-27 (pós-review)
+
+- Encode half-range (`v*0.5+0.5`) para velocity/pressure/divergence em RGBA8.
+- Reseed após `setQuality` (não apaga tinta no downgrade).
+- Mobile começa em qualidade `low`; boot do chunk só no pointer do hero ou após 8s.

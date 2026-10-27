@@ -1,4 +1,7 @@
-/** GLSL para a simulação de tinta (WebGL1, precision mediump). */
+/** GLSL para a simulação de tinta (WebGL1, precision mediump).
+ *  Velocity / pressure / divergence usam encode half-range (v*0.5+0.5)
+ *  porque os FBOs são RGBA8 unsigned. Dye (densidade) fica em [0,1] puro.
+ */
 
 export const VERT = `
 attribute vec2 a_pos;
@@ -16,9 +19,17 @@ uniform sampler2D u_source;
 uniform vec2 u_texel;
 uniform float u_dt;
 uniform float u_dissipation;
+uniform float u_signed; // 1.0 = source é velocity (encode); 0.0 = dye
 void main(){
-  vec2 coord = v_uv - u_dt * texture2D(u_velocity, v_uv).xy * u_texel;
-  gl_FragColor = u_dissipation * texture2D(u_source, coord);
+  vec2 vel = texture2D(u_velocity, v_uv).xy * 2.0 - 1.0;
+  vec2 coord = v_uv - u_dt * vel * u_texel;
+  vec4 src = texture2D(u_source, coord);
+  if (u_signed > 0.5) {
+    vec2 v = (src.xy * 2.0 - 1.0) * u_dissipation;
+    gl_FragColor = vec4(v * 0.5 + 0.5, 0.0, 1.0);
+  } else {
+    gl_FragColor = u_dissipation * src;
+  }
 }`
 
 export const DIVERGENCE = `
@@ -27,11 +38,12 @@ varying vec2 v_uv;
 uniform sampler2D u_velocity;
 uniform vec2 u_texel;
 void main(){
-  float L = texture2D(u_velocity, v_uv - vec2(u_texel.x, 0.0)).x;
-  float R = texture2D(u_velocity, v_uv + vec2(u_texel.x, 0.0)).x;
-  float B = texture2D(u_velocity, v_uv - vec2(0.0, u_texel.y)).y;
-  float T = texture2D(u_velocity, v_uv + vec2(0.0, u_texel.y)).y;
-  gl_FragColor = vec4(0.5 * (R - L + T - B), 0.0, 0.0, 1.0);
+  float L = texture2D(u_velocity, v_uv - vec2(u_texel.x, 0.0)).x * 2.0 - 1.0;
+  float R = texture2D(u_velocity, v_uv + vec2(u_texel.x, 0.0)).x * 2.0 - 1.0;
+  float B = texture2D(u_velocity, v_uv - vec2(0.0, u_texel.y)).y * 2.0 - 1.0;
+  float T = texture2D(u_velocity, v_uv + vec2(0.0, u_texel.y)).y * 2.0 - 1.0;
+  float div = 0.5 * (R - L + T - B);
+  gl_FragColor = vec4(div * 0.5 + 0.5, 0.0, 0.0, 1.0);
 }`
 
 export const PRESSURE = `
@@ -41,12 +53,13 @@ uniform sampler2D u_pressure;
 uniform sampler2D u_divergence;
 uniform vec2 u_texel;
 void main(){
-  float L = texture2D(u_pressure, v_uv - vec2(u_texel.x, 0.0)).x;
-  float R = texture2D(u_pressure, v_uv + vec2(u_texel.x, 0.0)).x;
-  float B = texture2D(u_pressure, v_uv - vec2(0.0, u_texel.y)).x;
-  float T = texture2D(u_pressure, v_uv + vec2(0.0, u_texel.y)).x;
-  float C = texture2D(u_divergence, v_uv).x;
-  gl_FragColor = vec4((L + R + B + T - C) * 0.25, 0.0, 0.0, 1.0);
+  float L = texture2D(u_pressure, v_uv - vec2(u_texel.x, 0.0)).x * 2.0 - 1.0;
+  float R = texture2D(u_pressure, v_uv + vec2(u_texel.x, 0.0)).x * 2.0 - 1.0;
+  float B = texture2D(u_pressure, v_uv - vec2(0.0, u_texel.y)).x * 2.0 - 1.0;
+  float T = texture2D(u_pressure, v_uv + vec2(0.0, u_texel.y)).x * 2.0 - 1.0;
+  float C = texture2D(u_divergence, v_uv).x * 2.0 - 1.0;
+  float p = (L + R + B + T - C) * 0.25;
+  gl_FragColor = vec4(p * 0.5 + 0.5, 0.0, 0.0, 1.0);
 }`
 
 export const GRADIENT = `
@@ -56,12 +69,13 @@ uniform sampler2D u_pressure;
 uniform sampler2D u_velocity;
 uniform vec2 u_texel;
 void main(){
-  float L = texture2D(u_pressure, v_uv - vec2(u_texel.x, 0.0)).x;
-  float R = texture2D(u_pressure, v_uv + vec2(u_texel.x, 0.0)).x;
-  float B = texture2D(u_pressure, v_uv - vec2(0.0, u_texel.y)).x;
-  float T = texture2D(u_pressure, v_uv + vec2(0.0, u_texel.y)).x;
-  vec2 v = texture2D(u_velocity, v_uv).xy;
-  gl_FragColor = vec4(v - vec2(R - L, T - B), 0.0, 1.0);
+  float L = texture2D(u_pressure, v_uv - vec2(u_texel.x, 0.0)).x * 2.0 - 1.0;
+  float R = texture2D(u_pressure, v_uv + vec2(u_texel.x, 0.0)).x * 2.0 - 1.0;
+  float B = texture2D(u_pressure, v_uv - vec2(0.0, u_texel.y)).x * 2.0 - 1.0;
+  float T = texture2D(u_pressure, v_uv + vec2(0.0, u_texel.y)).x * 2.0 - 1.0;
+  vec2 v = texture2D(u_velocity, v_uv).xy * 2.0 - 1.0;
+  v -= vec2(R - L, T - B);
+  gl_FragColor = vec4(v * 0.5 + 0.5, 0.0, 1.0);
 }`
 
 export const SPLAT = `
@@ -72,12 +86,20 @@ uniform vec3 u_color;
 uniform vec2 u_point;
 uniform float u_radius;
 uniform float u_aspect;
+uniform float u_signed; // 1.0 = velocity (encode); 0.0 = dye
 void main(){
   vec2 p = v_uv - u_point.xy;
   p.x *= u_aspect;
   float d = exp(-dot(p, p) / u_radius);
   vec3 base = texture2D(u_target, v_uv).xyz;
-  gl_FragColor = vec4(base + d * u_color, 1.0);
+  if (u_signed > 0.5) {
+    vec2 bv = base.xy * 2.0 - 1.0;
+    vec2 add = u_color.xy * d;
+    vec2 outv = bv + add;
+    gl_FragColor = vec4(outv * 0.5 + 0.5, 0.0, 1.0);
+  } else {
+    gl_FragColor = vec4(base + d * u_color, 1.0);
+  }
 }`
 
 export const DISPLAY = `

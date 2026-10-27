@@ -148,12 +148,31 @@ export function createFluidSim(canvas: HTMLCanvasElement, quality: FluidQuality)
     }
   }
 
+  const clearEncodedZero = (f: FBO) => {
+    gl.bindFramebuffer(gl.FRAMEBUFFER, f.fbo)
+    gl.viewport(0, 0, f.w, f.h)
+    gl.clearColor(0.5, 0.5, 0.5, 1)
+    gl.clear(gl.COLOR_BUFFER_BIT)
+  }
+  const clearInk = (f: FBO) => {
+    gl.bindFramebuffer(gl.FRAMEBUFFER, f.fbo)
+    gl.viewport(0, 0, f.w, f.h)
+    gl.clearColor(0, 0, 0, 0)
+    gl.clear(gl.COLOR_BUFFER_BIT)
+  }
   const alloc = () => {
     const { simW, simH } = q
     dye = pair(simW, simH)
     vel = pair(simW, simH)
     divergence = makeFBO(gl, simW, simH)
     pressure = pair(simW, simH)
+    clearInk(dye.read)
+    clearInk(dye.write)
+    clearEncodedZero(vel.read)
+    clearEncodedZero(vel.write)
+    clearEncodedZero(divergence)
+    clearEncodedZero(pressure.read)
+    clearEncodedZero(pressure.write)
   }
   alloc()
 
@@ -186,7 +205,8 @@ export function createFluidSim(canvas: HTMLCanvasElement, quality: FluidQuality)
     x: number,
     y: number,
     color: [number, number, number],
-    radius: number
+    radius: number,
+    signed: boolean
   ) => {
     use(progSplat)
     blit(target.write)
@@ -197,6 +217,7 @@ export function createFluidSim(canvas: HTMLCanvasElement, quality: FluidQuality)
     gl.uniform3f(progSplat.uniforms.u_color, color[0], color[1], color[2])
     gl.uniform2f(progSplat.uniforms.u_point, x, y)
     gl.uniform1f(progSplat.uniforms.u_radius, radius)
+    gl.uniform1f(progSplat.uniforms.u_signed, signed ? 1 : 0)
     drawTris()
     target.swap()
   }
@@ -211,8 +232,8 @@ export function createFluidSim(canvas: HTMLCanvasElement, quality: FluidQuality)
   ) => {
     if (lost) return
     const aspect = q.simW / q.simH
-    splatInner(vel, x, y, [(dx * aspect) / q.splatForce, dy / q.splatForce, 0], radius * 1.4)
-    splatInner(dye, x, y, color, radius)
+    splatInner(vel, x, y, [(dx * aspect) / q.splatForce, dy / q.splatForce, 0], radius * 1.4, true)
+    splatInner(dye, x, y, color, radius, false)
   }
 
   const step = (dt: number) => {
@@ -232,6 +253,7 @@ export function createFluidSim(canvas: HTMLCanvasElement, quality: FluidQuality)
     gl.uniform2f(progAdvect.uniforms.u_texel, tx, ty)
     gl.uniform1f(progAdvect.uniforms.u_dt, dtClamped * 220)
     gl.uniform1f(progAdvect.uniforms.u_dissipation, 0.985)
+    gl.uniform1f(progAdvect.uniforms.u_signed, 1)
     drawTris()
     vel.swap()
 
@@ -244,8 +266,10 @@ export function createFluidSim(canvas: HTMLCanvasElement, quality: FluidQuality)
     gl.uniform2f(progDiv.uniforms.u_texel, tx, ty)
     drawTris()
 
-    // clear pressure then jacobi
-    blit(pressure.read, true)
+    // clear pressure then jacobi (0.5 = encoded zero)
+    blit(pressure.read)
+    gl.clearColor(0.5, 0.5, 0.5, 1)
+    gl.clear(gl.COLOR_BUFFER_BIT)
     use(progPressure)
     for (let i = 0; i < q.iterations; i++) {
       blit(pressure.write)
@@ -285,6 +309,7 @@ export function createFluidSim(canvas: HTMLCanvasElement, quality: FluidQuality)
     gl.uniform2f(progAdvect.uniforms.u_texel, tx, ty)
     gl.uniform1f(progAdvect.uniforms.u_dt, dtClamped * 220)
     gl.uniform1f(progAdvect.uniforms.u_dissipation, 0.992)
+    gl.uniform1f(progAdvect.uniforms.u_signed, 0)
     drawTris()
     dye.swap()
   }

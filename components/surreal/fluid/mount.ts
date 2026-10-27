@@ -12,7 +12,9 @@ function pickQuality(fine: boolean): FluidQuality {
   const mem = (navigator as Navigator & { deviceMemory?: number }).deviceMemory
   const saveData = (navigator as Navigator & { connection?: { saveData?: boolean } }).connection?.saveData
   if (saveData) return QUALITY.low
-  if (!fine || cores <= 4 || (mem !== undefined && mem <= 4)) return QUALITY.mid
+  // Touch / coarse pointer → low sim cost (mobile Lighthouse target).
+  if (!fine) return QUALITY.low
+  if (cores <= 4 || (mem !== undefined && mem <= 4)) return QUALITY.mid
   return QUALITY.high
 }
 
@@ -118,6 +120,9 @@ export function mountFluid(opts: Opts): () => void {
           if (next) {
             quality = next
             sim.setQuality(quality)
+            // setQuality realloca FBOs vazios — reseedar para não apagar a tinta.
+            seeded = false
+            ensureSeed()
             fpsSamples = []
           } else {
             downgraded = true
