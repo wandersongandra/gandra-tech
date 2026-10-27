@@ -1,4 +1,4 @@
-const VERSION = 'materia-2026-10-v2'
+const VERSION = 'materia-2026-10-v3'
 const STATIC_LIMIT = 120
 const SHELL_CACHE = `gandra-shell-${VERSION}`
 const STATIC_CACHE = `gandra-static-${VERSION}`
@@ -22,13 +22,34 @@ const NAVIGATION_PATHS = new Set([
   '/politica-de-privacidade',
 ])
 
-self.addEventListener('install', (event) => {
-  event.waitUntil(
-    caches
-      .open(SHELL_CACHE)
-      .then((cache) => cache.addAll(PRECACHE_URLS))
-      .then(() => self.skipWaiting())
+// O Cloudflare Pages tira o ".html" do endereço: /offline.html responde com
+// 308 para /offline. O cache.addAll guardava essa resposta "redirected" e o
+// navegador recusa entregá-la a uma navegação (net::ERR_FAILED) — sem rede,
+// qualquer página não visitada virava a tela de erro do navegador em vez da
+// página offline. Guardamos uma cópia limpa, sem a marca de redirecionamento.
+async function withoutRedirect(response) {
+  if (!response.redirected) return response
+  const body = await response.blob()
+  return new Response(body, {
+    status: response.status,
+    statusText: response.statusText,
+    headers: response.headers,
+  })
+}
+
+async function precache() {
+  const cache = await caches.open(SHELL_CACHE)
+  await Promise.all(
+    PRECACHE_URLS.map(async (path) => {
+      const response = await fetch(path, { cache: 'reload' })
+      if (!response.ok) throw new Error(`precache ${path}: ${response.status}`)
+      await cache.put(path, await withoutRedirect(response))
+    })
   )
+}
+
+self.addEventListener('install', (event) => {
+  event.waitUntil(precache().then(() => self.skipWaiting()))
 })
 
 self.addEventListener('activate', (event) => {
@@ -63,7 +84,7 @@ async function networkFirstNavigation(request, url) {
   try {
     const response = await fetch(request)
     if (canPersist && isSafeCacheableResponse(response)) {
-      await cache.put(url.pathname, response.clone())
+      await cache.put(url.pathname, await withoutRedirect(response.clone()))
     }
     return response
   } catch {
