@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import type { CSSProperties } from 'react'
-import { projects, type Project } from '@/lib/projects'
+import { projects, siteDomain, type Project } from '@/lib/projects'
 import { getMedia, type MediaInfo } from '@/lib/media'
 import { contactEmail, contactMailto } from '@/lib/site'
 import { getService, type Service } from '@/lib/services'
@@ -67,6 +67,8 @@ export default function ProjectView({ project, next }: { project: Project; next:
     resultChapter(project.resultado),
     { title: 'Papel da Gandra', text: project.papel },
   ]
+
+  const domain = siteDomain(project)
 
   const shots = [
     { src: project.mainImage, alt: `Imagem principal do projeto ${project.name}`, caption: undefined as string | undefined },
@@ -279,6 +281,74 @@ export default function ProjectView({ project, next }: { project: Project; next:
           </div>
           {project.visualNote ? <p className="m-case__note">{project.visualNote}</p> : null}
         </section>
+
+        {/* --- O site no ar: convite para abrir o projeto publicado ------- */}
+        {project.externalUrl && domain ? (
+          <section className="m-case__live m-shell" aria-labelledby="case-live-title">
+            <div className="m-case__live-copy">
+              <span className="m-label">O projeto no ar</span>
+              <h2 id="case-live-title" className="m-case__h2">
+                Veja o site <span className="m-italic">funcionando.</span>
+              </h2>
+              <p className="m-case__live-text">
+                Este case conta o processo e as decisões. O resultado está publicado: abra o site e navegue como qualquer
+                visitante.
+              </p>
+              <p className="m-case__live-domain mono">
+                <span>Endereço</span> {domain}
+              </p>
+              <div className="m-case__live-actions">
+                <MagneticButton>
+                  <a href={project.externalUrl} target="_blank" rel="noopener noreferrer" className="m-button m-button--solid">
+                    <span className="m-button__label">
+                      Visitar o site<span className="sr-only"> {domain} (abre em nova aba)</span>
+                    </span>
+                    <span className="m-button__icon" aria-hidden="true">
+                      ↗
+                    </span>
+                  </a>
+                </MagneticButton>
+              </div>
+            </div>
+            {project.siteImage ? (
+              <figure className="m-case__live-fig">
+                <div className="m-case__browser">
+                  <div className="m-case__browser-bar mono" aria-hidden="true">
+                    <span className="m-case__browser-dots">
+                      <i />
+                      <i />
+                      <i />
+                    </span>
+                    <span className="m-case__browser-url">{domain}</span>
+                  </div>
+                  <div className="m-case__browser-screen" data-reveal>
+                    <Picture
+                      src={project.siteImage}
+                      alt={`Página inicial do site de ${project.name} no ar, em tela de computador.`}
+                      sizes="(min-width: 1100px) 56vw, 92vw"
+                      className="m-case__browser-pic"
+                    />
+                  </div>
+                </div>
+                {project.siteMobileImage ? (
+                  <div className="m-case__phone">
+                    <Picture
+                      src={project.siteMobileImage}
+                      alt={`O mesmo site de ${project.name} no celular.`}
+                      sizes="(min-width: 1100px) 15vw, 34vw"
+                      focus="50% 0%"
+                      className="m-case__phone-pic"
+                    />
+                  </div>
+                ) : null}
+                <figcaption className="m-case__live-cap mono">
+                  <span>Captura do site publicado</span>
+                  <span>{domain}</span>
+                </figcaption>
+              </figure>
+            ) : null}
+          </section>
+        ) : null}
 
         {/* --- Final em tinta: rastro de nanquim sob o cursor ------------ */}
         <section className="m-case__finale" aria-labelledby="case-finale-title">
