@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import ImageFill from '@/components/motion/ImageFill'
+import Picture from '@/components/materia/Picture'
 import type { Project } from '@/lib/projects'
 
 type ProjectCardProps = {
@@ -21,18 +21,11 @@ export default function ProjectCard({ project, index, compact = false, total }: 
       <div className="project-card__frame">
         <div className="project-card__media">
           <div className="project-card__media-inner">
-            <ImageFill
+            <Picture
               src={project.workImage}
               alt={`Imagem real do projeto ${project.name}`}
-              sizes={compact ? '(min-width: 900px) 42vw, 100vw' : '(min-width: 1024px) 52vw, 100vw'}
-              quality={95}
-              objectFit="cover"
-              objectPosition="center"
-              fallback={
-                <div className="project-card__placeholder">
-                  <span>{project.name}</span>
-                </div>
-              }
+              sizes={compact ? '(min-width: 900px) 50vw, 118vw' : '(min-width: 1024px) 46vw, 118vw'}
+              className="m-fill"
             />
           </div>
         </div>
