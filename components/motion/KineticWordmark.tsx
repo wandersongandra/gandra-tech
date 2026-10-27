@@ -14,8 +14,9 @@ type Props = {
  * Cada letra usa os eixos variáveis da Archivo (largura 62–125, peso
  * 100–900) e reage à proximidade do cursor — perto dele a letra ganha
  * massa e se alarga, longe ela se comprime. O conjunto é reajustado com
- * scaleX para ocupar sempre a largura exata do contêiner (sem layout shift
- * nem overflow).
+ * scaleX para ocupar sempre a largura exata do contêiner. Com JS as letras
+ * saem do fluxo e são posicionadas só por transform — sem layout shift nem
+ * overflow.
  *
  * Toque: uma onda lenta percorre as letras enquanto a seção está visível.
  * prefers-reduced-motion: nada se move; fica o desenho estático.
@@ -46,6 +47,31 @@ export default function KineticWordmark({ text, className }: Props) {
       ro.observe(root)
       return () => ro.disconnect()
     }
+
+    // Tira as letras do fluxo: cada uma passa a ser posicionada só por
+    // transform. Assim a largura variável não move caixas de layout (CLS 0).
+    const masks = letters.map((el) => el.parentElement as HTMLSpanElement)
+    const letterH0 = Math.max(1, letters[0]?.offsetHeight ?? 1)
+    const topRatio =
+      (masks[0].getBoundingClientRect().top - root.getBoundingClientRect().top) / letterH0
+    const heightRatio = root.offsetHeight / letterH0
+    const applyBox = () => {
+      const h = letters[0]?.offsetHeight ?? letterH0
+      root.style.height = `${(h * heightRatio).toFixed(2)}px`
+      root.style.setProperty('--k-top', `${(h * topRatio).toFixed(2)}px`)
+    }
+    root.classList.add('is-free')
+    applyBox()
+    const place = () => {
+      let x = 0
+      for (const mask of masks) {
+        mask.style.transform = `translate3d(${x.toFixed(2)}px, 0, 0)`
+        x += mask.offsetWidth
+      }
+      const scale = root.clientWidth / Math.max(1, x)
+      inner.style.transform = `scaleX(${scale.toFixed(4)})`
+    }
+    place()
 
     const state = letters.map(() => ({ wdth: REST.wdth, wght: REST.wght }))
     const pointer = { x: -1, active: false }
@@ -92,7 +118,7 @@ export default function KineticWordmark({ text, className }: Props) {
         if (Math.abs(targetW - s.wdth) > 0.2 || Math.abs(targetG - s.wght) > 1) moving = true
         el.style.fontVariationSettings = `"wdth" ${s.wdth.toFixed(1)}, "wght" ${Math.round(s.wght)}`
       })
-      fit()
+      place()
       // Com cursor parado, o loop dorme até o próximo movimento.
       if (moving || !(fine && pointer.active)) raf = requestAnimationFrame(tick)
     }
@@ -112,6 +138,8 @@ export default function KineticWordmark({ text, className }: Props) {
       wake()
     }
     const onResize = () => {
+      applyBox()
+      place()
       cached = centers()
       wake()
     }
@@ -150,6 +178,11 @@ export default function KineticWordmark({ text, className }: Props) {
       window.removeEventListener('resize', onResize)
       window.removeEventListener('scroll', onScroll)
       document.removeEventListener('visibilitychange', onVisibility)
+      root.classList.remove('is-free')
+      root.style.removeProperty('height')
+      root.style.removeProperty('--k-top')
+      inner.style.removeProperty('transform')
+      for (const mask of masks) mask.style.removeProperty('transform')
     }
   }, [ready, reduced, fine])
 

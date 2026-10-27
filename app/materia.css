@@ -290,6 +290,17 @@ body {
   color: var(--m-signal-ink);
 }
 
+/* No título do hero a palavra já nasce parcialmente visível: mantém o gesto
+   da máscara sem atrasar a primeira pintura (LCP). */
+.m-hero__title .split__word {
+  animation-name: m-rise-soft;
+}
+
+@keyframes m-rise-soft {
+  from { transform: translate3d(0, 46%, 0) rotate(2deg); }
+  to { transform: none; }
+}
+
 @keyframes m-rise {
   from { transform: translate3d(0, 108%, 0) rotate(4deg); }
   to { transform: none; }
@@ -618,7 +629,7 @@ body {
   vertical-align: 1px;
 }
 
-@media (hover: none), (pointer: coarse) {
+@media (hover: none), (pointer: coarse), (prefers-reduced-motion: reduce) {
   .m-hero__hint {
     display: none;
   }
@@ -644,6 +655,25 @@ body {
   display: inline-block;
   overflow: clip;
   overflow-clip-margin: 0.04em;
+}
+
+/* Com JS ativo as letras saem do fluxo e são posicionadas só por transform:
+   a largura muda a cada quadro sem gerar layout shift (CLS). */
+.kinetic.is-free {
+  position: relative;
+}
+
+.kinetic.is-free .kinetic__inner {
+  position: absolute;
+  inset: 0;
+  display: block;
+}
+
+.kinetic.is-free .kinetic__mask {
+  position: absolute;
+  left: 0;
+  top: var(--k-top, 0px);
+  will-change: transform;
 }
 
 .kinetic__letter {

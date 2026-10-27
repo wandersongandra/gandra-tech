@@ -134,7 +134,7 @@ export default function Header() {
   return (
     <header ref={headerRef} className="site-header m-header">
       <span className="m-header__progress" aria-hidden="true" />
-      <Link href="/" prefetch={false} className="site-header__logo" aria-label="Gandra Tech — início">
+      <Link href="/" prefetch={false} className="site-header__logo">
         <span className="site-header__logo-mark" aria-hidden="true">G</span>
         <span className="site-header__logo-text">Gandra Tech</span>
       </Link>

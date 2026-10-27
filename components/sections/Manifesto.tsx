@@ -40,7 +40,7 @@ export default function Manifesto() {
       const words = gsap.utils.toArray<HTMLElement>('.m-manifesto__word')
       gsap.fromTo(
         words,
-        { opacity: 0.16 },
+        { opacity: 0.42 },
         {
           opacity: 1,
           stagger: 0.05,
