@@ -152,6 +152,8 @@ async function regressions(browser) {
     const ctx = await browser.newContext({ viewport: { width: 1440, height: 900 } })
     const page = await ctx.newPage()
     await page.goto(html('trabalhos/sgs'), { waitUntil: 'load' })
+    // SGS não tem site público: sem convite para "ver o site no ar".
+    assert.equal(await page.locator('.m-case__live').count(), 0, 'case SGS: convite para site no ar não deveria existir')
     await page.waitForLoadState('networkidle')
     await page.waitForTimeout(800)
     await page.evaluate(() => window.scrollTo(0, 1500))
@@ -316,19 +318,25 @@ async function main() {
       // Abertura (fase 4): 1ª visita da sessão marca html[data-intro] antes da pintura.
       assert.ok(await page.evaluate(() => document.documentElement.hasAttribute('data-intro')), viewport.name + ': abertura não marcou data-intro')
       assert.equal(await page.locator('.m-intro[aria-hidden="true"]').count(), 1, viewport.name + ': camada da abertura ausente')
-      assert.equal(await page.locator('.project-grid--home .project-card').count(), 4, viewport.name + ': grade de projetos incompleta')
-      assert.equal(await page.locator('.project-grid--home .project-card__media img').count(), 4, viewport.name + ': imagens reais dos projetos ausentes')
+      // Trabalhos na home: índice tipográfico (sem fotos soltas); a linha leva ao case.
+      assert.equal(await page.locator('#trabalhos .project-card').count(), 0, viewport.name + ': cards com foto não deveriam voltar à home')
+      const rows = await page.locator('#trabalhos .work-row__link').evaluateAll((links) => links.map((a) => ({ href: a.getAttribute('href'), target: a.getAttribute('target'), domain: a.querySelector('.work-row__domain')?.textContent || '' })))
+      assert.equal(rows.length, 4, viewport.name + ': lista de projetos incompleta')
+      assert.ok(rows.every((r) => /^\/trabalhos\/[a-z0-9-]+$/.test(r.href) && r.target === null), viewport.name + ': linha da lista deve abrir o case, não o site externo')
+      assert.ok(rows.some((r) => r.domain.includes('ajnengenharia.com.br')), viewport.name + ': domínio do site no ar ausente na lista')
       assert.equal(await page.locator('.work-rail').count(), 0, viewport.name + ': rail horizontal antigo ainda renderizado')
       assert.equal(await page.locator('#laboratorio').count(), 0, viewport.name + ': seção do laboratório 3D não deveria existir')
       // Só os rastros de tinta 2D (.m-ink-trail) podem existir; nada de WebGL.
       assert.equal(await page.locator('canvas:not(.m-ink-trail):not(.m-halftone):not(.m-brush)').count(), 0, viewport.name + ': nenhum canvas WebGL deveria ser montado na home')
-      const images = await page.evaluate(() => [...document.querySelectorAll('.project-card__media picture')].map(pic => ({
+      // Prévia do site no ar (ponteiro fino): <picture> responsivo, só decoração.
+      const peeks = await page.evaluate(() => [...document.querySelectorAll('.work-row__peek picture')].map(pic => ({
         avif: !!pic.querySelector('source[type="image/avif"][srcset]'),
         webp: !!pic.querySelector('source[type="image/webp"][srcset]'),
         sized: !!pic.querySelector('img[width][height]'),
+        hidden: pic.closest('.work-row__peek').getAttribute('aria-hidden') === 'true',
       })))
-      assert.equal(images.length, 4, viewport.name + ': cards sem <picture> responsivo')
-      assert.ok(images.every(i => i.avif && i.webp && i.sized), viewport.name + ': card sem AVIF/WebP ou sem width/height')
+      assert.equal(peeks.length, 4, viewport.name + ': prévias da lista ausentes')
+      assert.ok(peeks.every(i => i.avif && i.webp && i.sized && i.hidden), viewport.name + ': prévia sem AVIF/WebP, sem width/height ou exposta ao leitor de tela')
       const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth)
       assert.ok(overflow <= 2, viewport.name + ': overflow de ' + overflow + 'px')
       await page.screenshot({ path: path.join(screenshotDir, 'home-' + viewport.name + '.png'), fullPage: true })
@@ -359,7 +367,6 @@ async function main() {
       assert.deepEqual(intro, { attr: false, display: 'none' }, viewport.name + ': abertura não saiu da tela')
       await page.waitForFunction(() => document.documentElement.dataset.press === 'on', null, { timeout: 10000 })
       assert.ok(await page.locator('.m-press .m-press__roller').count() >= 1, viewport.name + ': rolo da prensa ausente nos títulos')
-      assert.ok(await page.locator('.project-card__media .m-halftone').count() >= 1, viewport.name + ': meio-tom das fotos ausente')
       assert.equal(await page.locator('button.m-sound[aria-pressed="false"]').count(), 1, viewport.name + ': chave de som deveria nascer desligada')
       assert.equal(await page.evaluate(() => document.querySelectorAll('canvas:not(.m-ink-trail):not(.m-halftone):not(.m-brush)').length), 0, viewport.name + ': canvas inesperado')
       if (viewport.name === 'desktop') {
@@ -413,6 +420,12 @@ async function main() {
     assert.equal(await casePage.locator('.m-case__chapter').count(), 5, 'case: capítulos da narrativa ausentes')
     assert.equal(await casePage.locator('script[type="application/ld+json"]').count() >= 1, true, 'case: JSON-LD ausente')
     assert.ok(await casePage.locator('.m-case__next[data-curtain]').count() === 1, 'case: link do próximo case sem rótulo da cortina')
+    // Convite para o site no ar: abre em nova aba, sem opener/referrer.
+    const live = casePage.locator('.m-case__live a[href="https://www.gisleynunesimoveis.com.br/"]')
+    assert.equal(await live.count(), 1, 'case: convite para o site no ar ausente')
+    assert.equal(await live.getAttribute('target'), '_blank')
+    assert.deepEqual((await live.getAttribute('rel')).split(' ').sort(), ['noopener', 'noreferrer'], 'case: link externo sem noopener noreferrer')
+    assert.equal(await casePage.locator('.m-case__live .m-case__browser img[width][height]').count(), 1, 'case: captura do site sem dimensões')
     assert.ok((await casePage.evaluate(() => document.documentElement.scrollWidth - window.innerWidth)) <= 2, 'case: overflow horizontal')
     await casePage.screenshot({ path: path.join(screenshotDir, 'case-gisley-desktop.png'), fullPage: true })
     // Cortina de entrada: o nome do destino aparece antes da navegação.
