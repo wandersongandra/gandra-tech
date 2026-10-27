@@ -17,7 +17,7 @@ export default function NotFoundLetters() {
     if (!els.length) return
 
     const mouse = { x: -9999, y: -9999 }
-    const onMove = (e: MouseEvent) => {
+    const onMove = (e: PointerEvent) => {
       const r = box.getBoundingClientRect()
       mouse.x = e.clientX - r.left
       mouse.y = e.clientY - r.top
@@ -26,8 +26,14 @@ export default function NotFoundLetters() {
       mouse.x = -9999
       mouse.y = -9999
     }
-    box.addEventListener('mousemove', onMove)
-    box.addEventListener('mouseleave', onLeave)
+    // no toque, o dedo empurra os dígitos (pointerdown + arrasto)
+    const onUp = (e: PointerEvent) => {
+      if (e.pointerType !== 'mouse') onLeave()
+    }
+    box.addEventListener('pointermove', onMove)
+    box.addEventListener('pointerdown', onMove)
+    box.addEventListener('pointerup', onUp)
+    box.addEventListener('pointerleave', onLeave)
 
     const bodies = els.map((el, i) => ({
       el,
@@ -87,8 +93,10 @@ export default function NotFoundLetters() {
 
     return () => {
       cancelAnimationFrame(raf)
-      box.removeEventListener('mousemove', onMove)
-      box.removeEventListener('mouseleave', onLeave)
+      box.removeEventListener('pointermove', onMove)
+      box.removeEventListener('pointerdown', onMove)
+      box.removeEventListener('pointerup', onUp)
+      box.removeEventListener('pointerleave', onLeave)
     }
   }, [])
 

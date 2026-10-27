@@ -1,0 +1,734 @@
+/* ==========================================================================
+   CASE — página de projeto no sistema Matéria (fase 2, out/2026)
+   Abertura tipográfica, capa com direção de arte (palco ou sangria),
+   ficha técnica como carimbo de desenho técnico, narrativa que acende
+   com a leitura, galeria na proporção real de cada imagem, final em
+   tinta com rastro de nanquim e o próximo case com a foto nas letras.
+   ========================================================================== */
+
+/* <picture> não deve virar caixa: a moldura posiciona o <img> direto. */
+.m-picture {
+  display: contents;
+}
+
+.m-case {
+  overflow-x: clip;
+}
+
+/* --- Abertura ------------------------------------------------------------ */
+.m-case__hero {
+  padding-top: clamp(28px, 5vw, 72px);
+  padding-bottom: clamp(32px, 5vw, 72px);
+}
+
+.m-case__meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 28px;
+  padding-top: 14px;
+  margin-bottom: clamp(32px, 6vw, 88px);
+  border-top: 1px solid var(--m-line);
+  color: var(--m-muted);
+  font-size: 12px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.m-case__meta > span:first-child {
+  color: var(--m-ink);
+}
+
+.m-case__meta-dim {
+  color: var(--m-muted);
+}
+
+.m-case__hero-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 2.2fr) minmax(0, 1fr);
+  gap: clamp(28px, 5vw, 96px);
+  align-items: end;
+}
+
+.m-case__client {
+  margin-bottom: 18px;
+  font-family: var(--m-italic);
+  font-style: italic;
+  font-size: clamp(24px, 2.4vw, 38px);
+  line-height: 1;
+  color: var(--m-signal-ink);
+}
+
+.m-case__title {
+  max-width: 17ch;
+  font-weight: 560;
+  font-stretch: 84%;
+  font-size: clamp(40px, 6vw, 104px);
+  line-height: 0.95;
+  letter-spacing: -0.04em;
+}
+
+.m-case__title .split__word {
+  animation-name: m-rise-soft;
+}
+
+.m-case__lead {
+  max-width: 42ch;
+  padding-bottom: 8px;
+  color: var(--m-muted);
+  font-size: clamp(16px, 1.15vw, 18px);
+  line-height: 1.6;
+  animation: m-fade-up 1s var(--m-ease-out) 0.35s both;
+}
+
+@media (max-width: 900px) {
+  .m-case__hero-grid {
+    grid-template-columns: 1fr;
+    align-items: start;
+  }
+}
+
+/* --- Capa ---------------------------------------------------------------- */
+.m-case__plate {
+  position: relative;
+  margin: 0;
+  overflow: hidden;
+  background: var(--plate-bg, var(--m-ink));
+  /* Abre de uma fresta para a largura toda logo na primeira pintura — a
+     imagem já está pintada desde o início (não segura o LCP). */
+  animation: m-plate-open 1.25s var(--m-ease-out) 0.1s both;
+}
+
+@keyframes m-plate-open {
+  from { clip-path: inset(6% 7% 6% 7%); }
+  to { clip-path: inset(0 0 0 0); }
+}
+
+.m-case__plate-img {
+  position: relative;
+  z-index: 1;
+  height: 100%;
+}
+
+.m-case__plate-pic {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+/* Sangria: fotografia de ambiente na largura toda, recortada pelo foco. */
+.m-case__plate--bleed {
+  height: min(86vh, 56.25vw, 920px);
+  min-height: 300px;
+}
+
+.m-case__plate--bleed .m-case__plate-img {
+  /* Folga vertical para o parallax nunca mostrar a borda. */
+  position: absolute;
+  inset: -8% 0;
+  height: auto;
+}
+
+/* Palco: imagem inteira na cor do próprio fundo, nome gigante atrás. */
+.m-case__plate--stage {
+  display: grid;
+  place-items: end center;
+  height: min(88vh, 940px);
+  min-height: 420px;
+  padding: clamp(56px, 11vw, 190px) var(--m-gutter) 0;
+}
+
+.m-case__plate--stage .m-case__plate-img {
+  width: 100%;
+  max-width: 1500px;
+  max-height: 100%;
+  aspect-ratio: var(--plate-ratio);
+  height: auto;
+}
+
+/* Interface larga: fica no rodapé do palco com respiro embaixo. */
+.m-case__plate--stage:not(.is-portrait) {
+  place-items: center;
+  padding-bottom: clamp(36px, 5vw, 80px);
+}
+
+.m-case__plate--stage.is-portrait .m-case__plate-img {
+  width: auto;
+  height: 100%;
+  /* Bordas laterais esfumadas: a foto de estúdio dissolve no palco. */
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 14%, #000 86%, transparent);
+  mask-image: linear-gradient(90deg, transparent, #000 14%, #000 86%, transparent);
+}
+
+.m-case__ghost {
+  position: absolute;
+  top: clamp(18px, 3vw, 48px);
+  left: 0;
+  right: 0;
+  z-index: 0;
+  overflow: hidden;
+  color: var(--m-paper);
+  font-weight: 640;
+  font-stretch: 72%;
+  /* Cabe na largura: ~0,46em por caractere na Archivo a 72% de largura. */
+  font-size: clamp(44px, min(15.5vw, calc(96vw / (var(--chars, 10) * 0.46))), 280px);
+  line-height: 0.82;
+  letter-spacing: -0.05em;
+  text-align: center;
+  white-space: nowrap;
+  opacity: 0.94;
+  pointer-events: none;
+  user-select: none;
+}
+
+
+.m-case__plate-cap {
+  position: absolute;
+  left: var(--m-gutter);
+  right: var(--m-gutter);
+  bottom: 14px;
+  z-index: 2;
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  color: var(--m-paper);
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  mix-blend-mode: difference;
+  pointer-events: none;
+}
+
+@media (max-width: 767px) {
+  .m-case__plate--stage {
+    height: auto;
+    min-height: 0;
+    padding-top: 22vw;
+  }
+  .m-case__plate--stage.is-portrait .m-case__plate-img {
+    width: min(100%, 420px);
+    height: auto;
+  }
+  .m-case__plate--stage:not(.is-portrait) {
+    padding: 18vw 0 44px;
+  }
+  .m-case__plate--bleed {
+    height: auto;
+    aspect-ratio: 4 / 3.4;
+  }
+}
+
+/* --- Ficha técnica ------------------------------------------------------- */
+.m-case__sheet {
+  padding-top: clamp(56px, 8vw, 128px);
+}
+
+.m-case__sheet-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  border-top: 1px solid var(--m-ink);
+  border-left: 1px solid var(--m-line);
+}
+
+.m-case__sheet-grid > div {
+  min-width: 0;
+  padding: 14px 16px 18px;
+  border-right: 1px solid var(--m-line);
+  border-bottom: 1px solid var(--m-line);
+}
+
+.m-case__sheet-wide {
+  grid-column: span 2;
+}
+
+.m-case__sheet-grid dt {
+  margin-bottom: 10px;
+  color: var(--m-muted);
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.m-case__sheet-grid dd {
+  margin: 0;
+  font-size: 16px;
+  line-height: 1.45;
+  overflow-wrap: anywhere;
+}
+
+.m-case__services {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 22px;
+  margin: -10px 0 -12px;
+  padding: 0;
+  list-style: none;
+}
+
+@media (max-width: 767px) {
+  .m-case__sheet-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* --- Narrativa ----------------------------------------------------------- */
+.m-case__story {
+  padding-top: clamp(72px, 10vw, 160px);
+}
+
+.m-case__chapter {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 2.4fr);
+  gap: 24px clamp(24px, 4vw, 72px);
+  padding: clamp(28px, 4vw, 56px) 0;
+  border-top: 1px solid var(--m-line);
+}
+
+.m-case__chapter-head {
+  display: flex;
+  align-items: baseline;
+  gap: 14px;
+  align-self: start;
+  position: sticky;
+  top: 88px;
+}
+
+.m-case__chapter-num {
+  font-family: var(--m-italic);
+  font-style: italic;
+  font-size: clamp(40px, 4.4vw, 72px);
+  line-height: 0.8;
+  color: var(--m-signal);
+}
+
+.m-case__chapter-title {
+  font-size: 12px;
+  font-weight: 400;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--m-ink);
+}
+
+.m-case__chapter-text {
+  max-width: 34ch;
+  font-size: clamp(22px, 2.35vw, 38px);
+  font-weight: 460;
+  font-stretch: 92%;
+  line-height: 1.22;
+  letter-spacing: -0.02em;
+  text-wrap: pretty;
+}
+
+@media (max-width: 767px) {
+  .m-case__chapter {
+    grid-template-columns: 1fr;
+  }
+  .m-case__chapter-head {
+    position: static;
+  }
+}
+
+/* --- Decisões ------------------------------------------------------------ */
+.m-case__decisions {
+  padding-top: clamp(72px, 10vw, 160px);
+}
+
+.m-case__head {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 2.4fr);
+  gap: 16px clamp(24px, 4vw, 72px);
+  padding-top: 14px;
+  margin-bottom: clamp(32px, 5vw, 72px);
+  border-top: 1px solid var(--m-ink);
+}
+
+.m-case__h2 {
+  font-weight: 560;
+  font-stretch: 86%;
+  font-size: clamp(34px, 4.6vw, 76px);
+  line-height: 0.98;
+  letter-spacing: -0.035em;
+}
+
+.m-case__h2 .m-italic {
+  color: var(--m-signal-ink);
+  font-size: 1.08em;
+}
+
+.m-case__decision-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  counter-reset: none;
+}
+
+.m-case__decision {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr) minmax(0, 1.3fr);
+  gap: 12px clamp(24px, 4vw, 72px);
+  padding: clamp(22px, 3vw, 40px) 0;
+  border-top: 1px solid var(--m-line);
+}
+
+/* Régua vermelha que varre a linha no hover. */
+.m-case__decision::before {
+  content: '';
+  position: absolute;
+  top: -1px;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background: var(--m-signal);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.7s var(--m-ease-out);
+}
+
+.m-case__decision:hover::before {
+  transform: scaleX(1);
+}
+
+.m-case__decision-num {
+  font-family: var(--m-mono);
+  font-size: 12px;
+  color: var(--m-muted);
+}
+
+.m-case__decision-title {
+  font-weight: 560;
+  font-stretch: 88%;
+  font-size: clamp(22px, 2vw, 32px);
+  line-height: 1.08;
+  letter-spacing: -0.02em;
+  transition: transform 0.6s var(--m-ease-out), color 0.3s ease;
+}
+
+.m-case__decision:hover .m-case__decision-title {
+  transform: translateX(10px);
+}
+
+.m-case__decision-text {
+  max-width: 52ch;
+  color: var(--m-muted);
+  line-height: 1.6;
+}
+
+@media (max-width: 767px) {
+  .m-case__head,
+  .m-case__decision {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* --- Galeria ------------------------------------------------------------- */
+.m-case__gallery {
+  padding-top: clamp(72px, 10vw, 160px);
+  padding-bottom: clamp(72px, 10vw, 160px);
+}
+
+.m-case__gallery-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  padding-top: 14px;
+  margin-bottom: clamp(28px, 4vw, 56px);
+  border-top: 1px solid var(--m-ink);
+}
+
+.m-case__shots {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  gap: clamp(20px, 3vw, 48px);
+  align-items: start;
+}
+
+.m-case__shot {
+  grid-column: span 5;
+  margin: 0;
+  will-change: transform;
+}
+
+.m-case__shot.is-feature {
+  grid-column: 1 / span 7;
+}
+
+.m-case__shot:not(.is-feature) {
+  margin-top: clamp(40px, 14vw, 240px);
+}
+
+.m-case__shot.is-portrait {
+  grid-column-end: span 4;
+}
+
+.m-case__shot.is-feature.is-portrait {
+  grid-column: 2 / span 5;
+}
+
+.m-case__shot.is-feature.is-portrait + .m-case__shot {
+  grid-column-start: 8;
+}
+
+/* A moldura tem a proporção real da imagem: nada é cortado. */
+.m-case__shot-frame {
+  position: relative;
+  overflow: hidden;
+  aspect-ratio: var(--shot-ratio);
+  background: var(--shot-bg, var(--m-paper-2));
+}
+
+.m-case__shot-pic {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.m-case__shot-cap {
+  display: flex;
+  gap: 16px;
+  justify-content: space-between;
+  padding-top: 12px;
+  color: var(--m-muted);
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.m-case__shot-cap > span:first-child {
+  flex: none;
+  color: var(--m-ink);
+}
+
+.m-case__note {
+  max-width: 60ch;
+  margin-top: clamp(32px, 4vw, 64px);
+  color: var(--m-muted);
+  font-size: 14px;
+}
+
+@media (max-width: 767px) {
+  .m-case__shot,
+  .m-case__shot.is-feature,
+  .m-case__shot.is-portrait,
+  .m-case__shot.is-feature.is-portrait,
+  .m-case__shot.is-feature.is-portrait + .m-case__shot {
+    grid-column: 1 / -1;
+    margin-top: 0;
+  }
+  .m-case__shot.is-portrait {
+    width: min(100%, 440px);
+  }
+  .m-case__shot:not(.is-feature):nth-child(odd) {
+    justify-self: end;
+  }
+}
+
+/* --- Final em tinta ------------------------------------------------------ */
+.m-case__finale {
+  position: relative;
+  overflow: hidden;
+  color: var(--m-paper);
+  background: var(--m-ink);
+  isolation: isolate;
+}
+
+.m-ink-trail {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.m-case__finale-inner {
+  position: relative;
+  z-index: 1;
+  padding-top: clamp(80px, 12vw, 200px);
+  padding-bottom: clamp(80px, 12vw, 200px);
+}
+
+.m-case__finale .m-label {
+  color: var(--m-muted-dark);
+}
+
+.m-case__finale-title {
+  max-width: 12ch;
+  margin-bottom: clamp(36px, 5vw, 72px);
+  font-weight: 560;
+  font-stretch: 80%;
+  font-size: clamp(48px, 9vw, 168px);
+  line-height: 0.9;
+  letter-spacing: -0.045em;
+}
+
+.m-case__finale-title .m-italic {
+  color: var(--m-signal);
+  font-size: 1.06em;
+}
+
+.m-case__finale-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 16px 36px;
+}
+
+.m-case__finale .m-button--solid {
+  color: var(--m-ink);
+  background: var(--m-paper);
+}
+
+.m-case__finale-mail {
+  color: var(--m-paper);
+}
+
+/* --- Próximo case -------------------------------------------------------- */
+.m-case__next {
+  display: grid;
+  gap: 14px;
+  padding: clamp(48px, 7vw, 112px) var(--m-gutter) clamp(40px, 5vw, 72px);
+  color: var(--m-ink);
+  border-top: 1px solid var(--m-line);
+  text-decoration: none;
+}
+
+.m-case__next-label,
+.m-case__next-meta {
+  color: var(--m-muted);
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.m-case__next-name {
+  display: block;
+  font-weight: 640;
+  font-stretch: 72%;
+  font-size: clamp(54px, 13.5vw, 250px);
+  line-height: 0.86;
+  letter-spacing: -0.05em;
+  color: var(--m-ink);
+  background-position: var(--next-pos, 50% 50%);
+  background-size: cover;
+  -webkit-background-clip: text;
+  background-clip: text;
+  transition: color 0.6s var(--m-ease-out), letter-spacing 0.9s var(--m-ease-out);
+  overflow-wrap: anywhere;
+}
+
+/* A foto só é pedida perto da viewport (CaseMotion adiciona .is-near). */
+.m-case__next.is-near .m-case__next-name {
+  background-image: var(--next-img);
+}
+
+.m-case__next:hover .m-case__next-name,
+.m-case__next:focus-visible .m-case__next-name,
+.m-case__next.is-active .m-case__next-name {
+  color: transparent;
+  letter-spacing: -0.035em;
+}
+
+/* Sem imagem carregada (antes do .is-near) as letras nunca somem. */
+.m-case__next:not(.is-near) .m-case__next-name {
+  color: var(--m-ink) !important;
+}
+
+.m-case__next:hover .m-case__next-meta {
+  color: var(--m-signal-ink);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .m-case__plate,
+  .m-case__lead {
+    animation: none;
+  }
+  .m-case__next-name,
+  .m-case__decision-title,
+  .m-case__decision::before {
+    transition: none;
+  }
+}
+
+/* Imagem que preenche a moldura posicionada (cartões, prévia de serviços). */
+.m-fill {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+/* Contato da home: o rastro fica sob o conteúdo. */
+.m-contact {
+  overflow: hidden;
+  isolation: isolate;
+}
+
+.m-contact__inner {
+  z-index: 1;
+}
+
+/* Grão vivo só onde sobra GPU: desktop com mouse e sem movimento reduzido.
+   steps() a ~7 quadros/s — textura de filme, não animação contínua. */
+@media (hover: hover) and (pointer: fine) and (min-width: 1024px) and (prefers-reduced-motion: no-preference) {
+  .grain {
+    animation: grain-jump 0.9s steps(6) infinite;
+    will-change: transform;
+  }
+}
+
+.m-svg-defs {
+  position: absolute;
+  width: 0;
+  height: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+/* --- Easter egg do rodapé: letras soltas -------------------------------- */
+.m-footer {
+  position: relative;
+}
+
+.m-drop {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.m-drop__letter {
+  position: absolute;
+  top: 0;
+  left: 0;
+  font-family: var(--m-font);
+  white-space: pre;
+  transform-origin: 0 0;
+  cursor: grab;
+  pointer-events: auto;
+  touch-action: none;
+  user-select: none;
+  will-change: transform;
+}
+
+.m-drop__letter.is-grabbed {
+  cursor: grabbing;
+  color: var(--m-signal) !important;
+}
+
+.m-drop__toggle {
+  min-height: 44px;
+  padding: 0 4px;
+  color: var(--m-muted-dark);
+  font-size: 12px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  background: none;
+  border: 0;
+  cursor: pointer;
+  transition: color 0.25s ease;
+}
+
+.m-drop__toggle:hover {
+  color: var(--m-signal);
+}

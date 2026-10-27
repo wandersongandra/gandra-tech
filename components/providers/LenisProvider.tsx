@@ -1,6 +1,6 @@
 'use client'
 import { useEffect } from 'react'
-import Lenis from 'lenis'
+import type Lenis from 'lenis'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 
 type LenisGlobal = { __lenis?: Lenis }
@@ -12,6 +12,8 @@ export default function LenisProvider({ children }: { children: React.ReactNode 
     const coarseQuery = window.matchMedia('(pointer: coarse)')
     let lenis: Lenis | null = null
     let rafId: number | null = null
+    let disposed = false
+    let loading = false
 
     const shouldUseNativeScroll = () =>
       motionQuery.matches || compactQuery.matches || coarseQuery.matches
@@ -29,10 +31,22 @@ export default function LenisProvider({ children }: { children: React.ReactNode 
       ;(window as unknown as LenisGlobal).__lenis = undefined
     }
 
+    // Lenis só existe no desktop: o módulo é baixado sob demanda e não entra
+    // no JavaScript inicial do celular.
     const startLenis = () => {
-      if (shouldUseNativeScroll() || lenis) return
+      if (shouldUseNativeScroll() || lenis || loading) return
+      loading = true
+      import('lenis').then(({ default: LenisCtor }) => {
+        loading = false
+        if (disposed || lenis || shouldUseNativeScroll()) return
+        createLenis(LenisCtor)
+      }, () => {
+        loading = false
+      })
+    }
 
-      const instance = new Lenis({
+    const createLenis = (LenisCtor: typeof Lenis) => {
+      const instance = new LenisCtor({
         duration: 1.2,
         easing: (t: number) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
       })
@@ -67,6 +81,7 @@ export default function LenisProvider({ children }: { children: React.ReactNode 
       motionQuery.removeEventListener('change', syncScrollMode)
       compactQuery.removeEventListener('change', syncScrollMode)
       coarseQuery.removeEventListener('change', syncScrollMode)
+      disposed = true
       stopLenis()
     }
   }, [])

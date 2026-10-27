@@ -53,13 +53,13 @@ export const projects: Project[] = [
     contexto:
       'O SGS é uma plataforma digital de segurança do trabalho para empresas que precisam centralizar inspeções, APRs, permissões de trabalho, auditorias, indicadores, documentos e evidências.',
     desafio:
-      'O projeto foi concebido para reunir, em uma única experiência, informações e rotinas que precisam ser consultadas no dia a dia da operação.',
+      'Reunir, em uma única experiência, informações e rotinas que precisam ser consultadas no dia a dia da operação.',
     solucao:
       'Foi desenvolvida uma plataforma web com uma operação centralizada para organizar essas frentes e dar forma digital aos fluxos do produto.',
     resultado:
       'Objetivo operacional: apoiar a centralização da gestão de segurança do trabalho, oferecendo uma base única para acompanhar informações, documentos e evidências.',
     papel:
-      'A Gandra Tecnologia atuou em produto, UX / UI, engenharia web e experiência mobile neste projeto.',
+      'A Gandra Tecnologia atuou em produto, UX / UI, engenharia web e experiência mobile.',
     details: [
       {
         title: 'Centralização da operação',
@@ -101,15 +101,15 @@ export const projects: Project[] = [
     services: ['Estratégia visual', 'Design de interface', 'Engenharia web'],
     relatedServiceSlugs: ['sites-institucionais', 'portfolios-profissionais'],
     contexto:
-      'O projeto é um portfólio profissional desenvolvido para apresentar trabalho, identidade visual e serviços.',
+      'Um portfólio profissional para reunir, em um só endereço, o trabalho, a identidade visual e os serviços de Telma Santos.',
     desafio:
-      'O projeto foi concebido para organizar a apresentação do trabalho e tornar a consulta da experiência e dos serviços mais clara.',
+      'Organizar a apresentação do trabalho e tornar mais clara a consulta da experiência e dos serviços.',
     solucao:
       'A solução apresenta uma presença digital com estrutura narrativa, direção visual e interface web voltadas à apresentação profissional.',
     resultado:
       'Objetivo do projeto: oferecer uma presença digital clara para apresentar trabalho, identidade visual e serviços.',
     papel:
-      'A Gandra Tecnologia atuou em estratégia visual, design de interface e engenharia web neste projeto.',
+      'A Gandra Tecnologia atuou em estratégia visual, design de interface e engenharia web.',
     details: [
       {
         title: 'Uma narrativa para o trabalho',
@@ -159,7 +159,7 @@ export const projects: Project[] = [
     resultado:
       'O produto passou por validações técnicas de interface, mobile e segurança. A implantação da versão Laravel e a autenticação real ainda dependem da homologação do ambiente de produção.',
     papel:
-      'A Gandra Tech atuou na experiência pública, nas interfaces do painel e na engenharia de frontend e backend do produto imobiliário.',
+      'A Gandra Tecnologia atuou na experiência pública, nas interfaces do painel e na engenharia de frontend e backend do produto imobiliário.',
     stack: 'Laravel, PHP, MySQL, JavaScript e Cloudflare R2',
     phase: 'Implantação em validação',
     visualNote:
@@ -213,7 +213,7 @@ export const projects: Project[] = [
     resultado:
       'A versão institucional está acessível no domínio da AJN. O acervo fotográfico e o conteúdo técnico seguem em revisão editorial, sem necessidade de runtime de banco de dados para servir as páginas.',
     papel:
-      'A Gandra Tech conduziu a migração de frontend, organização de templates, responsividade, apresentação dos serviços e trabalho de SEO técnico.',
+      'A Gandra Tecnologia conduziu a migração de frontend, organização de templates, responsividade, apresentação dos serviços e trabalho de SEO técnico.',
     stack: 'Astro, TypeScript, CSS e publicação estática',
     externalUrl: 'https://ajnengenharia.com.br/',
     externalLabel: 'Visitar o site da AJN',

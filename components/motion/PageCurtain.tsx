@@ -17,6 +17,27 @@ const exitD = (b: number) => `M 0 0 H 100 V 100 Q 50 ${100 + b} 0 100 Z`
 const enterD = (b: number) => `M 0 0 Q 50 ${-b} 100 0 V 100 H 0 Z`
 const FLAT = exitD(0)
 
+const NAMED: Record<string, string> = {
+  '/': 'Início',
+  '/servicos': 'Serviços',
+  '/trabalhos': 'Trabalhos',
+  '/contato': 'Contato',
+  '/termos-de-uso': 'Termos de uso',
+  '/politica-de-privacidade': 'Privacidade',
+}
+
+/** Nome do destino escrito na cortina: data-curtain do link, mapa de rotas
+ *  ou o último trecho do caminho ("sistemas-sob-medida" → "Sistemas sob medida"). */
+function destinationLabel(a: HTMLAnchorElement, path: string) {
+  const explicit = a.dataset.curtain?.trim()
+  if (explicit) return explicit
+  const clean = path.replace(/\/+$/, '') || '/'
+  if (NAMED[clean]) return NAMED[clean]
+  const slug = clean.split('/').pop() ?? ''
+  const words = decodeURIComponent(slug).replace(/-/g, ' ')
+  return words.charAt(0).toUpperCase() + words.slice(1)
+}
+
 export default function PageCurtain() {
   const panelRef = useRef<HTMLDivElement>(null)
   const pathRef = useRef<SVGPathElement>(null)
@@ -44,6 +65,10 @@ export default function PageCurtain() {
       panel.style.transform = 'translateY(-100%)'
       panel.inert = true
       path.setAttribute('d', FLAT)
+      // Rótulo volta para dentro da máscara: voltar/avançar do navegador
+      // não mostra o destino da navegação anterior.
+      gsap.set(logo, { yPercent: 105 })
+      if (countRef.current) gsap.set(countRef.current, { opacity: 0 })
     }
 
     if (motionQuery.matches) {
@@ -128,6 +153,7 @@ export default function PageCurtain() {
 
       const targetPath = href.split('?')[0]
       if (targetPath === window.location.pathname) return
+      const pathOnly = targetPath.split('#')[0] || '/'
 
       e.preventDefault()
       gsap.killTweensOf(panel)
@@ -139,6 +165,11 @@ export default function PageCurtain() {
 
       // Varredura de entrada: a crista avança à frente do painel e assenta
       // quando ele cobre a tela — aí a navegação acontece por baixo.
+      const logo = logoRef.current
+      const count = countRef.current
+      if (logo) logo.textContent = destinationLabel(a, pathOnly)
+      if (count) count.textContent = `→ ${pathOnly}`
+
       gsap.timeline()
         .fromTo(
           panel,
@@ -153,10 +184,16 @@ export default function PageCurtain() {
         )
         .to(sweep, { b: 20, duration: 0.22, ease: 'power2.out', onUpdate: drawEnter }, 0)
         .to(sweep, { b: 0, duration: 0.5, ease: 'power3.inOut', onUpdate: drawEnter }, 0.22)
+        // Cortina tipográfica: o nome do destino sobe de dentro da máscara.
+        .fromTo(logo, { yPercent: 105, opacity: 1 }, { yPercent: 0, duration: 0.55, ease: 'expo.out' }, 0.18)
+        .fromTo(count, { opacity: 0 }, { opacity: 1, duration: 0.3 }, 0.3)
     }
 
-    document.addEventListener('click', onClick)
-    return () => document.removeEventListener('click', onClick)
+    // Fase de captura: roda antes do onClick do next/link, que chama
+    // preventDefault e navegaria na hora — sem isso a cortina de entrada
+    // nunca tocava e só a saída aparecia.
+    document.addEventListener('click', onClick, true)
+    return () => document.removeEventListener('click', onClick, true)
   }, [pathname, router])
 
   return (
@@ -170,7 +207,9 @@ export default function PageCurtain() {
       >
         <path ref={pathRef} d={FLAT} />
       </svg>
-      <span ref={logoRef} className="curtain__logo">GANDRA TECH</span>
+      <span className="curtain__mask">
+        <span ref={logoRef} className="curtain__logo">Gandra Tech</span>
+      </span>
       <span ref={countRef} className="curtain__count">000</span>
     </div>
   )

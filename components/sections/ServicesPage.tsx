@@ -50,6 +50,7 @@ export default function ServicesPage() {
                   <div className="service-page__links">
                     <Link
                       href={`/servicos/${service.slug}`}
+                      data-curtain={service.title}
                       prefetch={false}
                       className="service-page__case"
                     >
@@ -58,6 +59,7 @@ export default function ServicesPage() {
                     {relatedProject && (
                       <Link
                         href={`/trabalhos/${relatedProject.slug}`}
+                        data-curtain={relatedProject.name}
                         prefetch={false}
                         className="service-page__case"
                       >

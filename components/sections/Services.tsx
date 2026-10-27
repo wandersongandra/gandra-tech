@@ -3,7 +3,7 @@ import { useEffect, useRef } from 'react'
 import Link from 'next/link'
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
-import ImageFill from '@/components/motion/ImageFill'
+import Picture from '@/components/materia/Picture'
 import MagneticButton from '@/components/motion/MagneticButton'
 import { useMotionPrefs } from '@/components/motion/useMotion'
 import { services } from '@/lib/services'
@@ -111,6 +111,7 @@ export default function Services() {
             <li key={service.slug} className="m-services__row">
               <Link
                 href={`/servicos/${service.slug}`}
+                data-curtain={service.title}
                 prefetch={false}
                 className="m-services__link"
                 data-preview={service.relatedProjectSlug ?? ''}
@@ -129,13 +130,7 @@ export default function Services() {
           {fine && !reduced
             ? previews.map((project) => (
                 <div key={project.slug} className="m-services__preview-img" data-slug={project.slug}>
-                  <ImageFill
-                    src={project.workImage}
-                    alt=""
-                    sizes="320px"
-                    objectPosition="center"
-                    fallback={<span />}
-                  />
+                  <Picture src={project.workImage} alt="" sizes="320px" className="m-fill" />
                   <span className="m-services__preview-tag mono">{project.name}</span>
                 </div>
               ))
