@@ -691,7 +691,7 @@ body {
   }
 }
 
-@media (hover: none), (pointer: coarse) {
+@media ((hover: none) or (pointer: coarse)) and (prefers-reduced-motion: no-preference) {
   .m-hero__hint-touch {
     display: inline;
   }
@@ -2725,11 +2725,8 @@ html[data-tinta='on'] .m-press__wet {
 }
 
 /* --- Toque: alvos ≥44px e hierarquia -------------------------------------- */
+/* hint-touch: ver regra com prefers-reduced-motion: no-preference acima */
 @media (hover: none), (pointer: coarse) {
-  .m-hero__hint-touch {
-    display: inline;
-  }
-
   .work-row__go {
     min-height: 44px;
     display: inline-flex;

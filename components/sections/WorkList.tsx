@@ -91,10 +91,12 @@ export default function WorkList() {
           best = link
         }
       }
-      if (best === current) return
-      current?.classList.remove('is-peek')
-      current = best
-      current?.classList.add('is-peek')
+      if (best !== current) {
+        current?.classList.remove('is-peek')
+        current = best
+        current?.classList.add('is-peek')
+      }
+      // Recalcula posição também no resize (mesma linha pode continuar selecionada).
       if (current) {
         const r = current.getBoundingClientRect()
         // CSS: translateX(peek-x + 28). Largura touch = min(68vw, 280).
