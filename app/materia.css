@@ -1160,6 +1160,13 @@ body {
   overflow: hidden;
 }
 
+/* iPad/Safari: 100vh é a viewport grande; a barra cobria o rodapé do palco. */
+@supports (height: 100svh) {
+  .m-works.is-pinned .m-works__stage {
+    height: 100svh;
+  }
+}
+
 .m-works.is-pinned .m-section-head {
   margin-bottom: 24px;
 }
