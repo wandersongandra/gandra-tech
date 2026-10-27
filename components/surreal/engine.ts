@@ -195,7 +195,7 @@ function melt(mark: HTMLElement, ctx: Ctx, defs: SVGElement): Effect | null {
         i,
         fx: fx + (rand() - 0.5) * 0.05,
         L: 0,
-        max: fs * (0.18 + rand() * 0.55),
+        max: fs * (0.18 + rand() * 0.55) * (fs < 160 ? 2.4 : 1), // no celular a palavra é pequena: gotas proporcionalmente mais longas
         gain: 0.45 + rand() * 1,
         w,
       }
@@ -236,7 +236,7 @@ function melt(mark: HTMLElement, ctx: Ctx, defs: SVGElement): Effect | null {
     frame(now, dt) {
       const r = root.getBoundingClientRect()
       if (r.bottom < 0 || r.top > window.innerHeight) return false
-      energy = Math.min(1.6, energy + Math.abs(ctx.vel()) * 0.0009 * dt)
+      energy = Math.min(1.6, energy + Math.abs(ctx.vel()) * 0.003 * dt)
       energy *= Math.pow(0.94, dt / 16)
       let alive = energy > 0.01
       // só abre o recorte das letras depois da entrada (que sobe de baixo)
@@ -251,7 +251,7 @@ function melt(mark: HTMLElement, ctx: Ctx, defs: SVGElement): Effect | null {
         // base das maiúsculas dentro da caixa da letra (medida na Archivo)
         const x = l.offsetLeft + l.offsetWidth * d.fx
         const baseY = l.offsetTop + l.offsetHeight * BASE
-        if (energy > 0.04) d.L += (d.max - d.L) * 0.04 * energy * d.gain * (dt / 16)
+        if (energy > 0.04) d.L += (d.max - d.L) * 0.07 * energy * d.gain * (dt / 16)
         else d.L *= Math.pow(0.965, dt / 16) // tensão superficial: a gota volta
         if (d.L > 0.5) alive = true
         else d.L = 0
@@ -576,7 +576,8 @@ export function mount(opts: { fine: boolean }): () => void {
   let running = false
   const loop = (now: number) => {
     raf = 0
-    const dt = Math.min(64, now - lastT)
+    // o timestamp do rAF pode ser anterior ao performance.now() do wake
+    const dt = lastT < 0 ? 16 : Math.min(64, Math.max(1, now - lastT))
     lastT = now
     const y = window.scrollY
     const inst = (y - lastY) / Math.max(dt, 1)
@@ -591,7 +592,7 @@ export function mount(opts: { fine: boolean }): () => void {
   const wake = () => {
     if (running) return
     running = true
-    lastT = performance.now()
+    lastT = -1
     raf = requestAnimationFrame(loop)
   }
   wakeLoop = wake
