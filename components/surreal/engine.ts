@@ -359,13 +359,13 @@ function stains(): () => void {
   document.body.appendChild(layer)
   let seed = 1
   let lastStain: { el: SVGPathElement; t: number } | null = null
-  // A própria camada entra no scrollHeight: sem zerar antes de medir, ela
-  // nunca encolhia e deixava papel em branco depois do rodapé (p. ex. ao
-  // girar o celular para paisagem).
+  // Mede pelo <body> (a camada é absoluta e não entra na altura dele), nunca
+  // pelo scrollHeight: a camada entrava na conta, nunca encolhia e deixava
+  // papel em branco depois do rodapé ao girar o celular ou redimensionar a
+  // janela (os pins do GSAP só encolhem a página depois do refresh).
   const resize = () => {
-    layer.setAttribute('height', '0')
     layer.setAttribute('width', String(document.documentElement.clientWidth))
-    layer.setAttribute('height', String(document.documentElement.scrollHeight))
+    layer.setAttribute('height', String(Math.max(document.body.offsetHeight, window.innerHeight)))
   }
   resize()
   let rq = 0
@@ -373,6 +373,8 @@ function stains(): () => void {
     cancelAnimationFrame(rq)
     rq = requestAnimationFrame(resize)
   }
+  const ro = typeof ResizeObserver === 'function' ? new ResizeObserver(onResize) : null
+  ro?.observe(document.body)
   // começou um traço de pincel: a mancha do clique inicial sai
   const onBrush = () => {
     if (lastStain && performance.now() - lastStain.t < 1000) lastStain.el.remove()
@@ -417,6 +419,7 @@ function stains(): () => void {
   window.addEventListener('gt:brush-start', onBrush)
   return () => {
     cancelAnimationFrame(rq)
+    ro?.disconnect()
     window.removeEventListener('pointerdown', onDown)
     window.removeEventListener('resize', onResize)
     window.removeEventListener('gt:brush-start', onBrush)
