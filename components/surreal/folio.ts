@@ -626,10 +626,157 @@ export function holdStamp(opts: Opts): Off {
   }
 }
 
+/* --------------------------------------------------------------------- */
+/* 8a. Origami: os serviços abaixo da dobra chegam dobrados e se abrem.   */
+/*     Safari: scaleY (rotateX + clip-path pisca no WebKit).               */
+/* --------------------------------------------------------------------- */
+const isWebKit = () => /AppleWebKit/.test(navigator.userAgent) && !/Chrome|Chromium|Edg|Firefox/.test(navigator.userAgent)
+
+export function origami(opts: Opts): Off {
+  // reduced-motion e links com âncora (#servico): já abertas
+  if (opts.reduced || location.hash) return () => {}
+  const items = Array.from(document.querySelectorAll<HTMLElement>('.service-page__item')).filter(belowFold)
+  if (!items.length) return () => {}
+  const safari = isWebKit()
+  const P = 'perspective(1400px)'
+  const frames: Keyframe[] = safari
+    ? [
+        { transform: 'scaleY(0.06)', clipPath: 'inset(0 0 94% 0)', opacity: 0.4 },
+        { transform: 'scaleY(0.55)', clipPath: 'inset(0 0 45% 0)', opacity: 0.85, offset: 0.5 },
+        { transform: 'scaleY(1)', clipPath: 'inset(0 0 0% 0)', opacity: 1 },
+      ]
+    : [
+        { transform: `${P} rotateX(-82deg)`, clipPath: 'inset(0 0 100% 0)', opacity: 0.35 },
+        { transform: `${P} rotateX(-48deg)`, clipPath: 'inset(0 0 66% 0)', opacity: 0.7, offset: 0.34 },
+        { transform: `${P} rotateX(-18deg)`, clipPath: 'inset(0 0 33% 0)', opacity: 0.9, offset: 0.67 },
+        { transform: `${P} rotateX(0deg)`, clipPath: 'inset(0 0 0% 0)', opacity: 1 },
+      ]
+  const open = (el: HTMLElement) => {
+    // os que ficaram para trás (salto, restauração de rolagem) abrem sem animar
+    for (const prev of items) {
+      if (prev === el) break
+      if (prev.classList.contains('is-folded')) (io.unobserve(prev), prev.classList.remove('is-folded'))
+    }
+    io.unobserve(el)
+    el.classList.remove('is-folded')
+    el.classList.add('is-unfolding')
+    const a = el.animate(frames, { duration: safari ? 750 : 950, easing: 'cubic-bezier(0.2, 0.7, 0.2, 1)' })
+    a.onfinish = a.oncancel = () => el.classList.remove('is-unfolding')
+  }
+  const io = new IntersectionObserver(
+    (es) => es.forEach((e) => e.isIntersecting && open(e.target as HTMLElement)),
+    { rootMargin: '0px 0px -12% 0px' }
+  )
+  items.forEach((el) => {
+    el.classList.add('is-folded')
+    io.observe(el)
+  })
+  const openAll = () => items.forEach((el) => el.classList.contains('is-folded') && (io.unobserve(el), el.classList.remove('is-folded')))
+  window.addEventListener('beforeprint', openAll)
+  window.addEventListener('hashchange', openAll)
+  return () => {
+    io.disconnect()
+    openAll()
+    window.removeEventListener('beforeprint', openAll)
+    window.removeEventListener('hashchange', openAll)
+  }
+}
+
+/* --------------------------------------------------------------------- */
+/* 8b. 404 amassada: a página chega como bola de papel e se desamassa.    */
+/*     Clique amassa de novo; foco no link abre. Reduced: plana.           */
+/* --------------------------------------------------------------------- */
+export function crumple(sheet: HTMLElement, opts: Opts): Off {
+  if (opts.reduced) return () => {}
+  const N = 24
+  const seed = Array.from({ length: N }, () => Math.random())
+  const flat = (w: number, h: number) => {
+    // pontos espalhados pelo perímetro, mesma contagem da bola
+    const per = 2 * (w + h)
+    return Array.from({ length: N }, (_, i) => {
+      let d = (i / N) * per
+      if (d < w) return [d, 0]
+      d -= w
+      if (d < h) return [w, d]
+      d -= h
+      if (d < w) return [w - d, h]
+      d -= w
+      return [0, h - d]
+    })
+  }
+  const ball = (w: number, h: number, k: number) => {
+    const cx = w * 0.5
+    const cy = Math.min(h * 0.5, 140)
+    const R = Math.min(w, h, 260) * 0.42
+    return Array.from({ length: N }, (_, i) => {
+      // vincos: raio alterna dentro/fora com ruído fixo por vértice
+      const a = (i / N) * Math.PI * 2 - Math.PI * 0.75
+      const r = R * (0.72 + seed[i] * 0.34 + (i % 2 ? -0.1 : 0.06)) * k
+      return [cx + Math.cos(a) * r * 1.08, cy + Math.sin(a) * r]
+    })
+  }
+  const mix = (A: number[][], B: number[][], t: number) => A.map((p, i) => [p[0] + (B[i][0] - p[0]) * t, p[1] + (B[i][1] - p[1]) * t])
+  const poly = (pts: number[][]) => `polygon(${pts.map(([x, y]) => `${x.toFixed(1)}px ${y.toFixed(1)}px`).join(', ')})`
+  const path = (toFlat: boolean) => {
+    const w = sheet.offsetWidth
+    const h = sheet.offsetHeight
+    const F = flat(w, h)
+    const B = ball(w, h, 1)
+    // meio do caminho: amassado aberto, com os vincos ainda tortos
+    const mid = mix(B, F, 0.55).map(([x, y], i) => [x + (seed[(i + 5) % N] - 0.5) * w * 0.06, y + (seed[(i + 9) % N] - 0.5) * h * 0.12])
+    const seq = toFlat ? [B, mid, F] : [F, mid, B]
+    return seq.map(poly)
+  }
+  let crumpled = true
+  let anim: Animation | null = null
+  const set = (toFlat: boolean, ms: number) => {
+    anim?.cancel()
+    const [a, b, c] = path(toFlat)
+    sheet.classList.toggle('is-ball', !toFlat)
+    anim = sheet.animate(
+      [
+        { clipPath: a, transform: toFlat ? 'rotate(-8deg) scale(0.9)' : 'none' },
+        { clipPath: b, transform: 'rotate(-3deg) scale(0.97)', offset: 0.5 },
+        { clipPath: c, transform: toFlat ? 'none' : 'rotate(-8deg) scale(0.9)' },
+      ],
+      { duration: ms, easing: toFlat ? 'cubic-bezier(0.2, 0.8, 0.2, 1)' : 'cubic-bezier(0.6, 0, 0.8, 0.4)', fill: 'forwards' }
+    )
+    crumpled = !toFlat
+    if (toFlat) {
+      const done = anim
+      // aberta, volta a ser um bloco comum (sem clip-path preso)
+      done.onfinish = () => done === anim && (done.cancel(), (anim = null))
+    }
+  }
+  sheet.classList.add('is-crumpled')
+  set(false, 1)
+  const t = window.setTimeout(() => set(true, 1100), 1300)
+  const onClick = (e: MouseEvent) => {
+    if ((e.target as Element).closest('a')) return
+    set(crumpled, crumpled ? 900 : 650)
+  }
+  const onFocus = () => crumpled && set(true, 500)
+  const onPrint = () => crumpled && set(true, 1)
+  sheet.addEventListener('click', onClick)
+  sheet.addEventListener('focusin', onFocus)
+  window.addEventListener('beforeprint', onPrint)
+  return () => {
+    window.clearTimeout(t)
+    anim?.cancel()
+    sheet.classList.remove('is-crumpled', 'is-ball')
+    sheet.removeEventListener('click', onClick)
+    sheet.removeEventListener('focusin', onFocus)
+    window.removeEventListener('beforeprint', onPrint)
+  }
+}
+
 export function mountFolio(opts: Opts): Off {
   const defs = defsLayer()
   const offs: Off[] = [inkBleed(defs, opts), liquidLinks(defs, opts)]
   if (document.querySelector(STAMP_TARGETS)) offs.push(holdStamp(opts))
+  offs.push(origami(opts))
+  const sheet = document.querySelector<HTMLElement>('[data-crumple]')
+  if (sheet) offs.push(crumple(sheet, opts))
   const diveEl = document.querySelector<HTMLElement>('.m-dive')
   if (diveEl && !opts.reduced) offs.push(dive(diveEl))
   const glyphHost = document.querySelector<HTMLElement>('[data-glyphs]')

@@ -21,6 +21,7 @@ export default function NotFound() {
           <div className="container">
             <div className="cp-hero__label">ERRO / PÁGINA NÃO ENCONTRADA</div>
             <NotFoundLetters />
+            <div className="nf-sheet" data-crumple>
             <h1 className="cp-hero__title">Esta página saiu do ar — ou nunca existiu.</h1>
             <p className="cp-hero__sub">
               O endereço não corresponde a nenhuma página do site. Volte para a página inicial
@@ -29,6 +30,7 @@ export default function NotFound() {
             <Link href="/" prefetch={false} className="link-arrow cp-hero__email">
               Voltar ao início ↗
             </Link>
+            </div>
           </div>
         </section>
       </main>

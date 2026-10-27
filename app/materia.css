@@ -2822,3 +2822,44 @@ html[data-tinta='on'] .m-press__wet {
 @media print {
   .m-stamp { display: none; }
 }
+
+/* Fase 5 · peça 8 — origami nos serviços e a 404 amassada. Os estados
+   fechados só existem com movimento (classes postas pelo fólio). */
+.service-page__item.is-folded {
+  clip-path: inset(0 0 100% 0);
+}
+.service-page__item.is-unfolding {
+  transform-origin: 50% 0;
+  backface-visibility: hidden;
+}
+
+.nf-sheet {
+  position: relative;
+}
+.nf-sheet.is-crumpled {
+  cursor: pointer;
+  transform-origin: 50% 140px;
+}
+.nf-sheet::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background:
+    linear-gradient(118deg, transparent 38%, rgba(18, 17, 14, 0.16) 39%, transparent 41%),
+    linear-gradient(62deg, transparent 52%, rgba(18, 17, 14, 0.12) 53%, transparent 56%),
+    linear-gradient(170deg, transparent 30%, rgba(18, 17, 14, 0.1) 31%, transparent 34%),
+    radial-gradient(circle at 46% 36%, #f6f3ec, var(--m-paper) 45%, #cfc8b9);
+  opacity: 0;
+  transition: opacity 0.6s ease;
+}
+.nf-sheet.is-ball::before {
+  opacity: 1;
+  transition-duration: 0.25s;
+}
+
+@media print {
+  .service-page__item.is-folded { clip-path: none; }
+  .nf-sheet::before { display: none; }
+}
