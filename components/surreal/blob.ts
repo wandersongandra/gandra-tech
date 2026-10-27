@@ -29,11 +29,12 @@ export function blobPath(cx: number, cy: number, r: number, t = 0, seed = 0, wob
   return d + 'Z'
 }
 
-/** Círculo como subpath (gotas satélite). */
+/** Círculo como subpath (gotas satélite), no mesmo sentido horário da mancha
+ * para não abrir furos com a regra nonzero do clip-path. */
 export function dotPath(cx: number, cy: number, r: number): string {
   if (r <= 0.2) return ''
   const f = (v: number) => v.toFixed(1)
-  return `M${f(cx - r)} ${f(cy)}a${f(r)} ${f(r)} 0 1 0 ${f(r * 2)} 0a${f(r)} ${f(r)} 0 1 0 ${f(-r * 2)} 0Z`
+  return `M${f(cx - r)} ${f(cy)}a${f(r)} ${f(r)} 0 1 1 ${f(r * 2)} 0a${f(r)} ${f(r)} 0 1 1 ${f(-r * 2)} 0Z`
 }
 
 /** Gerador pseudoaleatório determinístico (mulberry32). */

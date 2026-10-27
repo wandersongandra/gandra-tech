@@ -53,6 +53,15 @@ async function main() {
         await page.keyboard.press('Escape')
         assert.equal(await page.getByRole('dialog', { name: 'Menu principal' }).count(), 0)
       }
+      // Camada surreal (fase 3): monta depois do load, sem erros.
+      await page.waitForFunction(() => document.documentElement.dataset.surreal === 'on', null, { timeout: 10000 })
+      assert.ok(await page.locator('.m-hero .m-drip').count() >= 6, viewport.name + ': gotas do GANDRA ausentes')
+      assert.equal(await page.evaluate(() => getComputedStyle(document.querySelector('.m-manifesto__word')).display), 'inline-block', viewport.name + ': palavras do manifesto sem inline-block')
+      await page.evaluate(() => window.scrollTo(0, window.scrollY + document.querySelector('.m-contact').getBoundingClientRect().top))
+      await page.waitForTimeout(700)
+      assert.equal(await page.evaluate(() => document.querySelector('.m-contact').style.clipPath), '', viewport.name + ': inundação do contato não terminou')
+      await page.mouse.click(Math.round(viewport.width / 2), 200)
+      assert.ok(await page.locator('.m-stains .m-stain').count() >= 1, viewport.name + ': clique não deixou mancha')
       assert.deepEqual(errors, [], viewport.name + ': erros JavaScript')
       await context.close()
     }
@@ -63,6 +72,17 @@ async function main() {
     assert.ok(await page.evaluate(() => matchMedia('(prefers-reduced-motion: reduce)').matches))
     await page.locator('#trabalhos').scrollIntoViewIfNeeded()
     assert.ok(await page.locator('#trabalhos').isVisible())
+    // Sem movimento: nada da camada surreal liga (só o tom do papel).
+    await page.waitForLoadState('load')
+    await page.waitForTimeout(3000)
+    await page.mouse.click(200, 300)
+    const still = await page.evaluate(() => ({
+      surreal: document.documentElement.dataset.surreal || '',
+      drips: document.querySelectorAll('.m-drip').length,
+      stains: document.querySelectorAll('.m-stain').length,
+      clip: document.querySelector('.m-contact')?.style.clipPath || '',
+    }))
+    assert.deepEqual(still, { surreal: '', drips: 0, stains: 0, clip: '' }, 'reduced-motion: camada surreal não deveria montar')
     await context.close()
     for (const name of ['gisley-nunes-imoveis', 'ajn-consultoria-engenharia']) {
       assert.ok(fs.existsSync(path.join(__dirname, '..', 'out', 'trabalhos', name + '.html')) ||
@@ -90,7 +110,7 @@ async function main() {
     assert.equal(label, expected, 'cortina: rótulo do destino não apareceu')
     await casePage.waitForURL(/\/trabalhos\/(?!gisley)/, { timeout: 5000 })
     await caseContext.close()
-    process.stdout.write('QA: desktop, mobile, reduced-motion, menu, projetos reais, galeria e rotas exportadas passaram.\n')
+    process.stdout.write('QA: desktop, mobile, camada surreal, reduced-motion, menu, projetos reais, galeria e rotas exportadas passaram.\n')
   } finally {
     await browser.close()
   }

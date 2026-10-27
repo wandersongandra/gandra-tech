@@ -141,9 +141,9 @@ function swing(list: HTMLElement, ctx: Ctx): Effect {
       let moving = false
       for (const p of pend) {
         // aceleração do scroll empurra o peso; mola e atrito trazem de volta
-        p.w += (-p.a * p.k - p.w * 0.06 - acc * 0.9 * p.m) * (dt / 16)
+        p.w += (-p.a * p.k - p.w * 0.05 - acc * 16 * p.m) * (dt / 16)
         p.a += p.w * (dt / 16)
-        p.a = clamp(p.a, -9, 9)
+        p.a = clamp(p.a, -12, 12)
         if (Math.abs(p.a) > 0.02 || Math.abs(p.w) > 0.01) moving = true
         p.el.style.transform = `rotate(${p.a.toFixed(2)}deg)`
       }
@@ -345,9 +345,24 @@ function lens(media: HTMLElement[]): () => void {
     glass.className = 'm-lens'
     glass.setAttribute('aria-hidden', 'true')
     el.appendChild(glass)
-    const ZOOM = 1.9
+    const ZOOM = 1.6
+    // a maior variante publicada (a lente amplia; o currentSrc pode ser a pequena)
+    const best = () => {
+      const src = el.querySelector('source[type="image/avif"]')?.getAttribute('srcset') || img.getAttribute('srcset') || ''
+      let url = img.currentSrc || img.src
+      let max = 0
+      for (const part of src.split(',')) {
+        const [u, w] = part.trim().split(/\s+/)
+        const n = parseInt(w || '0', 10)
+        if (u && n > max) {
+          max = n
+          url = u
+        }
+      }
+      return new URL(url, location.href).href
+    }
     const enter = () => {
-      glass.style.backgroundImage = `url("${img.currentSrc || img.src}")`
+      glass.style.backgroundImage = `url("${best()}")`
       el.classList.add('has-lens')
     }
     const move = (e: PointerEvent) => {
