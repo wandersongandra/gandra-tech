@@ -31,6 +31,11 @@ const faultyCname = { ...resolver, async resolveCname(name) {
 } }
 assert.ok((await checkDns(faultyCname)).some((msg) => msg.includes('hostingermail-a') && msg.includes('DNS-only')))
 
+const unavailableNetwork = { ...resolver, async resolveCname() {
+  throw Object.assign(new Error('resolver inaccessible'), { code: 'ECONNREFUSED' })
+} }
+assert.ok((await checkDns(unavailableNetwork)).some((msg) => msg.includes('ECONNREFUSED') && msg.includes('não comprova erro')))
+
 const faultyTxt = { ...resolver, async resolveTxt(name) {
   if (name === 'gandra.tech') return [['v=spf1 -all'], ['v=spf1 ~all']]
   return [['v=DMARC1; p=invalid']]

@@ -30,7 +30,11 @@ export async function checkDns(resolver) {
         failures.push(`${name}: CNAME ${JSON.stringify(answers)} em vez de ${target}`)
       }
     } catch (error) {
-      failures.push(`${name}: não resolve CNAME (${error?.code || String(error)}) — verificar se está DNS-only`)
+      const code = error?.code || String(error)
+      const hint = code === 'ENODATA' || code === 'ENOTFOUND'
+        ? ' — conferir CNAME público e status DNS-only'
+        : ' — falha de consulta; não comprova erro no registro'
+      failures.push(`${name}: não resolve CNAME (${code})${hint}`)
     }
   }
 
