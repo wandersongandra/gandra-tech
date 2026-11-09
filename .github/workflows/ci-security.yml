@@ -185,6 +185,9 @@ jobs:
           python3 -m http.server 4173 --directory out > /tmp/gandra-visual-server.log 2>&1 &
           node scripts/visual-qa.cjs
 
+      - name: Project logos on desktop, mobile and reduced motion
+        run: QA_SCREENSHOTS=1 npm run qa:logos
+
       - name: Conversion journey on local export
         run: node scripts/conversion-qa.cjs
 
