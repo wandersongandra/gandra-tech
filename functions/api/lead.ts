@@ -186,7 +186,12 @@ export async function onRequestPost({ request, env }: LeadContext): Promise<Resp
   // nunca aceita pedidos silenciosamente nem expõe segredos ao frontend.
   if (!configured(env)) return json(503, 'temporarily_unavailable')
   const origin = env.LEADS_ALLOWED_ORIGIN || 'https://gandra.tech'
-  if (request.headers.get('origin') !== origin) return json(403, 'forbidden_origin')
+  // Origin é um cabeçalho controlável por clientes HTTP. A URL efetivamente
+  // atendida também deve pertencer ao domínio autorizado para impedir que
+  // o hostname *.pages.dev contorne o WAF/rate limiting da zona gandra.tech.
+  if (request.headers.get('origin') !== origin || new URL(request.url).origin !== origin) {
+    return json(403, 'forbidden_origin')
+  }
   if (!request.headers.get('content-type')?.toLowerCase().startsWith('application/json')) {
     return json(415, 'unsupported_media_type')
   }
