@@ -3,7 +3,7 @@ import Header from '@/components/Header'
 import Footer from '@/components/Footer'
 import LegalContainer from '@/components/LegalContainer'
 import { createPageMetadata } from '@/lib/seo'
-import { dataAtualizacao, foroLegal, identificacaoLegal } from '@/lib/legal'
+import { identificacaoLegal } from '@/lib/legal'
 
 export const metadata: Metadata = {
   ...createPageMetadata({
@@ -25,13 +25,14 @@ export default function TermosDeUso() {
           eyebrow="INFORMAÇÕES LEGAIS"
           title="Termos de Uso"
           intro="Regras claras para o acesso ao site institucional e para o contato com a Gandra Tecnologia."
-          updatedAt={dataAtualizacao}
+          updatedAt="09/11/2026"
         >
           <section aria-labelledby="termos-aceitacao">
-            <h2 id="termos-aceitacao">1. Aceitação dos termos</h2>
+            <h2 id="termos-aceitacao">1. Sobre estes termos</h2>
             <p>
-              Ao acessar ou utilizar este site, você declara que leu e compreendeu estes Termos
-              de Uso. Caso não concorde com alguma condição, interrompa o acesso ao site.
+              Estes termos apresentam informações e condições gerais de uso do site institucional.
+              A simples visita não representa assinatura de contrato de prestação de serviços
+              nem substitui as garantias previstas na legislação aplicável.
             </p>
           </section>
 
@@ -43,6 +44,8 @@ export default function TermosDeUso() {
               Escopo, prazos, valores,
               responsabilidades e direitos sobre cada trabalho são definidos em contrato ou
               proposta comercial específica.
+              Enviar uma mensagem ou pedir orçamento não gera cobrança, contratação automática
+              ou compromisso de fechar negócio.
             </p>
           </section>
 
@@ -58,19 +61,20 @@ export default function TermosDeUso() {
           <section aria-labelledby="termos-propriedade">
             <h2 id="termos-propriedade">4. Propriedade intelectual</h2>
             <p>
-              O conteúdo, código, design, textos, elementos visuais e marca presentes neste site
-              pertencem à Gandra Tecnologia ou a seus respectivos clientes e titulares, conforme
-              os contratos aplicáveis. Nenhum conteúdo pode ser copiado, distribuído, alterado ou
-              utilizado comercialmente sem autorização.
+              A marca, os textos, os elementos visuais e os trabalhos publicados têm titulares
+              específicos, inclusive clientes e parceiros, conforme os direitos e contratos
+              aplicáveis. Seu uso deve respeitar esses direitos, as autorizações concedidas e as
+              exceções legais, inclusive citações e demais usos permitidos pela legislação.
             </p>
           </section>
 
           <section aria-labelledby="termos-uso-adequado">
             <h2 id="termos-uso-adequado">5. Uso adequado do site</h2>
             <p>
-              É proibido utilizar o site para praticar scraping abusivo, ataques, tentativa de
-              exploração, engenharia reversa, introdução de código malicioso, sobrecarga da
-              infraestrutura ou qualquer finalidade ilícita ou que prejudique terceiros.
+              Não é permitido tentar invadir sistemas, introduzir código malicioso, interromper
+              o serviço, sobrecarregar a infraestrutura ou coletar dados de forma ilícita e
+              prejudicial a terceiros. Essa regra não restringe usos legítimos, fiscalização,
+              pesquisa ou direitos garantidos em lei.
             </p>
           </section>
 
@@ -87,10 +91,10 @@ export default function TermosDeUso() {
           <section aria-labelledby="termos-responsabilidade">
             <h2 id="termos-responsabilidade">7. Limitação de responsabilidade</h2>
             <p>
-              O site é disponibilizado “no estado em que se encontra”, dentro dos limites técnicos
-              razoáveis. Embora sejam adotados cuidados para manter as informações e os serviços
+              Embora sejam adotados cuidados para manter as informações e os serviços
               disponíveis, podem ocorrer interrupções, erros, alterações de conteúdo ou
-              indisponibilidade de serviços externos.
+              indisponibilidade de serviços externos. Nenhuma disposição desta página afasta
+              responsabilidades ou direitos que não possam ser limitados pela legislação brasileira.
             </p>
           </section>
 
@@ -106,7 +110,9 @@ export default function TermosDeUso() {
           <section aria-labelledby="termos-legislacao">
             <h2 id="termos-legislacao">9. Legislação aplicável e foro</h2>
             <p>
-              Estes termos são regidos pelas leis da República Federativa do Brasil. {foroLegal}
+              Estes termos observam as leis da República Federativa do Brasil. Eventuais
+              controvérsias seguirão o foro competente determinado pela legislação aplicável
+              e, quando válido, pelo contrato específico firmado entre as partes.
             </p>
             <p>
               {identificacaoLegal}

@@ -20,6 +20,7 @@ const expectedRoutes = [
   '/contato',
   '/termos-de-uso',
   '/politica-de-privacidade',
+  '/politica-de-cookies',
 ]
 const expectedPublicFiles = [
   '_headers',

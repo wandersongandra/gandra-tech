@@ -25,6 +25,7 @@ const NAMED: Record<string, string> = {
   '/contato': 'Contato',
   '/termos-de-uso': 'Termos de uso',
   '/politica-de-privacidade': 'Privacidade',
+  '/politica-de-cookies': 'Cookies',
 }
 
 /** Nome do destino escrito na cortina: data-curtain do link, mapa de rotas

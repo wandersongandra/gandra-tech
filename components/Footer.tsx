@@ -86,6 +86,9 @@ export default function Footer() {
             <Link href="/politica-de-privacidade" prefetch={false}>
               Privacidade
             </Link>
+            <Link href="/politica-de-cookies" prefetch={false}>
+              Cookies
+            </Link>
           </nav>
           <LetterDrop targetSelector=".m-footer__mark" />
           <button type="button" onClick={scrollToTop} aria-label="Voltar ao topo" className="site-footer__top">

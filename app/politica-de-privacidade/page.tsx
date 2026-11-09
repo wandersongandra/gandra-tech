@@ -1,9 +1,10 @@
 import type { Metadata } from 'next'
+import Link from 'next/link'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
 import LegalContainer from '@/components/LegalContainer'
 import { createPageMetadata } from '@/lib/seo'
-import { dataAtualizacao, encarregadoLegal, identificacaoLegal } from '@/lib/legal'
+import { encarregadoLegal, identificacaoLegal } from '@/lib/legal'
 import { leadSubmissionEnabled } from '@/lib/lead-availability'
 
 export const metadata: Metadata = {
@@ -26,7 +27,7 @@ export default function PoliticaDePrivacidade() {
           eyebrow="INFORMAÇÕES LEGAIS"
           title="Política de Privacidade"
           intro="Como o site institucional da Gandra Tecnologia trata dados pessoais e informações técnicas."
-          updatedAt={leadSubmissionEnabled ? '09/11/2026' : dataAtualizacao}
+          updatedAt="09/11/2026"
         >
           <section aria-labelledby="privacidade-introducao">
             <h2 id="privacidade-introducao">1. Compromisso com a privacidade</h2>
@@ -53,24 +54,27 @@ export default function PoliticaDePrivacidade() {
             <h2 id="privacidade-dados">3. Dados coletados</h2>
             {leadSubmissionEnabled ? (
               <p>
-                Ao enviar um pedido de orçamento diretamente pelo formulário, podemos receber
+                Ao enviar um pedido de orçamento diretamente pelo formulário, recebemos
                 nome, e-mail ou telefone/WhatsApp, serviço desejado e mensagem do projeto.
-                Esses dados são necessários para responder à solicitação comercial.
+                Essas informações são utilizadas para responder à solicitação comercial.
                 A alternativa de contato por e-mail continua disponível.
               </p>
             ) : (
               <p>
-                Atualmente, o site não coleta dados por formulários próprios, cadastros ou área de
-                login. O único dado fornecido voluntariamente pelo visitante é o conteúdo do email
-                que ele decidir enviar por meio do link{' '}
+                Atualmente, os campos do orçamento apenas preparam uma mensagem no navegador:
+                o site não recebe esses dados por um formulário próprio, nem possui área de login.
+                Só recebemos o que o visitante efetivamente enviar pelo aplicativo de e-mail,
+                usando o link{' '}
                 <a href="mailto:contato@gandra.tech">contato@gandra.tech</a>.
               </p>
             )}
             <p>
-              A infraestrutura de hospedagem pode registrar dados técnicos necessários à entrega e
-              à segurança do serviço, como endereço IP, User-Agent e cookies estritamente
-              necessários, conforme a configuração do provedor utilizado.
-              No momento, não há rastreamento comercial ativo no site.
+              A infraestrutura de hospedagem pode processar registros técnicos de acesso e
+              segurança, como endereço IP, identificadores do navegador e cookies de proteção,
+              conforme o recurso acionado. O site utiliza Cloudflare Web Analytics para medição
+              de visitas e desempenho, sem publicidade comportamental própria. Preferências de
+              animação e navegação ficam no armazenamento do navegador, conforme a{' '}
+              <Link href="/politica-de-cookies">Política de Cookies e Armazenamento</Link>.
             </p>
           </section>
 
@@ -79,32 +83,46 @@ export default function PoliticaDePrivacidade() {
             <ul>
               <li>Responder a contatos e solicitações comerciais enviados voluntariamente.</li>
               <li>Manter a segurança, a disponibilidade e o funcionamento do site.</li>
+              <li>Entender de forma agregada o acesso e o desempenho das páginas.</li>
             </ul>
+            <p>
+              Para responder a uma solicitação de orçamento iniciada pelo próprio visitante,
+              o tratamento pode se apoiar em procedimentos preliminares relacionados a um
+              possível contrato, nos termos do art. 7º, V, da LGPD. Medidas de segurança,
+              obrigações legais e análises técnicas exigem avaliação das bases legais pertinentes
+              a cada finalidade. O envio de orçamento não equivale a autorização para receber
+              campanhas promocionais não solicitadas.
+            </p>
           </section>
 
           <section aria-labelledby="privacidade-compartilhamento">
             <h2 id="privacidade-compartilhamento">5. Compartilhamento</h2>
             <p>
-              A Gandra Tecnologia não vende dados pessoais. O compartilhamento fica limitado aos
-              provedores de infraestrutura necessários para hospedar, entregar e proteger o site,
-              sempre conforme os serviços efetivamente utilizados e suas respectivas políticas.
+              A Gandra Tecnologia não vende dados pessoais. A Cloudflare fornece hospedagem,
+              proteção e medição de acesso; o provedor da caixa postal participa do envio e
+              recebimento de mensagens. Esses fornecedores podem tratar dados técnicos ou de
+              comunicação conforme o serviço utilizado e seus próprios compromissos contratuais.
             </p>
             {leadSubmissionEnabled && (
               <p>
-                Os pedidos enviados pelo formulário passam pelos serviços da Cloudflare para
-                verificação antispam (Turnstile) e entrega de e-mail, além do provedor da caixa
-                postal de destino. O formulário não grava os pedidos em banco de dados do site;
-                as mensagens recebidas são tratadas na caixa de e-mail da empresa.
+                Quando o envio direto estiver ativado, os pedidos passarão por verificação
+                antispam (Cloudflare Turnstile) e pelo serviço configurado para envio de e-mail,
+                além do provedor da caixa postal de destino. O formulário não foi projetado para
+                manter uma base própria de pedidos; as mensagens recebidas permanecem na caixa
+                de e-mail da empresa, sujeitas às rotinas de retenção e exclusão aplicáveis.
               </p>
             )}
           </section>
 
           <section aria-labelledby="privacidade-cookies">
-            <h2 id="privacidade-cookies">6. Cookies</h2>
+            <h2 id="privacidade-cookies">6. Cookies e preferências do navegador</h2>
             <p>
-              O site pode utilizar apenas cookies estritamente necessários ao funcionamento ou à
-              segurança da infraestrutura. No momento, não há cookies de publicidade, pixels ou
-              rastreamento comportamental ativo.
+              O site utiliza armazenamento local e de sessão para lembrar preferências de animação,
+              som e navegação. A infraestrutura pode emitir cookies de segurança em verificações
+              específicas. O Cloudflare Web Analytics utiliza um script de medição sem cookies
+              publicitários; não há pixels de publicidade personalizados implementados no código.
+              Consulte a <Link href="/politica-de-cookies">Política de Cookies e Armazenamento</Link>{' '}
+              para ver cada finalidade e como apagar as preferências.
             </p>
           </section>
 
@@ -129,8 +147,10 @@ export default function PoliticaDePrivacidade() {
             <p>
               O conteúdo de contatos comerciais será mantido apenas pelo tempo necessário para
               atender à solicitação, dar continuidade à conversa e cumprir obrigações legais ou
-              preservar direitos. Depois disso, será excluído ou anonimizado quando tecnicamente
-              possível e adequado.
+              preservar direitos. A duração concreta pode variar conforme a conversa, a relação
+              comercial e exigências legais. Depois desse período, os dados devem ser excluídos
+              ou anonimizados quando aplicável; pedidos de eliminação podem ser encaminhados
+              pelo canal de privacidade.
             </p>
           </section>
 
