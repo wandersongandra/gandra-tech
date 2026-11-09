@@ -46,6 +46,11 @@ async function main() {
       await page.locator('.cp-brief__submit[href^="mailto:"]').click()
       assert.match(await page.locator('.cp-brief__feedback').last().innerText(), /Confirme o envio no aplicativo de e-mail/, `${viewport.name}: orientação pós-clique ausente`)
       await page.locator('.cp-brief__copy').click()
+      // A escrita no clipboard é assíncrona: aguardar o resultado real da UI.
+      await page.waitForFunction(() => {
+        const text = document.querySelector('.cp-brief__feedback:last-of-type')?.textContent ?? ''
+        return text.includes('Mensagem copiada') || text.includes('Não foi possível copiar')
+      }, null, { timeout: 5000 })
       assert.match(await page.locator('.cp-brief__feedback').last().innerText(), /Mensagem copiada/, `${viewport.name}: fallback de cópia falhou`)
       assert.match(await page.evaluate(() => navigator.clipboard.readText()), /Preciso de um site institucional/, `${viewport.name}: área de transferência não recebeu o briefing`)
       assert.doesNotMatch(await page.locator('.cp-brief__feedback').last().innerText(), /Confirme o envio/, `${viewport.name}: orientação de e-mail obsoleta após copiar`)
