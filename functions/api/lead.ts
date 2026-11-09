@@ -2,15 +2,14 @@
  * Cloudflare Pages Function: POST /api/lead
  *
  * Não grava currículos, contatos nem mensagens em banco. Exige Turnstile e
- * credenciais do Cloudflare Email Service antes de aceitar um pedido.
+ * credenciais do Resend antes de aceitar um pedido.
  * O envio usa somente o destinatário fixo da Gandra Tecnologia.
  */
 
 type LeadEnv = {
   LEADS_ALLOWED_ORIGIN?: string
   LEADS_FROM_EMAIL?: string
-  CLOUDFLARE_ACCOUNT_ID?: string
-  CLOUDFLARE_EMAIL_SEND_TOKEN?: string
+  RESEND_API_KEY?: string
   TURNSTILE_SECRET_KEY?: string
 }
 
@@ -116,8 +115,7 @@ function parseLead(input: unknown): LeadPayload | null {
 function configured(env: LeadEnv) {
   return Boolean(
     env.TURNSTILE_SECRET_KEY &&
-    env.CLOUDFLARE_EMAIL_SEND_TOKEN &&
-    /^[a-f\d]{32}$/i.test(env.CLOUDFLARE_ACCOUNT_ID ?? '') &&
+    /^re_[\w-]{8,}$/.test(env.RESEND_API_KEY ?? '') &&
     /^[^@\s]+@(?:[a-z\d-]+\.)*gandra\.tech$/i.test(env.LEADS_FROM_EMAIL ?? ''),
   )
 }
@@ -143,6 +141,9 @@ async function validateTurnstile(token: string, env: LeadEnv, origin: string, re
 async function sendLead(payload: LeadPayload, env: LeadEnv) {
   const service = ALLOWED_SERVICES.get(payload.serviceSlug) ?? 'A definir'
   const reference = ALLOWED_REFERENCES.get(payload.referenceSlug)
+  // O remetente é um subdomínio verificado da Gandra. Respostas ao e-mail
+  // comercial são direcionadas ao interessado, sem falsificar o remetente.
+  const replyTo = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(payload.contact) ? payload.contact : null
   const text = [
     'Novo pedido de orçamento recebido no gandra.tech.',
     '',
@@ -155,32 +156,27 @@ async function sendLead(payload: LeadPayload, env: LeadEnv) {
     payload.project,
   ].join('\n')
 
-  const response = await fetch(
-    `https://api.cloudflare.com/client/v4/accounts/${env.CLOUDFLARE_ACCOUNT_ID}/email/sending/send`,
-    {
-      method: 'POST',
-      headers: {
-        Authorization: `Bearer ${env.CLOUDFLARE_EMAIL_SEND_TOKEN}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        from: env.LEADS_FROM_EMAIL,
-        to: DESTINATION,
-        subject: `Novo orçamento no site: ${service}`,
-        text,
-      }),
-      signal: AbortSignal.timeout(8_000),
+  const response = await fetch('https://api.resend.com/emails', {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${env.RESEND_API_KEY}`,
+      'Content-Type': 'application/json',
     },
-  )
+    body: JSON.stringify({
+      from: env.LEADS_FROM_EMAIL,
+      to: [DESTINATION],
+      ...(replyTo ? { reply_to: replyTo } : {}),
+      subject: `Novo orçamento no site: ${service}`,
+      text,
+    }),
+    signal: AbortSignal.timeout(8_000),
+  })
   if (!response.ok) return false
-  const result = (await response.json()) as {
-    success?: boolean
-    result?: { delivered?: string[]; queued?: string[]; permanent_bounces?: string[] }
-  }
-  const isDestination = (item: string) => item.toLowerCase() === DESTINATION
-  return result.success === true &&
-    !result.result?.permanent_bounces?.some(isDestination) &&
-    Boolean(result.result?.delivered?.some(isDestination) || result.result?.queued?.some(isDestination))
+  const result = (await response.json()) as { id?: unknown }
+  // O ID confirma apenas que o Resend aceitou a mensagem na fila, não que
+  // o destinatário já a recebeu. Bounces precisam de verificação operacional.
+  return typeof result.id === 'string' &&
+    /^[a-f\d]{8}-[a-f\d]{4}-[a-f\d]{4}-[a-f\d]{4}-[a-f\d]{12}$/i.test(result.id)
 }
 
 export async function onRequestPost({ request, env }: LeadContext): Promise<Response> {

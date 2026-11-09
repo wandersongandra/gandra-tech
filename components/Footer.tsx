@@ -38,7 +38,7 @@ export default function Footer() {
             <span className="m-label">Estúdio</span>
             <p className="m-footer__about">
               Gandra Tecnologia — sites, sistemas sob medida, aplicações web e automações.
-              Atuação em Belo Horizonte (MG) e atendimento remoto em todo o Brasil.
+              Base em Vespasiano (Grande BH) e atendimento remoto em todo o Brasil.
             </p>
           </div>
           <nav className="m-footer__col" aria-label="Serviços da Gandra Tecnologia">

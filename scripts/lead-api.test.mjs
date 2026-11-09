@@ -4,9 +4,8 @@ import { onRequestPost } from '../functions/api/lead.ts'
 const previousFetch = globalThis.fetch
 const env = {
   LEADS_ALLOWED_ORIGIN: 'https://gandra.tech',
-  LEADS_FROM_EMAIL: 'propostas@gandra.tech',
-  CLOUDFLARE_ACCOUNT_ID: 'a'.repeat(32),
-  CLOUDFLARE_EMAIL_SEND_TOKEN: 'test-only-token',
+  LEADS_FROM_EMAIL: 'orcamentos@envios.gandra.tech',
+  RESEND_API_KEY: 're_test-only-token',
   TURNSTILE_SECRET_KEY: 'test-only-secret',
 }
 const valid = {
@@ -30,15 +29,17 @@ function request(payload = valid, headers = {}) {
 
 const calls = []
 let challenge = { success: true, hostname: 'gandra.tech', action: 'gandra-lead' }
-let delivery = { success: true, result: { delivered: ['contato@gandra.tech'], queued: [], permanent_bounces: [] } }
+const acceptedId = '49a3999c-0ce1-4ea6-ab68-afcd6dc2e794'
+let delivery = { id: acceptedId }
+let deliveryStatus = 200
 
 globalThis.fetch = async (url, init) => {
   calls.push({ url: String(url), init })
   if (String(url).includes('/siteverify')) {
     return new Response(JSON.stringify(challenge), { status: 200 })
   }
-  if (String(url).includes('/email/sending/send')) {
-    return new Response(JSON.stringify(delivery), { status: 200 })
+  if (String(url) === 'https://api.resend.com/emails') {
+    return new Response(JSON.stringify(delivery), { status: deliveryStatus })
   }
   throw new Error('Unexpected external request: ' + url)
 }
@@ -87,29 +88,39 @@ try {
   assert.equal((await expectStatus(valid, 403)).code, 'invalid_challenge')
 
   challenge = { success: true, hostname: 'gandra.tech', action: 'gandra-lead' }
-  delivery = { success: false }
+  delivery = { error: 'provider_failed' }
   assert.equal((await expectStatus(valid, 502)).code, 'delivery_failed')
-  delivery = { success: true, result: { delivered: [], queued: [], permanent_bounces: ['contato@gandra.tech'] } }
+  delivery = { id: '' }
   assert.equal((await expectStatus(valid, 502)).code, 'delivery_failed')
-  delivery = { success: true, result: { delivered: [], queued: [], permanent_bounces: [] } }
+  delivery = { id: 'not-a-real-id' }
   assert.equal((await expectStatus(valid, 502)).code, 'delivery_failed')
+  delivery = { id: acceptedId }
+  deliveryStatus = 422
+  assert.equal((await expectStatus(valid, 502)).code, 'delivery_failed')
+  deliveryStatus = 200
 
-  delivery = { success: true, result: { delivered: ['contato@gandra.tech'], queued: [], permanent_bounces: [] } }
+  delivery = { id: acceptedId }
   calls.length = 0
   const result = await expectStatus(valid, 202)
   assert.deepEqual(result, { code: 'accepted' })
   assert.equal(calls.length, 2, 'precisa verificar Turnstile antes do envio')
   assert.match(calls[0].url, /turnstile\/v0\/siteverify$/)
-  assert.match(calls[1].url, /\/email\/sending\/send$/)
+  assert.equal(calls[1].url, 'https://api.resend.com/emails')
+  assert.equal(calls[1].init.headers.Authorization, 'Bearer re_test-only-token')
   const send = JSON.parse(calls[1].init.body)
-  assert.equal(send.from, 'propostas@gandra.tech')
-  assert.equal(send.to, 'contato@gandra.tech')
+  assert.equal(send.from, 'orcamentos@envios.gandra.tech')
+  assert.deepEqual(send.to, ['contato@gandra.tech'])
+  assert.equal(send.reply_to, 'cliente@example.com', 'retorno ao cliente deve usar Reply-To, sem falsificar o remetente')
   assert.match(send.subject, /Sites institucionais/)
   assert.match(send.text, /Cliente de teste/)
   assert.match(send.text, /cliente@example.com/)
   assert.match(send.text, /Case de referência: Laboratório Dental Araújo/)
   assert.match(send.text, /\nCase de referência:/)
   assert.ok(!JSON.stringify(result).includes('cliente@example.com'), 'resposta não pode vazar dados')
+
+  calls.length = 0
+  assert.equal((await expectStatus({ ...valid, contact: '(31) 99999-9999' }, 202)).code, 'accepted')
+  assert.ok(!Object.hasOwn(JSON.parse(calls[1].init.body), 'reply_to'), 'telefone não é endereço de resposta')
 
   calls.length = 0
   assert.equal((await expectStatus({ ...valid, referenceSlug: '' }, 202)).code, 'accepted')
@@ -120,13 +131,14 @@ try {
   assert.equal((await expectStatus(legacyPayload, 202)).code, 'accepted')
   assert.doesNotMatch(JSON.parse(calls[1].init.body).text, /Case de referência/)
 
-  delivery = { success: true, result: { delivered: [], queued: ['contato@gandra.tech'], permanent_bounces: [] } }
-  assert.equal((await expectStatus(valid, 202)).code, 'accepted')
-
   // Remetente verificado em subdomínio dedicado não altera o recebimento.
   calls.length = 0
-  await expectStatus(valid, 202, { env: { ...env, LEADS_FROM_EMAIL: 'comercial@mail.gandra.tech' } })
-  assert.equal(JSON.parse(calls[1].init.body).from, 'comercial@mail.gandra.tech')
+  await expectStatus(valid, 202, { env: { ...env, LEADS_FROM_EMAIL: 'comercial@envios.gandra.tech' } })
+  assert.equal(JSON.parse(calls[1].init.body).from, 'comercial@envios.gandra.tech')
+
+  calls.length = 0
+  assert.equal((await expectStatus(valid, 503, { env: { ...env, RESEND_API_KEY: '' } })).code, 'temporarily_unavailable')
+  assert.equal(calls.length, 0, 'sem token não pode encaminhar pedidos')
 
   globalThis.fetch = async () => { throw new Error('provedor indisponível') }
   assert.equal((await expectStatus(valid, 503)).code, 'challenge_unavailable')

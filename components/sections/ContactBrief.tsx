@@ -5,6 +5,7 @@ import { composeContactBrief, isKnownReferenceSlug, isKnownServiceSlug } from '@
 import { services } from '@/lib/services'
 import { contactEmail, contactMailto } from '@/lib/site'
 import { leadSubmissionEnabled, turnstileSiteKey } from '@/lib/lead-availability'
+import { isLeadAcceptedResponse } from '@/lib/lead-response'
 import Link from 'next/link'
 import TurnstileChallenge from './TurnstileChallenge'
 
@@ -70,14 +71,18 @@ export default function ContactBrief() {
         method: 'POST',
         credentials: 'omit',
         headers: { 'Content-Type': 'application/json' },
+        // Não manter o botão indefinidamente em "Enviando" se a rede travar.
+        signal: AbortSignal.timeout(25_000),
         body: JSON.stringify({
           name: name.trim(), contact: contactValue, project: project.trim(),
           serviceSlug, referenceSlug, token: challengeToken, website, consent: acknowledged,
         }),
       })
-      if (!response.ok) throw new Error(`Falha no envio: ${response.status}`)
+      if (!(await isLeadAcceptedResponse(response))) {
+        throw new Error(`Resposta de envio não confirmada: ${response.status}`)
+      }
       setSendState('sent')
-      setSendMessage('Recebemos seu pedido! Entraremos em contato pelo canal informado.')
+      setSendMessage('Seu pedido foi encaminhado! Vamos responder pelo contato informado.')
     } catch {
       setSendState('error')
       setSendMessage('Não foi possível confirmar o envio. Tente novamente ou use a opção de e-mail abaixo.')
@@ -223,7 +228,7 @@ export default function ContactBrief() {
               <button type="button" className="cp-brief__submit cp-brief__send"
                 disabled={!hydrated || sendState === 'sending' || sendState === 'sent'}
                 onClick={sendDirectly}>
-                {sendState === 'sending' ? 'Enviando pedido…' : sendState === 'sent' ? 'Pedido recebido' : 'Enviar pedido de orçamento'}
+                {sendState === 'sending' ? 'Enviando pedido…' : sendState === 'sent' ? 'Pedido encaminhado' : 'Enviar pedido de orçamento'}
                 <span aria-hidden="true">↗</span>
               </button>
               <p className="cp-brief__feedback" role="status" aria-live="polite">{sendMessage}</p>

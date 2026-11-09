@@ -105,11 +105,14 @@ export default function PoliticaDePrivacidade() {
             </p>
             {leadSubmissionEnabled && (
               <p>
-                Quando o envio direto estiver ativado, os pedidos passarão por verificação
-                antispam (Cloudflare Turnstile) e pelo serviço configurado para envio de e-mail,
-                além do provedor da caixa postal de destino. O formulário não foi projetado para
-                manter uma base própria de pedidos; as mensagens recebidas permanecem na caixa
-                de e-mail da empresa, sujeitas às rotinas de retenção e exclusão aplicáveis.
+                No envio direto, o Cloudflare Turnstile verifica o desafio antispam, e o Resend
+                processa o nome, contato, serviço e mensagem para enviar o pedido à caixa postal
+                comercial da Gandra. Esses fornecedores podem operar infraestrutura fora do Brasil;
+                o tratamento e as eventuais transferências internacionais devem observar os
+                instrumentos e requisitos legais aplicáveis. O formulário não mantém uma base
+                própria de pedidos: além do processamento e registros técnicos do serviço de
+                envio, a mensagem recebida permanece na caixa postal comercial, sujeita às
+                rotinas de retenção e exclusão aplicáveis.
               </p>
             )}
           </section>

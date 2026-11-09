@@ -76,7 +76,7 @@ for (const url of urls) {
 }
 
 const servicesIndexHtml = getHtml('/servicos')
-assert.match(servicesIndexHtml, /Belo Horizonte/, 'serviços: contexto local real ausente')
+assert.match(servicesIndexHtml, /Vespasiano/, 'serviços: contexto local real ausente')
 let documentedCases = 0
 for (const serviceRoute of serviceRoutes) {
   const serviceHtml = getHtml(serviceRoute)

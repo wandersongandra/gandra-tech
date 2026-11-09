@@ -90,8 +90,8 @@ export default function ContactPage() {
             <div className="cp-grid__col">
               <div className="cp-grid__label">LOCALIZAÇÃO</div>
               <p className="cp-grid__location">
-                Atendimento remoto<br />
-                Todo o Brasil
+                Vespasiano — MG<br />
+                Atendimento remoto em todo o Brasil
               </p>
               <div className="cp-grid__label" style={{ marginTop: 40 }}>DISPONIBILIDADE</div>
               <p className="cp-grid__location">
