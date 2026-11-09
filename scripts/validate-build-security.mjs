@@ -30,6 +30,8 @@ const expectedPublicFiles = [
   '.well-known/security.txt',
 ]
 const failures = []
+const leadSubmissionEnabled = process.env.NEXT_PUBLIC_LEADS_ENABLED === '1' &&
+  Boolean(process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY)
 
 function exists(relativePath) {
   return fs.existsSync(path.join(outDir, relativePath))
@@ -202,6 +204,25 @@ if (!fs.existsSync(outDir) || !fs.statSync(outDir).isDirectory()) {
       const digest = crypto.createHash('sha256').update(match[2], 'utf8').digest('base64')
       if (!policy.includes(`'sha256-${digest}'`)) failures.push(`rota ${route}: script inline sem hash na CSP`)
     }
+  }
+
+  const contactPolicy = routePolicies.get('/contato') || ''
+  if (leadSubmissionEnabled) {
+    if (!contactPolicy.includes('script-src') || !contactPolicy.includes('https://challenges.cloudflare.com')) {
+      failures.push('Turnstile deve estar liberado na CSP de /contato')
+    }
+    if (!contactPolicy.includes('frame-src https://challenges.cloudflare.com')) {
+      failures.push('Turnstile iframe deve estar liberado apenas em /contato')
+    }
+    if (!headers.includes('/contato\n  ! Content-Security-Policy') ||
+        !headers.includes('  Cross-Origin-Embedder-Policy: unsafe-none')) {
+      failures.push('/contato deve permitir embedding controlado do Turnstile')
+    }
+    if (!fs.readFileSync(path.join(outDir, 'contato.html'), 'utf8').includes('challenges.cloudflare.com')) {
+      failures.push('widget Turnstile ausente da página de contato')
+    }
+  } else if (contactPolicy.includes('https://challenges.cloudflare.com')) {
+    failures.push('Turnstile não deve ser carregado sem habilitação explícita')
   }
 
   const securityTxt = fs.readFileSync(path.join(outDir, '.well-known/security.txt'), 'utf8')

@@ -149,20 +149,23 @@ if (!htmlFiles.length) {
 // passava desse limite e deixava a produção sem CSP. Por isso cada rota HTML
 // recebe a própria política, só com os hashes dela.
 const MAX_HEADER_LINE = 2000
+const leadSubmissionEnabled = process.env.NEXT_PUBLIC_LEADS_ENABLED === '1' &&
+  Boolean(process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY)
 
-function buildCsp(hashes) {
+function buildCsp(hashes, route = '') {
   const sortedHashes = [...hashes].sort()
+  const turnstile = leadSubmissionEnabled && route === '/contato'
   return [
     "default-src 'self'",
-    `script-src 'self' ${sortedHashes.join(' ')} https://static.cloudflareinsights.com`.replace(/\s+/g, ' '),
+    `script-src 'self' ${sortedHashes.join(' ')} https://static.cloudflareinsights.com${turnstile ? ' https://challenges.cloudflare.com' : ''}`.replace(/\s+/g, ' '),
     "script-src-attr 'none'",
     "style-src 'self' 'unsafe-inline'",
     "img-src 'self' data:",
     "font-src 'self'",
-    "connect-src 'self' https://cloudflareinsights.com",
+    `connect-src 'self' https://cloudflareinsights.com${turnstile ? ' https://challenges.cloudflare.com' : ''}`,
     "media-src 'none'",
     "object-src 'none'",
-    "frame-src 'none'",
+    turnstile ? 'frame-src https://challenges.cloudflare.com' : "frame-src 'none'",
     "worker-src 'self'",
     "manifest-src 'self'",
     "base-uri 'none'",
@@ -215,11 +218,17 @@ if (withFallback === source) {
 const routeBlocks = executablePages
   .filter((page) => page.route !== '/404')
   .sort((a, b) => a.route.localeCompare(b.route))
-  .map((page) => [
-    page.route,
-    '  ! Content-Security-Policy',
-    assertLine(`  Content-Security-Policy: ${buildCsp(page.hashes)}`, page.route),
-  ].join('\n'))
+  .map((page) => {
+    const overrides = leadSubmissionEnabled && page.route === '/contato'
+      ? ['  ! Cross-Origin-Embedder-Policy', '  Cross-Origin-Embedder-Policy: unsafe-none']
+      : []
+    return [
+      page.route,
+      '  ! Content-Security-Policy',
+      assertLine(`  Content-Security-Policy: ${buildCsp(page.hashes, page.route)}`, page.route),
+      ...overrides,
+    ].join('\n')
+  })
 
 const ruleCount = (withFallback.match(/^\S.*$/gm) || []).length + routeBlocks.length
 if (ruleCount > 100) {

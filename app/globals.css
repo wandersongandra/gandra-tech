@@ -1060,6 +1060,67 @@ body {
   opacity: 0.55;
 }
 
+.cp-brief__send {
+  width: 100%;
+}
+
+.cp-brief__send:disabled {
+  cursor: not-allowed;
+  background: rgba(18, 17, 14, 0.55);
+  border-color: transparent;
+}
+
+.cp-brief__send:focus-visible,
+.cp-brief__consent input:focus-visible {
+  outline: 3px solid var(--accent);
+  outline-offset: 4px;
+}
+
+.cp-brief__consent {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  max-width: 560px;
+  font-family: var(--font-sans);
+  font-size: 13px;
+  line-height: 1.55;
+  cursor: pointer;
+}
+
+.cp-brief__consent input {
+  accent-color: var(--ink);
+  width: 19px;
+  height: 19px;
+  flex: 0 0 19px;
+  margin: 1px 0 0;
+}
+
+.cp-brief__consent a {
+  color: var(--ink);
+  text-underline-offset: 3px;
+}
+
+.cp-brief__challenge {
+  min-height: 74px;
+}
+
+.cp-brief__warning {
+  max-width: 520px;
+  font-family: var(--font-sans);
+  font-size: 13px;
+  line-height: 1.6;
+  color: #a43d28;
+}
+
+/* A armadilha antispam não interfere no layout nem na navegação por teclado. */
+.cp-brief__honeypot {
+  position: absolute;
+  left: -10000px;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}
+
 .cp-brief__preview {
   border-top: 1px solid rgba(18, 17, 14, 0.17);
   border-bottom: 1px solid rgba(18, 17, 14, 0.17);

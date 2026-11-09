@@ -4,6 +4,7 @@ import Footer from '@/components/Footer'
 import LegalContainer from '@/components/LegalContainer'
 import { createPageMetadata } from '@/lib/seo'
 import { dataAtualizacao, encarregadoLegal, identificacaoLegal } from '@/lib/legal'
+import { leadSubmissionEnabled } from '@/lib/lead-availability'
 
 export const metadata: Metadata = {
   ...createPageMetadata({
@@ -25,7 +26,7 @@ export default function PoliticaDePrivacidade() {
           eyebrow="INFORMAÇÕES LEGAIS"
           title="Política de Privacidade"
           intro="Como o site institucional da Gandra Tecnologia trata dados pessoais e informações técnicas."
-          updatedAt={dataAtualizacao}
+          updatedAt={leadSubmissionEnabled ? '09/11/2026' : dataAtualizacao}
         >
           <section aria-labelledby="privacidade-introducao">
             <h2 id="privacidade-introducao">1. Compromisso com a privacidade</h2>
@@ -50,12 +51,21 @@ export default function PoliticaDePrivacidade() {
 
           <section aria-labelledby="privacidade-dados">
             <h2 id="privacidade-dados">3. Dados coletados</h2>
-            <p>
-              Atualmente, o site não coleta dados por formulários próprios, cadastros ou área de
-              login. O único dado fornecido voluntariamente pelo visitante é o conteúdo do email
-              que ele decidir enviar por meio do link{' '}
-              <a href="mailto:contato@gandra.tech">contato@gandra.tech</a>.
-            </p>
+            {leadSubmissionEnabled ? (
+              <p>
+                Ao enviar um pedido de orçamento diretamente pelo formulário, podemos receber
+                nome, e-mail ou telefone/WhatsApp, serviço desejado e mensagem do projeto.
+                Esses dados são necessários para responder à solicitação comercial.
+                A alternativa de contato por e-mail continua disponível.
+              </p>
+            ) : (
+              <p>
+                Atualmente, o site não coleta dados por formulários próprios, cadastros ou área de
+                login. O único dado fornecido voluntariamente pelo visitante é o conteúdo do email
+                que ele decidir enviar por meio do link{' '}
+                <a href="mailto:contato@gandra.tech">contato@gandra.tech</a>.
+              </p>
+            )}
             <p>
               A infraestrutura de hospedagem pode registrar dados técnicos necessários à entrega e
               à segurança do serviço, como endereço IP, User-Agent e cookies estritamente
@@ -79,6 +89,14 @@ export default function PoliticaDePrivacidade() {
               provedores de infraestrutura necessários para hospedar, entregar e proteger o site,
               sempre conforme os serviços efetivamente utilizados e suas respectivas políticas.
             </p>
+            {leadSubmissionEnabled && (
+              <p>
+                Os pedidos enviados pelo formulário passam pelos serviços da Cloudflare para
+                verificação antispam (Turnstile) e entrega de e-mail, além do provedor da caixa
+                postal de destino. O formulário não grava os pedidos em banco de dados do site;
+                as mensagens recebidas são tratadas na caixa de e-mail da empresa.
+              </p>
+            )}
           </section>
 
           <section aria-labelledby="privacidade-cookies">
