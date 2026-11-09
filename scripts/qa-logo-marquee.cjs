@@ -65,6 +65,29 @@ async function main() {
         await page.locator('.m-clients__viewport').hover({ force: true })
         const paused = await page.locator('.m-clients__track').evaluate((element) => getComputedStyle(element).animationPlayState)
         assert.equal(paused, 'paused', `${label}: animação deve pausar no hover`)
+
+        // Regra de regressão: tabular para o último projeto não pode prender
+        // o foco fora da área visível, independentemente da posição do marquee.
+        await links.nth(3).focus()
+        await page.keyboard.press('Tab')
+        const keyboard = await page.evaluate(() => {
+          const active = document.activeElement
+          const bounds = active.getBoundingClientRect()
+          const track = document.querySelector('.m-clients__track')
+          const clone = document.querySelector('.m-clients__group:nth-child(2)')
+          return {
+            focused: active.matches('.m-clients__link'),
+            inViewport: bounds.left >= -1 && bounds.right <= innerWidth + 1,
+            untransformed: getComputedStyle(track).transform === 'none',
+            clonesHidden: getComputedStyle(clone).display === 'none',
+          }
+        })
+        assert.deepEqual(keyboard, {
+          focused: true,
+          inViewport: true,
+          untransformed: true,
+          clonesHidden: true,
+        }, `${label}: foco deve revelar o último case sem deslocamento horizontal`)
       }
       if (process.env.QA_SCREENSHOTS === '1') {
         const target = path.join(__dirname, '..', 'artifacts', 'visual', `logos-${label}.png`)
