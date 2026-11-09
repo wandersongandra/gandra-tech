@@ -68,7 +68,10 @@ export default function ContactBrief() {
     try {
       const response = await fetch('/api/lead', {
         method: 'POST',
-        credentials: 'omit',
+        // A prévia usa Cloudflare Access: o cookie HttpOnly da sessão precisa
+        // acompanhar apenas esta requisição same-origin para evitar redirect
+        // ao login (e falha de CORS no fetch). Nunca enviar a outro domínio.
+        credentials: 'same-origin',
         headers: { 'Content-Type': 'application/json' },
         // Não manter o botão indefinidamente em "Enviando" se a rede travar.
         signal: AbortSignal.timeout(25_000),
