@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict'
-import { isLeadAcceptedResponse } from '../lib/lead-response.ts'
+import { isLeadAcceptedResponse, leadRejectionMessage, leadTransportFailureMessage } from '../lib/lead-response.ts'
 
 const json = (status, body, contentType = 'application/json; charset=utf-8') =>
   new Response(JSON.stringify(body), { status, headers: { 'Content-Type': contentType } })
@@ -22,3 +22,34 @@ for (const response of [
 }
 
 console.log('Lead UI: aceita apenas HTTP 202 + JSON {code: accepted}; rejeita fallbacks HTML e respostas ambíguas.')
+
+const expectedErrors = [
+  [503, 'temporarily_unavailable', 'não está disponível neste ambiente'],
+  [403, 'forbidden_origin', 'não está autorizado'],
+  [403, 'invalid_challenge', 'não foi aceita pelo servidor'],
+  [503, 'challenge_unavailable', 'temporariamente indisponível'],
+  [400, 'invalid_payload', 'não aceitou os dados'],
+  [502, 'delivery_failed', 'não confirmou o recebimento'],
+]
+for (const [status, code, fragment] of expectedErrors) {
+  const message = await leadRejectionMessage(json(status, { code }))
+  assert.ok(message.includes(fragment), `${code} precisa orientar o usuário`)
+  assert.ok(message.includes(`HTTP ${status}`), `${code} precisa permitir diagnóstico`)
+}
+assert.match(await leadRejectionMessage(new Response('Não encontrado', { status: 404 })), /HTTP 404/)
+assert.match(await leadRejectionMessage(new Response('', { status: 429 })), /Aguarde/)
+assert.doesNotMatch(
+  await leadRejectionMessage(json(400, { code: 'unrecognized', detail: 'token-secreto' })),
+  /token-secreto|unrecognized/,
+)
+assert.match(
+  await leadRejectionMessage(new Response('<html>Fallback</html>', { status: 200, headers: { 'Content-Type': 'text/html' } })),
+  /HTTP 200/,
+)
+console.log('Lead UI: falhas exibem apenas motivos conhecidos e status HTTP, sem dados sensíveis.')
+
+assert.match(leadTransportFailureMessage(new DOMException('private reason', 'TimeoutError')), /25 segundos/)
+assert.match(leadTransportFailureMessage(new TypeError('sensitive token')), /navegador não conseguiu/)
+assert.doesNotMatch(leadTransportFailureMessage(new TypeError('sensitive token')), /sensitive token/)
+assert.match(leadTransportFailureMessage(new Error('internal details')), /falha inesperada/)
+console.log('Lead UI: erros de transporte distinguem timeout, falha de rede e exceção sem expor detalhes.')

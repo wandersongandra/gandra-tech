@@ -5,7 +5,7 @@ import { composeContactBrief, isKnownReferenceSlug, isKnownServiceSlug } from '@
 import { services } from '@/lib/services'
 import { contactEmail, contactMailto } from '@/lib/site'
 import { leadSubmissionEnabled, turnstileSiteKey } from '@/lib/lead-availability'
-import { isLeadAcceptedResponse } from '@/lib/lead-response'
+import { isLeadAcceptedResponse, leadRejectionMessage, leadTransportFailureMessage } from '@/lib/lead-response'
 import { isValidLeadContact } from '@/lib/lead-contact-validation'
 import Link from 'next/link'
 import TurnstileChallenge from './TurnstileChallenge'
@@ -68,7 +68,10 @@ export default function ContactBrief() {
     try {
       const response = await fetch('/api/lead', {
         method: 'POST',
-        credentials: 'omit',
+        // A prévia usa Cloudflare Access: o cookie HttpOnly da sessão precisa
+        // acompanhar apenas esta requisição same-origin para evitar redirect
+        // ao login (e falha de CORS no fetch). Nunca enviar a outro domínio.
+        credentials: 'same-origin',
         headers: { 'Content-Type': 'application/json' },
         // Não manter o botão indefinidamente em "Enviando" se a rede travar.
         signal: AbortSignal.timeout(25_000),
@@ -77,14 +80,18 @@ export default function ContactBrief() {
           serviceSlug, referenceSlug, token: challengeToken, website, consent: acknowledged,
         }),
       })
-      if (!(await isLeadAcceptedResponse(response))) {
-        throw new Error(`Resposta de envio não confirmada: ${response.status}`)
+      if (!(await isLeadAcceptedResponse(response.clone()))) {
+        setSendState('error')
+        setSendMessage(await leadRejectionMessage(response))
+        setChallengeToken('')
+        setChallengeResetKey((key) => key + 1)
+        return
       }
       setSendState('sent')
       setSendMessage('Seu pedido foi encaminhado! Vamos responder pelo contato informado.')
-    } catch {
+    } catch (error) {
       setSendState('error')
-      setSendMessage('Não foi possível confirmar o envio. Tente novamente ou use a opção de e-mail abaixo.')
+      setSendMessage(leadTransportFailureMessage(error))
       setChallengeToken('')
       setChallengeResetKey((key) => key + 1)
     }
