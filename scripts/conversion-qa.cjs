@@ -68,6 +68,31 @@ async function main() {
       await page.goto(`${origin}/contato.html?servico=slug-inexistente`, { waitUntil: 'load' })
       await page.waitForFunction(() => !document.querySelector('#brief-service')?.disabled)
       assert.equal(await page.locator('#brief-service').inputValue(), '', 'slug desconhecido não foi ignorado')
+
+      await page.goto(`${origin}/contato.html?servico=sites-institucionais&referencia=laboratorio-dental-araujo#orcamento`, { waitUntil: 'load' })
+      await page.waitForFunction(() => document.querySelector('.cp-brief__reference')?.textContent?.includes('Laboratório Dental Araújo'))
+      const caseMail = new URL(await page.locator('.cp-brief__submit[href^="mailto:"]').getAttribute('href'))
+      assert.match(caseMail.searchParams.get('body'), /Case de referência: Laboratório Dental Araújo/, `${viewport.name}: contexto do case não chegou ao orçamento`)
+      await page.locator('#orcamento').scrollIntoViewIfNeeded()
+      assert.ok(await page.locator('.cp-brief__reference button').isVisible(), `${viewport.name}: remover referência ficou inacessível`)
+      const referenceOverflow = await page.evaluate(() => document.documentElement.scrollWidth - innerWidth)
+      assert.ok(referenceOverflow <= 2, `${viewport.name}: referência causou overflow de ${referenceOverflow}px`)
+      await page.screenshot({ path: path.join(screenshotDir, `contato-referencia-${viewport.name}.png`) })
+      await page.locator('.cp-brief__reference button').click()
+      assert.equal(await page.locator('.cp-brief__reference').count(), 0, `${viewport.name}: referência não foi removida`)
+      const plainMail = new URL(await page.locator('.cp-brief__submit[href^="mailto:"]').getAttribute('href'))
+      assert.doesNotMatch(plainMail.searchParams.get('body'), /Case de referência:/, `${viewport.name}: referência removida ficou na mensagem`)
+
+      await page.goto(`${origin}/contato.html?referencia=slug-forjado`, { waitUntil: 'load' })
+      await page.waitForFunction(() => !document.querySelector('#brief-service')?.disabled)
+      assert.equal(await page.locator('.cp-brief__reference').count(), 0, `${viewport.name}: referência desconhecida foi aceita`)
+      assert.doesNotMatch(new URL(await page.locator('.cp-brief__submit[href^="mailto:"]').getAttribute('href')).searchParams.get('body'), /Case de referência:/)
+
+      await page.goto(`${origin}/trabalhos/laboratorio-dental-araujo.html`, { waitUntil: 'load' })
+      const finale = await page.locator('.m-case__finale a[href*="referencia="]').getAttribute('href')
+      assert.ok(finale, `${viewport.name}: case não oferece caminho ao orçamento contextualizado`)
+      assert.match(finale, /servico=sites-institucionais/, `${viewport.name}: serviço incorreto no CTA do case`)
+      assert.match(finale, /referencia=laboratorio-dental-araujo/, `${viewport.name}: referência ausente no CTA do case`)
       await context.close()
     }
 

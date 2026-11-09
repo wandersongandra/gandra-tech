@@ -965,6 +965,47 @@ body {
   min-width: 0;
 }
 
+.cp-brief__reference {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 18px 20px;
+  border-left: 3px solid var(--accent);
+  background: rgba(18, 17, 14, 0.045);
+}
+
+.cp-brief__reference .cp-grid__label {
+  display: block;
+  margin-bottom: 8px;
+}
+
+.cp-brief__reference p {
+  max-width: 390px;
+  font-family: var(--font-sans);
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--dim);
+}
+
+.cp-brief__reference strong {
+  color: var(--ink);
+}
+
+.cp-brief__reference button {
+  flex: 0 0 auto;
+  min-height: 44px;
+  padding: 8px 0;
+  border: 0;
+  border-bottom: 1px solid currentColor;
+  background: transparent;
+  color: var(--ink);
+  font-family: var(--font-sans);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
 .cp-brief__field label {
   font-family: var(--font-sans);
   font-size: 13px;
@@ -1178,6 +1219,11 @@ body {
 }
 
 @media (max-width: 640px) {
+  .cp-brief__reference {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 8px;
+  }
   .cp-hero__email {
     font-size: clamp(20px, 6.5vw, 44px);
   }

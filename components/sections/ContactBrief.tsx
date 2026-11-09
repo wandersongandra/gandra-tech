@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { composeContactBrief, isKnownServiceSlug } from '@/lib/contact-brief'
+import { composeContactBrief, isKnownReferenceSlug, isKnownServiceSlug } from '@/lib/contact-brief'
 import { services } from '@/lib/services'
 import { contactEmail, contactMailto } from '@/lib/site'
 import { leadSubmissionEnabled, turnstileSiteKey } from '@/lib/lead-availability'
@@ -10,6 +10,7 @@ import TurnstileChallenge from './TurnstileChallenge'
 
 export default function ContactBrief() {
   const [serviceSlug, setServiceSlug] = useState('')
+  const [referenceSlug, setReferenceSlug] = useState('')
   const [name, setName] = useState('')
   const [contact, setContact] = useState('')
   const [project, setProject] = useState('')
@@ -27,11 +28,14 @@ export default function ContactBrief() {
   // lida apenas depois da hidratação, validada contra o catálogo real.
   useEffect(() => {
     setHydrated(true)
-    const slug = new URLSearchParams(window.location.search).get('servico') ?? ''
+    const params = new URLSearchParams(window.location.search)
+    const slug = params.get('servico') ?? ''
     if (isKnownServiceSlug(slug)) setServiceSlug(slug)
+    const reference = params.get('referencia') ?? ''
+    if (isKnownReferenceSlug(reference)) setReferenceSlug(reference)
   }, [])
 
-  const brief = composeContactBrief({ serviceSlug, name, contact, project })
+  const brief = composeContactBrief({ serviceSlug, referenceSlug, name, contact, project })
 
   const sendDirectly = async () => {
     if (!leadSubmissionEnabled || sendState === 'sending' || sendState === 'sent') return
@@ -68,7 +72,7 @@ export default function ContactBrief() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           name: name.trim(), contact: contactValue, project: project.trim(),
-          serviceSlug, token: challengeToken, website, consent: acknowledged,
+          serviceSlug, referenceSlug, token: challengeToken, website, consent: acknowledged,
         }),
       })
       if (!response.ok) throw new Error(`Falha no envio: ${response.status}`)
@@ -147,6 +151,23 @@ export default function ContactBrief() {
               ))}
             </select>
           </div>
+          {brief.referenceName && (
+            <div className="cp-brief__reference" role="group" aria-label="Referência de projeto selecionada">
+              <div>
+                <span className="cp-grid__label">CASE QUE INSPIROU SEU CONTATO</span>
+                <p>
+                  <strong>{brief.referenceName}</strong> será citado como referência na sua mensagem.
+                  Podemos conversar sobre necessidades semelhantes, com uma solução própria para o seu negócio.
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => { setReferenceSlug(''); setCopyState('idle'); setEmailHintVisible(false) }}
+              >
+                Retirar referência
+              </button>
+            </div>
+          )}
           <div className="cp-brief__row">
             <div className="cp-brief__field">
               <label htmlFor="brief-name">Seu nome</label>

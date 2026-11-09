@@ -14,6 +14,7 @@ const valid = {
   contact: 'cliente@example.com',
   project: 'Preciso de um site institucional para apresentar minha empresa.',
   serviceSlug: 'sites-institucionais',
+  referenceSlug: 'laboratorio-dental-araujo',
   token: 'one-time-token',
   website: '',
   consent: true,
@@ -64,6 +65,8 @@ try {
     { ...valid, website: 'robô' },
     { ...valid, consent: false },
     { ...valid, serviceSlug: '../api' },
+    { ...valid, referenceSlug: '../admin' },
+    { ...valid, referenceSlug: { slug: 'sgs' } },
     { ...valid, name: 'A' },
     { ...valid, name: 'Nome\r\nBcc: vítima' },
     { ...valid, contact: 'invalido' },
@@ -104,7 +107,18 @@ try {
   assert.match(send.subject, /Sites institucionais/)
   assert.match(send.text, /Cliente de teste/)
   assert.match(send.text, /cliente@example.com/)
+  assert.match(send.text, /Case de referência: Laboratório Dental Araújo/)
+  assert.match(send.text, /\nCase de referência:/)
   assert.ok(!JSON.stringify(result).includes('cliente@example.com'), 'resposta não pode vazar dados')
+
+  calls.length = 0
+  assert.equal((await expectStatus({ ...valid, referenceSlug: '' }, 202)).code, 'accepted')
+  assert.doesNotMatch(JSON.parse(calls[1].init.body).text, /Case de referência/)
+
+  calls.length = 0
+  const { referenceSlug: ignoredReference, ...legacyPayload } = valid
+  assert.equal((await expectStatus(legacyPayload, 202)).code, 'accepted')
+  assert.doesNotMatch(JSON.parse(calls[1].init.body).text, /Case de referência/)
 
   delivery = { success: true, result: { delivered: [], queued: ['contato@gandra.tech'], permanent_bounces: [] } }
   assert.equal((await expectStatus(valid, 202)).code, 'accepted')

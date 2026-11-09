@@ -25,6 +25,13 @@ const ALLOWED_SERVICES = new Map([
   ['aplicacoes-web', 'Aplicações web'],
   ['automacao-de-processos-e-integracoes', 'Automação de processos e integrações'],
 ])
+const ALLOWED_REFERENCES = new Map([
+  ['sgs', 'SGS Segurança'],
+  ['telma-santos', 'Portfólio Telma Santos'],
+  ['gisley-nunes-imoveis', 'Gisley Nunes Imóveis'],
+  ['ajn-consultoria-engenharia', 'AJN Consultoria e Engenharia'],
+  ['laboratorio-dental-araujo', 'Laboratório Dental Araújo'],
+])
 
 function json(status: number, code: string) {
   return new Response(JSON.stringify({ code }), {
@@ -72,6 +79,7 @@ type LeadPayload = {
   contact: string
   project: string
   serviceSlug: string
+  referenceSlug: string
   token: string
 }
 
@@ -81,12 +89,14 @@ function parseLead(input: unknown): LeadPayload | null {
   if (obj.website !== '' || obj.consent !== true) return null
   const { name, contact, project, serviceSlug, token } = obj
   if ([name, contact, project, serviceSlug, token].some((item) => typeof item !== 'string')) return null
+  if (obj.referenceSlug !== undefined && typeof obj.referenceSlug !== 'string') return null
 
   const result = {
     name: (name as string).trim(),
     contact: (contact as string).trim(),
     project: (project as string).trim(),
     serviceSlug: (serviceSlug as string).trim(),
+    referenceSlug: (obj.referenceSlug as string | undefined)?.trim() ?? '',
     token: (token as string).trim(),
   }
 
@@ -97,6 +107,7 @@ function parseLead(input: unknown): LeadPayload | null {
   if (!validEmail && (digitCount < 10 || digitCount > 15)) return null
   if (result.project.length < 15 || result.project.length > 600 || /\0/.test(result.project)) return null
   if (result.serviceSlug && !ALLOWED_SERVICES.has(result.serviceSlug)) return null
+  if (result.referenceSlug && !ALLOWED_REFERENCES.has(result.referenceSlug)) return null
   if (!result.token || result.token.length > 2048) return null
 
   return result
@@ -131,12 +142,14 @@ async function validateTurnstile(token: string, env: LeadEnv, origin: string, re
 
 async function sendLead(payload: LeadPayload, env: LeadEnv) {
   const service = ALLOWED_SERVICES.get(payload.serviceSlug) ?? 'A definir'
+  const reference = ALLOWED_REFERENCES.get(payload.referenceSlug)
   const text = [
     'Novo pedido de orçamento recebido no gandra.tech.',
     '',
     `Nome: ${payload.name}`,
     `Contato para retorno: ${payload.contact}`,
     `Serviço: ${service}`,
+    ...(reference ? [`Case de referência: ${reference} (gandra.tech/trabalhos/${payload.referenceSlug})`] : []),
     '',
     'Resumo do projeto:',
     payload.project,

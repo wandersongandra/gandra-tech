@@ -360,7 +360,7 @@ export default function ProjectView({ project, next }: { project: Project; next:
             </h2>
             <div className="m-case__finale-actions">
               <MagneticButton>
-                <Link href={`/contato?servico=${relatedServices[0]?.slug ?? ''}#orcamento`} prefetch={false} className="m-button m-button--solid">
+                <Link href={`/contato?servico=${relatedServices[0]?.slug ?? ''}&referencia=${project.slug}#orcamento`} prefetch={false} className="m-button m-button--solid">
                   <span className="m-button__label">Solicitar orçamento</span>
                   <span className="m-button__icon" aria-hidden="true">
                     ↗
