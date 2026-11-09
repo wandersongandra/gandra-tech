@@ -19,6 +19,11 @@ function loadTypeScriptModule(relativePath) {
 
 const { projects, getNextProject, getProject } = loadTypeScriptModule('lib/projects.ts')
 const { services, getService } = loadTypeScriptModule('lib/services.ts')
+const { legalData } = loadTypeScriptModule('lib/legal.ts')
+
+assert.match(legalData.endereco, /Nova Pampulha.*Vespasiano/, 'localidade pública da Gandra deve refletir a base atual')
+assert.doesNotMatch(legalData.endereco, /apartamento|apto\.?|\bap\s*\d+|bloco|\b\d{4}\b/i,
+  'não divulgar unidade ou número de residência no conteúdo público')
 
 function assertUnique(values, label) {
   assert.equal(new Set(values).size, values.length, `${label} não pode ter duplicatas`)
