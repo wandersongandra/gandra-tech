@@ -61,3 +61,18 @@ export async function leadRejectionMessage(response: Response): Promise<string> 
   }
   return `Não foi possível confirmar o envio (HTTP ${status}). Evite reenviar sem verificar o recebimento ou use a opção de e-mail abaixo.`
 }
+
+/** Mensagens estáticas: nenhuma exceção ou detalhe interno chega ao visitante. */
+export function leadTransportFailureMessage(error: unknown): string {
+  const name = error && typeof error === 'object' && 'name' in error
+    ? (error as { name?: unknown }).name
+    : null
+
+  if (name === 'TimeoutError') {
+    return 'O serviço de envio não respondeu em até 25 segundos. Verifique se o pedido chegou antes de tentar novamente ou use a opção de e-mail abaixo.'
+  }
+  if (name === 'TypeError') {
+    return 'O navegador não conseguiu obter uma resposta da API de envio. Verifique a conexão ou possíveis bloqueios do navegador e use a opção de e-mail abaixo.'
+  }
+  return 'Ocorreu uma falha inesperada ao tentar enviar. Não tente novamente sem verificar o recebimento ou use a opção de e-mail abaixo.'
+}

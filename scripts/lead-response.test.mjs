@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict'
-import { isLeadAcceptedResponse, leadRejectionMessage } from '../lib/lead-response.ts'
+import { isLeadAcceptedResponse, leadRejectionMessage, leadTransportFailureMessage } from '../lib/lead-response.ts'
 
 const json = (status, body, contentType = 'application/json; charset=utf-8') =>
   new Response(JSON.stringify(body), { status, headers: { 'Content-Type': contentType } })
@@ -47,3 +47,9 @@ assert.match(
   /HTTP 200/,
 )
 console.log('Lead UI: falhas exibem apenas motivos conhecidos e status HTTP, sem dados sensíveis.')
+
+assert.match(leadTransportFailureMessage(new DOMException('private reason', 'TimeoutError')), /25 segundos/)
+assert.match(leadTransportFailureMessage(new TypeError('sensitive token')), /navegador não conseguiu/)
+assert.doesNotMatch(leadTransportFailureMessage(new TypeError('sensitive token')), /sensitive token/)
+assert.match(leadTransportFailureMessage(new Error('internal details')), /falha inesperada/)
+console.log('Lead UI: erros de transporte distinguem timeout, falha de rede e exceção sem expor detalhes.')
