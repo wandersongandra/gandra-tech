@@ -2,7 +2,9 @@
 
 **Estado: código preparado; envio direto DESATIVADO por padrão.** A jornada
 atual (mensagem pronta para e-mail e copiar) continua funcionando sem nenhuma
-configuração nova. Não habilitar em produção antes dos passos abaixo.
+configuração nova. Mesmo com segredos configurados, a API responde 503 até
+receber `LEADS_API_ENABLED=1` no ambiente servidor. Não habilitar em produção
+antes dos passos abaixo.
 
 **Verificação em 09/11/2026:** Cloudflare Email Sending exige Workers Paid nesta
 conta. Escolhido Resend Free para envio transacional sem assinatura Workers
@@ -69,6 +71,7 @@ por padrão no site público.
    | --- | --- | --- |
    | `TURNSTILE_SECRET_KEY` | Secret | Secret key do Turnstile |
    | `RESEND_API_KEY` | Secret | Chave de envio Resend (`re_...`) |
+   | `LEADS_API_ENABLED` | Variable | `1` somente após aprovação (ausente = API fechada) |
    | `LEADS_FROM_EMAIL` | Variable | Remetente verificado, ex.: `orcamentos@envios.gandra.tech` |
    | `LEADS_ALLOWED_ORIGIN` | Variable opcional | `https://gandra.tech` (valor padrão) |
 
@@ -126,14 +129,17 @@ aceite. A interface só exibe confirmação após o contrato
 25 segundos, o botão deixa o estado de envio pendente e oferece o caminho por
 e-mail; nesse caso, verificar se houve duplicidade antes de reenviar.
 Sem validação real, o backend permanece **pronto para homologação**, não ativo
-para captação em produção.
+para captação em produção. Em Preview restrito, o teste real exige
+`LEADS_API_ENABLED=1` apenas no ambiente Preview; em Production a variável deve
+permanecer ausente até a aprovação final.
 
 ## Reversão
 
-Remover `NEXT_PUBLIC_LEADS_ENABLED=1` e efetuar novo build/deploy restaura
-imediatamente o fluxo de envio pelo aplicativo de e-mail. O endpoint é
-independente e fechado sem secrets válidos. Para bloquear um incidente, também
-revogar a chave de API Resend e remover o segredo Turnstile do Pages.
+Remover `LEADS_API_ENABLED=1` no runtime bloqueia novos envios por API na
+próxima implantação, mesmo que a interface ainda esteja em cache. Remover
+também `NEXT_PUBLIC_LEADS_ENABLED=1` e efetuar novo build/deploy restaura o
+fluxo de envio pelo aplicativo de e-mail. Para bloquear um incidente de
+imediato, também revogar a chave de API Resend e remover o segredo Turnstile.
 
 ## Referências oficiais
 

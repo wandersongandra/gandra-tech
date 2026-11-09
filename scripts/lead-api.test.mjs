@@ -3,6 +3,7 @@ import { onRequestPost } from '../functions/api/lead.ts'
 
 const previousFetch = globalThis.fetch
 const env = {
+  LEADS_API_ENABLED: '1',
   LEADS_ALLOWED_ORIGIN: 'https://gandra.tech',
   LEADS_FROM_EMAIL: 'orcamentos@envios.gandra.tech',
   RESEND_API_KEY: 're_test-only-token',
@@ -57,6 +58,15 @@ try {
   calls.length = 0
   assert.equal((await expectStatus(valid, 503, { env: {} })).code, 'temporarily_unavailable')
   assert.equal(calls.length, 0)
+
+  // A presença de segredos não autoriza tráfego: produção exige liberação
+  // explícita no servidor, independentemente da flag pública do frontend.
+  for (const disabled of [undefined, '', '0', 'true']) {
+    calls.length = 0
+    const blockedEnv = { ...env, LEADS_API_ENABLED: disabled }
+    assert.equal((await expectStatus(valid, 503, { env: blockedEnv })).code, 'temporarily_unavailable')
+    assert.equal(calls.length, 0, 'API desativada não deve consultar Turnstile ou Resend')
+  }
 
   calls.length = 0
   assert.equal((await expectStatus(valid, 403, { headers: { Origin: 'https://exemplo.com' } })).code, 'forbidden_origin')

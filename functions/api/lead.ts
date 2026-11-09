@@ -7,6 +7,7 @@
  */
 
 type LeadEnv = {
+  LEADS_API_ENABLED?: string
   LEADS_ALLOWED_ORIGIN?: string
   LEADS_FROM_EMAIL?: string
   RESEND_API_KEY?: string
@@ -114,6 +115,7 @@ function parseLead(input: unknown): LeadPayload | null {
 
 function configured(env: LeadEnv) {
   return Boolean(
+    env.LEADS_API_ENABLED === '1' &&
     env.TURNSTILE_SECRET_KEY &&
     /^re_[\w-]{8,}$/.test(env.RESEND_API_KEY ?? '') &&
     /^[^@\s]+@(?:[a-z\d-]+\.)*gandra\.tech$/i.test(env.LEADS_FROM_EMAIL ?? ''),
