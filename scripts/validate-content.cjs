@@ -25,7 +25,7 @@ function assertUnique(values, label) {
 }
 
 const projectSlugs = projects.map((project) => project.slug)
-assert.deepEqual(projectSlugs, ['sgs', 'telma-santos', 'gisley-nunes-imoveis', 'ajn-consultoria-engenharia'])
+assert.deepEqual(projectSlugs, ['sgs', 'telma-santos', 'gisley-nunes-imoveis', 'ajn-consultoria-engenharia', 'laboratorio-dental-araujo'])
 assertUnique(projectSlugs, 'slugs de projetos')
 
 for (const project of projects) {
@@ -55,7 +55,8 @@ assert.equal(getProject('não-existe'), undefined)
 assert.equal(getNextProject('sgs').slug, 'telma-santos')
 assert.equal(getNextProject('telma-santos').slug, 'gisley-nunes-imoveis')
 assert.equal(getNextProject('gisley-nunes-imoveis').slug, 'ajn-consultoria-engenharia')
-assert.equal(getNextProject('ajn-consultoria-engenharia').slug, 'sgs')
+assert.equal(getNextProject('ajn-consultoria-engenharia').slug, 'laboratorio-dental-araujo')
+assert.equal(getNextProject('laboratorio-dental-araujo').slug, 'sgs')
 
 const serviceSlugs = services.map((service) => service.slug)
 assert.deepEqual(serviceSlugs, [

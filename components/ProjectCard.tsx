@@ -25,7 +25,7 @@ export default function ProjectCard({ project, index, compact = false, total }: 
           <div className="project-card__media-inner">
             <Picture
               src={previewImage(project)}
-              alt={project.siteImage ? `Página inicial do site de ${project.name} no ar` : `Imagem real do projeto ${project.name}`}
+              alt={project.siteImage ? `Página inicial do site de ${project.name} no ar` : (project.workImageAlt ?? `Imagem do projeto ${project.name}`)}
               sizes={compact ? '(min-width: 900px) 50vw, 118vw' : '(min-width: 1024px) 46vw, 118vw'}
               className="m-fill"
             />

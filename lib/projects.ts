@@ -40,6 +40,9 @@ export type Project = {
   workImage: string
   coverImage: string
   mainImage: string
+  workImageAlt?: string
+  coverImageAlt?: string
+  mainImageAlt?: string
   gallery: ProjectImage[]
 }
 
@@ -49,9 +52,9 @@ export const projects: Project[] = [
     name: 'SGS Segurança',
     category: 'Plataforma digital',
     year: '2026',
-    headline: 'Segurança industrial centralizada em uma única tela.',
-    seoTitle: 'SGS Segurança — Sistema Sob Medida',
-    seoDescription: 'Case de sistema sob medida para gestão de segurança do trabalho, com inspeções, APRs, permissões, auditorias, indicadores e documentos.',
+    headline: 'SGS Segurança: gestão de SST em uma plataforma digital.',
+    seoTitle: 'SGS Segurança: Sistema de Gestão SST',
+    seoDescription: 'Conheça o case SGS Segurança, plataforma de gestão de SST com inspeções, APR, permissões e indicadores. Veja a arquitetura e as decisões do projeto.',
     overview:
       'Plataforma digital de segurança do trabalho concebida para centralizar inspeções, APRs, permissões de trabalho, auditorias, indicadores, documentos e evidências.',
     services: ['Produto', 'UX / UI', 'Engenharia web', 'Mobile'],
@@ -87,6 +90,9 @@ export const projects: Project[] = [
     workImage: '/images/work/sgs.webp',
     coverImage: '/images/projects/sgs/cover.webp',
     mainImage: '/images/projects/sgs/main.webp',
+    workImageAlt: 'Prévia do painel web do SGS Segurança para gestão de SST.',
+    coverImageAlt: 'Interface da plataforma SGS Segurança em uma composição de apresentação do sistema.',
+    mainImageAlt: 'Tela do sistema SGS Segurança com informações de gestão de segurança do trabalho.',
     gallery: [
       {
         src: '/images/work/sgs.webp',
@@ -100,9 +106,9 @@ export const projects: Project[] = [
     name: 'Portfólio Telma Santos',
     category: 'Portfólio profissional',
     year: 'Atual',
-    headline: 'Uma presença digital clara para apresentar trabalho e serviços.',
-    seoTitle: 'Telma Santos — Portfólio Profissional',
-    seoDescription: 'Case de portfólio profissional desenvolvido para apresentar trabalho, trajetória, identidade visual e serviços com clareza.',
+    headline: 'Portfólio de Telma Santos: presença digital sob medida.',
+    seoTitle: 'Portfólio de Telma Santos: Site Autoral',
+    seoDescription: 'Veja como foi criado o portfólio de Telma Santos: uma presença digital responsiva com identidade visual, apresentação de serviços e navegação clara.',
     overview:
       'Projeto de portfólio desenvolvido para apresentar trabalho, identidade visual e serviços.',
     services: ['Estratégia visual', 'Design de interface', 'Engenharia web'],
@@ -141,6 +147,9 @@ export const projects: Project[] = [
     workImage: '/images/projects/telma-santos/work.webp',
     coverImage: '/images/projects/telma-santos/cover.webp',
     mainImage: '/images/projects/telma-santos/main.webp',
+    workImageAlt: 'Retrato de Telma Santos utilizado no portfólio profissional.',
+    coverImageAlt: 'Retrato de Telma Santos na apresentação visual de seu portfólio.',
+    mainImageAlt: 'Fotografia de Telma Santos utilizada na identidade do portfólio.',
     gallery: [
       {
         src: '/images/projects/telma-santos/work.webp',
@@ -154,9 +163,9 @@ export const projects: Project[] = [
     name: 'Gisley Nunes Imóveis',
     category: 'Site e painel administrativo',
     year: '2026',
-    headline: 'Um catálogo para quem procura imóveis. Um painel para quem administra.',
-    seoTitle: 'Gisley Nunes Imóveis — Site e Painel Administrativo',
-    seoDescription: 'Case de site imobiliário com catálogo, filtros, páginas de imóveis e painel Laravel para cadastro, gestão de fotos e atendimento.',
+    headline: 'Gisley Nunes: site imobiliário e painel sob medida.',
+    seoTitle: 'Gisley Nunes: Site e Painel Imobiliário',
+    seoDescription: 'Conheça o case Gisley Nunes Imóveis: site com catálogo e filtros, páginas de imóveis e painel de gestão. Veja como unimos experiência e operação.',
     overview:
       'Site imobiliário com busca de imóveis, páginas detalhadas e um painel de gestão para a equipe cadastrar anúncios, organizar imagens e acompanhar contatos.',
     services: ['Arquitetura de produto', 'UX / UI', 'Frontend', 'Backend'],
@@ -199,6 +208,9 @@ export const projects: Project[] = [
     workImage: '/images/projects/gisley-nunes/work.webp',
     coverImage: '/images/projects/gisley-nunes/cover.webp',
     mainImage: '/images/projects/gisley-nunes/main.webp',
+    workImageAlt: 'Fotografia de imóvel apresentada no site Gisley Nunes Imóveis.',
+    coverImageAlt: 'Ambiente de imóvel destacado no catálogo Gisley Nunes Imóveis.',
+    mainImageAlt: 'Fotografia do catálogo de imóveis do projeto Gisley Nunes.',
     gallery: [
       {
         src: '/images/projects/gisley-nunes/work.webp',
@@ -212,9 +224,9 @@ export const projects: Project[] = [
     name: 'AJN Consultoria e Engenharia',
     category: 'Site institucional',
     year: '2026',
-    headline: 'Um novo site para uma engenharia que acontece no campo.',
-    seoTitle: 'AJN Consultoria e Engenharia — Site Institucional em Astro',
-    seoDescription: 'Case de reconstrução de site institucional em Astro para consultoria em SST e engenharia, com serviços, blog e preservação de URLs.',
+    headline: 'AJN Engenharia: novo site com serviços e blog técnico.',
+    seoTitle: 'AJN Engenharia: Site Institucional e SEO',
+    seoDescription: 'Veja a reconstrução do site da AJN Engenharia em Astro, com serviços, blog técnico, migração de URLs e SEO. Conheça as decisões por trás do projeto.',
     overview:
       'Reconstrução do site institucional da AJN, migrando a estrutura legada em WordPress para páginas estáticas em Astro, com catálogo de serviços, conteúdo técnico e blog.',
     services: ['Direção de interface', 'Engenharia web', 'Conteúdo', 'SEO técnico'],
@@ -256,11 +268,72 @@ export const projects: Project[] = [
     workImage: '/images/projects/ajn/work.webp',
     coverImage: '/images/projects/ajn/cover.webp',
     mainImage: '/images/projects/ajn/main.webp',
+    workImageAlt: 'Registro de trabalho em campo da AJN Consultoria e Engenharia.',
+    coverImageAlt: 'Equipe da AJN em atividade de campo na apresentação do site institucional.',
+    mainImageAlt: 'Registro fotográfico das atividades técnicas da AJN Engenharia.',
     gallery: [
       {
         src: '/images/projects/ajn/work.webp',
         alt: 'Equipe real da AJN em uma operação de campo.',
         caption: 'Acervo real da operação da AJN.',
+      },
+    ],
+  },
+  {
+    slug: 'laboratorio-dental-araujo',
+    name: 'Laboratório Dental Araújo',
+    category: 'Site institucional e SEO',
+    year: '2026',
+    headline: 'Laboratório Dental Araújo: presença digital para dentistas.',
+    seoTitle: 'Laboratório Dental Araújo: Site e SEO',
+    seoDescription: 'Conheça o site do Laboratório Dental Araújo, em Belo Horizonte: serviços de prótese, conteúdo técnico, fotos e SEO local. Explore o projeto desenvolvido.',
+    overview:
+      'Site institucional do Laboratório Dental Araújo, em Belo Horizonte, criado para apresentar serviços de prótese dentária a cirurgiões-dentistas e clínicas, com conteúdo técnico, trabalhos e canais de contato.',
+    services: ['Direção de interface', 'Desenvolvimento web', 'SEO técnico', 'Conteúdo'],
+    relatedServiceSlugs: ['sites-institucionais'],
+    contexto:
+      'O Laboratório Dental Araújo atende cirurgiões-dentistas e clínicas. Seu site precisa apresentar os serviços de prótese, orientar o envio de casos e oferecer informações acessíveis tanto a profissionais de Minas Gerais quanto de outras regiões do Brasil.',
+    desafio:
+      'Organizar um catálogo técnico de serviços sem deixar a navegação difícil e criar caminhos claros para o dentista consultar informações, conhecer os trabalhos e solicitar atendimento.',
+    solucao:
+      'Foi construída uma experiência institucional estática, com páginas para especialidades e serviços, galeria de trabalhos, conteúdos de blog, perguntas frequentes, informações de envio e contato. A base inclui metadados, sitemap e estrutura semântica.',
+    resultado:
+      'O site está publicado no domínio do laboratório e reúne, em um endereço único, serviços, conteúdos técnicos, orientações de envio e contato.',
+    papel:
+      'A Gandra Tecnologia atuou na arquitetura do conteúdo, interface, desenvolvimento web, organização das páginas e base de SEO técnico.',
+    stack: 'HTML, CSS, JavaScript, Node.js e Cloudflare Workers',
+    externalUrl: 'https://laboratoriodentalaraujo.com.br/',
+    externalLabel: 'Visitar o site do Laboratório Dental Araújo',
+    visualNote:
+      'Imagens reais publicadas pelo laboratório e composição institucional utilizada no projeto. Não são capturas da interface.',
+    details: [
+      {
+        title: 'Conteúdo para o público certo',
+        description:
+          'O conteúdo foi organizado para cirurgiões-dentistas e clínicas, com explicações sobre os trabalhos do laboratório e orientações para solicitar orçamento ou encaminhar casos. A apresentação respeita o caráter técnico da atividade, sem oferecer atendimento clínico direto a pacientes.',
+      },
+      {
+        title: 'Serviços, trabalhos e leitura técnica',
+        description:
+          'O site reúne páginas específicas sobre tipos de prótese, uma área de trabalhos com fotografias e textos de apoio para dúvidas recorrentes. A navegação conecta esses conteúdos aos canais de contato e às orientações de envio de casos.',
+      },
+      {
+        title: 'Base estática com SEO e manutenção controlada',
+        description:
+          'A publicação usa arquivos estáticos na Cloudflare. Metadados por página, sitemap, URLs legíveis, imagens otimizadas e verificações automatizadas ajudam a manter a estrutura organizada e pronta para novas revisões de conteúdo.',
+      },
+    ],
+    workImage: '/images/projects/laboratorio-dental-araujo/work.webp',
+    coverImage: '/images/projects/laboratorio-dental-araujo/cover.webp',
+    mainImage: '/images/projects/laboratorio-dental-araujo/main.webp',
+    workImageAlt: 'Profissional manipulando uma peça de prótese no Laboratório Dental Araújo.',
+    coverImageAlt: 'Peça visual do site do Laboratório Dental Araújo com prótese e apresentação dos serviços.',
+    mainImageAlt: 'Mão enluvada segurando um modelo de gesso com prótese dentária no laboratório.',
+    gallery: [
+      {
+        src: '/images/projects/laboratorio-dental-araujo/work.webp',
+        alt: 'Profissional com luvas confeccionando uma peça de prótese dentária no laboratório.',
+        caption: 'Imagem do acervo público do Laboratório Dental Araújo.',
       },
     ],
   },

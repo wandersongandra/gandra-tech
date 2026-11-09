@@ -36,6 +36,9 @@ const art: Record<string, ArtDirection> = {
   '/images/projects/telma-santos/site-mobile.webp': { focus: '50% 0%', tone: 'dark' },
   '/images/projects/gisley-nunes/site-desktop.webp': { focus: '50% 0%', tone: 'light' },
   '/images/projects/gisley-nunes/site-mobile.webp': { focus: '50% 0%', tone: 'light' },
+  '/images/projects/laboratorio-dental-araujo/work.webp': { focus: '50% 50%', tone: 'light' },
+  '/images/projects/laboratorio-dental-araujo/cover.webp': { focus: '50% 30%', tone: 'light' },
+  '/images/projects/laboratorio-dental-araujo/main.webp': { focus: '50% 50%', tone: 'light' },
 }
 
 export type MediaInfo = MediaEntry & ArtDirection & {
