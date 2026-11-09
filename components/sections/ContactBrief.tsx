@@ -5,7 +5,7 @@ import { composeContactBrief, isKnownReferenceSlug, isKnownServiceSlug } from '@
 import { services } from '@/lib/services'
 import { contactEmail, contactMailto } from '@/lib/site'
 import { leadSubmissionEnabled, turnstileSiteKey } from '@/lib/lead-availability'
-import { isLeadAcceptedResponse } from '@/lib/lead-response'
+import { isLeadAcceptedResponse, leadRejectionMessage } from '@/lib/lead-response'
 import { isValidLeadContact } from '@/lib/lead-contact-validation'
 import Link from 'next/link'
 import TurnstileChallenge from './TurnstileChallenge'
@@ -77,14 +77,18 @@ export default function ContactBrief() {
           serviceSlug, referenceSlug, token: challengeToken, website, consent: acknowledged,
         }),
       })
-      if (!(await isLeadAcceptedResponse(response))) {
-        throw new Error(`Resposta de envio não confirmada: ${response.status}`)
+      if (!(await isLeadAcceptedResponse(response.clone()))) {
+        setSendState('error')
+        setSendMessage(await leadRejectionMessage(response))
+        setChallengeToken('')
+        setChallengeResetKey((key) => key + 1)
+        return
       }
       setSendState('sent')
       setSendMessage('Seu pedido foi encaminhado! Vamos responder pelo contato informado.')
     } catch {
       setSendState('error')
-      setSendMessage('Não foi possível confirmar o envio. Tente novamente ou use a opção de e-mail abaixo.')
+      setSendMessage('Não foi possível conectar ao serviço de envio. Confira sua conexão e use a opção de e-mail abaixo se precisar.')
       setChallengeToken('')
       setChallengeResetKey((key) => key + 1)
     }
