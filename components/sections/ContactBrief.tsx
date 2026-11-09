@@ -14,6 +14,7 @@ export default function ContactBrief() {
   const [contact, setContact] = useState('')
   const [project, setProject] = useState('')
   const [copyState, setCopyState] = useState<'idle' | 'copied' | 'error'>('idle')
+  const [emailHintVisible, setEmailHintVisible] = useState(false)
   const [hydrated, setHydrated] = useState(false)
   const [website, setWebsite] = useState('')
   const [acknowledged, setAcknowledged] = useState(false)
@@ -82,6 +83,7 @@ export default function ContactBrief() {
   }
 
   const copyBrief = async () => {
+    setEmailHintVisible(false)
     try {
       let copied = false
       if (navigator.clipboard?.writeText) {
@@ -137,7 +139,7 @@ export default function ContactBrief() {
               id="brief-service"
               disabled={!hydrated}
               value={serviceSlug}
-              onChange={(event) => { setServiceSlug(event.target.value); setCopyState('idle') }}
+              onChange={(event) => { setServiceSlug(event.target.value); setCopyState('idle'); setEmailHintVisible(false) }}
             >
               <option value="">Ainda estou definindo</option>
               {services.map((service) => (
@@ -155,7 +157,7 @@ export default function ContactBrief() {
                 maxLength={90}
                 placeholder="Como podemos chamar você?"
                 value={name}
-                onChange={(event) => { setName(event.target.value); setCopyState('idle') }}
+                onChange={(event) => { setName(event.target.value); setCopyState('idle'); setEmailHintVisible(false) }}
               />
             </div>
             <div className="cp-brief__field">
@@ -167,7 +169,7 @@ export default function ContactBrief() {
                 maxLength={120}
                 placeholder="Seu contato preferido"
                 value={contact}
-                onChange={(event) => { setContact(event.target.value); setCopyState('idle') }}
+                onChange={(event) => { setContact(event.target.value); setCopyState('idle'); setEmailHintVisible(false) }}
               />
             </div>
           </div>
@@ -180,7 +182,7 @@ export default function ContactBrief() {
               maxLength={600}
               placeholder="O que você precisa resolver? Pode escrever do seu jeito."
               value={project}
-              onChange={(event) => { setProject(event.target.value); setCopyState('idle') }}
+                onChange={(event) => { setProject(event.target.value); setCopyState('idle'); setEmailHintVisible(false) }}
             />
           </div>
 
@@ -208,7 +210,11 @@ export default function ContactBrief() {
           )}
 
           <div className="cp-brief__actions">
-            <a href={hydrated ? brief.mailto : contactMailto} className="cp-brief__submit">
+            <a
+              href={hydrated ? brief.mailto : contactMailto}
+              className="cp-brief__submit"
+              onClick={() => { setEmailHintVisible(true); setCopyState('idle') }}
+            >
               {leadSubmissionEnabled ? 'Prefiro enviar pelo meu e-mail' : 'Abrir e-mail com a mensagem pronta'} <span aria-hidden="true">↗</span>
             </a>
             <button type="button" className="cp-brief__copy" onClick={copyBrief} disabled={!hydrated}>
@@ -224,12 +230,18 @@ export default function ContactBrief() {
               ? <>Ao escolher o envio direto, os dados serão encaminhados à Gandra Tecnologia para atendimento, com verificação antispam. Também é possível abrir o seu aplicativo de e-mail para {contactEmail}.</>
               : <>O preenchimento não é salvo nem enviado pelo site. Revise e confirme o envio no seu aplicativo de e-mail para {contactEmail}.</>}
           </p>
+          <p className="cp-brief__disclaimer">
+            Pedir orçamento não gera contratação automática. Veja os{' '}
+            <Link href="/termos-de-uso">Termos de Uso</Link> e a{' '}
+            <Link href="/politica-de-privacidade">Política de Privacidade</Link>.
+          </p>
           <noscript>
             <p className="cp-brief__disclaimer">
               Sem JavaScript, os campos ficam desativados. Escreva diretamente para {contactEmail} pelo link de e-mail acima.
             </p>
           </noscript>
           <p className="cp-brief__feedback" role="status" aria-live="polite">
+            {emailHintVisible ? 'Confirme o envio no aplicativo de e-mail. Se ele não abrir, use “Copiar mensagem” e envie manualmente.' : ''}
             {copyState === 'copied' ? 'Mensagem copiada. Cole no aplicativo de sua preferência e envie para o endereço indicado.' : ''}
             {copyState === 'error' ? 'Não foi possível copiar automaticamente. Abra “Pré-visualizar a mensagem” e copie o texto manualmente.' : ''}
           </p>

@@ -15,6 +15,7 @@ async function main() {
       { name: 'mobile', width: 390, height: 844 },
     ]) {
       const context = await browser.newContext({ viewport, reducedMotion: 'reduce' })
+      await context.grantPermissions(['clipboard-read', 'clipboard-write'], { origin })
       await context.addInitScript(() => sessionStorage.setItem('gt-intro', '1'))
       const page = await context.newPage()
 
@@ -37,6 +38,19 @@ async function main() {
       for (const snippet of ['Cliente de teste', 'cliente@example.com', 'Preciso de um site institucional']) {
         assert.ok(body.includes(snippet), `${viewport.name}: resumo perdeu ${snippet}`)
       }
+
+      assert.match(await page.locator('.cp-brief__disclaimer').last().innerText(), /contratação automática/, `${viewport.name}: transparência comercial ausente`)
+      assert.ok(await page.locator('.cp-brief__disclaimer a[href="/termos-de-uso"]').count(), `${viewport.name}: termos inacessíveis no orçamento`)
+      assert.ok(await page.locator('.cp-brief__disclaimer a[href="/politica-de-privacidade"]').count(), `${viewport.name}: política de privacidade inacessível no orçamento`)
+      await page.locator('.cp-brief__submit[href^="mailto:"]').evaluate((link) => link.addEventListener('click', (event) => event.preventDefault()))
+      await page.locator('.cp-brief__submit[href^="mailto:"]').click()
+      assert.match(await page.locator('.cp-brief__feedback').last().innerText(), /Confirme o envio no aplicativo de e-mail/, `${viewport.name}: orientação pós-clique ausente`)
+      await page.locator('.cp-brief__copy').click()
+      assert.match(await page.locator('.cp-brief__feedback').last().innerText(), /Mensagem copiada/, `${viewport.name}: fallback de cópia falhou`)
+      assert.match(await page.evaluate(() => navigator.clipboard.readText()), /Preciso de um site institucional/, `${viewport.name}: área de transferência não recebeu o briefing`)
+      assert.doesNotMatch(await page.locator('.cp-brief__feedback').last().innerText(), /Confirme o envio/, `${viewport.name}: orientação de e-mail obsoleta após copiar`)
+      await page.locator('#brief-project').fill('Preciso de um site institucional para apresentar serviços e projetos.')
+      assert.equal(await page.locator('.cp-brief__feedback').last().innerText(), '', `${viewport.name}: feedback antigo permaneceu depois de editar o briefing`)
 
       await page.locator('.cp-brief__preview summary').click()
       assert.match(await page.locator('.cp-brief__preview pre').innerText(), /Sites institucionais/)
