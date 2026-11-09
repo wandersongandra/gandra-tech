@@ -1849,7 +1849,7 @@ body {
 
 .m-footer__grid {
   display: grid;
-  grid-template-columns: minmax(0, 2fr) minmax(0, 1fr) minmax(0, 1fr);
+  grid-template-columns: minmax(0, 1.6fr) minmax(0, 1.4fr) minmax(0, 1fr) minmax(0, 1fr);
   gap: 32px;
   padding-top: 40px;
   border-top: 1px solid var(--m-line-dark);
@@ -1940,13 +1940,16 @@ body {
   border-color: var(--m-signal);
 }
 
-@media (max-width: 767px) {
+@media (max-width: 1023px) {
   .m-footer__grid {
     grid-template-columns: 1fr 1fr;
   }
   .m-footer__grid > :first-child {
     grid-column: 1 / -1;
   }
+}
+
+@media (max-width: 767px) {
   .m-footer .kinetic__letter {
     font-size: 17vw;
   }

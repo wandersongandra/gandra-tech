@@ -73,14 +73,18 @@ export default function ServiceDetail({ service }: { service: Service }) {
           </ul>
 
           {relatedProject && (
-            <Link
-              href={`/trabalhos/${relatedProject.slug}`}
-              data-curtain={relatedProject.name}
-              prefetch={false}
-              className="service-detail__case-link"
-            >
-              Ver projeto relacionado: {relatedProject.name} ↗
-            </Link>
+            <aside className="service-detail__related-case" aria-label="Exemplo de projeto realizado">
+              <h3>Projeto relacionado: {relatedProject.name}</h3>
+              <p>{relatedProject.overview}</p>
+              <Link
+                href={`/trabalhos/${relatedProject.slug}`}
+                data-curtain={relatedProject.name}
+                prefetch={false}
+                className="service-detail__case-link"
+              >
+                Conhecer o case de {relatedProject.name} ↗
+              </Link>
+            </aside>
           )}
         </section>
 

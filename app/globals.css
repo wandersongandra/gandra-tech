@@ -1900,6 +1900,28 @@ main {
   color: var(--dim);
 }
 
+.service-detail__related-case {
+  max-width: 760px;
+  margin-top: 48px;
+  padding: 28px 0 0;
+  border-top: 1px solid rgba(18, 17, 14, 0.12);
+}
+
+.service-detail__related-case h3 {
+  font-family: var(--font-sans);
+  font-size: clamp(20px, 2.5vw, 28px);
+  font-weight: 600;
+  line-height: 1.25;
+}
+
+.service-detail__related-case p {
+  margin-top: 12px;
+  font-family: var(--font-sans);
+  font-size: 15px;
+  line-height: 1.7;
+  color: var(--dim);
+}
+
 .service-detail__case-link {
   display: inline-flex;
   min-height: 48px;

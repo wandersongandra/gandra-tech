@@ -4,6 +4,7 @@ import Link from 'next/link'
 import KineticWordmark from '@/components/motion/KineticWordmark'
 import LetterDrop from '@/components/motion/LetterDrop'
 import { scrollToTop } from '@/lib/scroll'
+import { services } from '@/lib/services'
 import { contactEmail, contactMailto, siteLastModified } from '@/lib/site'
 
 const navigation = [
@@ -36,10 +37,22 @@ export default function Footer() {
           <div className="m-footer__col">
             <span className="m-label">Estúdio</span>
             <p className="m-footer__about">
-              Gandra Tecnologia — sites, sistemas sob medida, aplicações web e automações. Atendimento
-              remoto em todo o Brasil.
+              Gandra Tecnologia — sites, sistemas sob medida, aplicações web e automações.
+              Atuação em Belo Horizonte (MG) e atendimento remoto em todo o Brasil.
             </p>
           </div>
+          <nav className="m-footer__col" aria-label="Serviços da Gandra Tecnologia">
+            <span className="m-label">O que fazemos</span>
+            <ul className="m-footer__list">
+              {services.map((service) => (
+                <li key={service.slug}>
+                  <Link href={`/servicos/${service.slug}`} prefetch={false} className="m-link">
+                    {service.title}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </nav>
           <nav className="m-footer__col" aria-label="Rodapé">
             <span className="m-label">Navegação</span>
             <ul className="m-footer__list">
