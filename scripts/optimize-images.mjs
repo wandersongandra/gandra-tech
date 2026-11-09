@@ -40,6 +40,10 @@ const sources = {
   '/images/projects/telma-santos/site-mobile.webp': { kind: 'ui' },
   '/images/projects/gisley-nunes/site-desktop.webp': { kind: 'ui' },
   '/images/projects/gisley-nunes/site-mobile.webp': { kind: 'ui' },
+  // Projeto público do laboratório: fotos do acervo e peça editorial oficial.
+  '/images/projects/laboratorio-dental-araujo/work.webp': { kind: 'photo' },
+  '/images/projects/laboratorio-dental-araujo/cover.webp': { kind: 'ui' },
+  '/images/projects/laboratorio-dental-araujo/main.webp': { kind: 'photo' },
 }
 
 // Interfaces têm texto pequeno: compressão mais leve para não borrar.
@@ -53,7 +57,12 @@ let totalIn = 0
 
 // --manifest-only: regrava só o manifesto, sem reencodar as variantes.
 const manifestOnly = process.argv.includes('--manifest-only')
-if (!manifestOnly) await fs.rm(outRoot, { recursive: true, force: true })
+// --only=slug: acrescenta variantes do projeto sem regravar assets já versionados.
+const only = process.argv.find((arg) => arg.startsWith('--only='))?.slice('--only='.length)
+if (only && !Object.keys(sources).some((src) => src.includes(only))) {
+  throw new Error(`Não há imagens configuradas para --only=${only}`)
+}
+if (!manifestOnly && !only) await fs.rm(outRoot, { recursive: true, force: true })
 
 for (const [src, cfg] of Object.entries(sources)) {
   const input = path.join(root, cfg.file ?? path.join('public', src))
@@ -64,7 +73,7 @@ for (const [src, cfg] of Object.entries(sources)) {
   await fs.mkdir(dir, { recursive: true })
   totalIn += (await fs.stat(path.join(root, 'public', src))).size
 
-  for (const w of manifestOnly ? [] : widths) {
+  for (const w of manifestOnly || (only && !src.includes(only)) ? [] : widths) {
     const pipeline = sharp(input).resize({ width: w, withoutEnlargement: true })
     const stem = path.join(outRoot, `${base}-${w}`)
     await pipeline.clone().avif({ quality: QUALITY[cfg.kind].avif, effort: 4 }).toFile(`${stem}.avif`)

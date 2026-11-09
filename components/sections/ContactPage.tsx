@@ -26,7 +26,7 @@ export default function ContactPage() {
             duration={0.95}
             animateOpacity={false}
           >
-            Trabalho bom começa com uma conversa honesta.
+            Vamos conversar sobre seu site, sistema ou automação.
           </WordReveal>
           <FadeIn as="p" className="cp-hero__sub" trigger="load" delay={0.3} y={20} duration={0.7} animateOpacity={false}>
             Conta o que você tem em mente. A gente responde com atenção — sem roteiro de vendas,

@@ -71,7 +71,7 @@ export default function ProjectView({ project, next }: { project: Project; next:
   const domain = siteDomain(project)
 
   const shots = [
-    { src: project.mainImage, alt: `Imagem principal do projeto ${project.name}`, caption: undefined as string | undefined },
+    { src: project.mainImage, alt: project.mainImageAlt ?? `Imagem principal do projeto ${project.name}`, caption: undefined as string | undefined },
     ...project.gallery,
   ]
 
@@ -126,7 +126,7 @@ export default function ProjectView({ project, next }: { project: Project; next:
           <div className="m-case__plate-img" data-depth={layout === 'stage' ? '0.06' : '0.12'}>
             <Picture
               src={project.coverImage}
-              alt={`${project.name} — capa do projeto`}
+              alt={project.coverImageAlt ?? `${project.name} — capa do projeto`}
               sizes={layout === 'stage' ? (cover?.orientation === 'portrait' ? '(min-width: 768px) 40vw, 80vw' : '(min-width: 1680px) 1500px, 92vw') : '100vw'}
               fit={layout === 'stage' ? 'contain' : 'cover'}
               priority

@@ -449,9 +449,10 @@ async function main() {
       // Trabalhos na home: índice tipográfico (sem fotos soltas); a linha leva ao case.
       assert.equal(await page.locator('#trabalhos .project-card').count(), 0, viewport.name + ': cards com foto não deveriam voltar à home')
       const rows = await page.locator('#trabalhos .work-row__link').evaluateAll((links) => links.map((a) => ({ href: a.getAttribute('href'), target: a.getAttribute('target'), domain: a.querySelector('.work-row__domain')?.textContent || '' })))
-      assert.equal(rows.length, 4, viewport.name + ': lista de projetos incompleta')
+      assert.equal(rows.length, 5, viewport.name + ': lista de projetos incompleta')
       assert.ok(rows.every((r) => /^\/trabalhos\/[a-z0-9-]+$/.test(r.href) && r.target === null), viewport.name + ': linha da lista deve abrir o case, não o site externo')
       assert.ok(rows.some((r) => r.domain.includes('ajnengenharia.com.br')), viewport.name + ': domínio do site no ar ausente na lista')
+      assert.ok(rows.some((r) => r.href === '/trabalhos/laboratorio-dental-araujo'), viewport.name + ': case do Laboratório Dental Araújo ausente')
       assert.equal(await page.locator('.work-rail').count(), 0, viewport.name + ': rail horizontal antigo ainda renderizado')
       assert.equal(await page.locator('#laboratorio').count(), 0, viewport.name + ': seção do laboratório 3D não deveria existir')
       // Só os rastros de tinta 2D (.m-ink-trail) podem existir; nada de WebGL.
@@ -463,7 +464,7 @@ async function main() {
         sized: !!pic.querySelector('img[width][height]'),
         hidden: pic.closest('.work-row__peek').getAttribute('aria-hidden') === 'true',
       })))
-      assert.equal(peeks.length, 4, viewport.name + ': prévias da lista ausentes')
+      assert.equal(peeks.length, 5, viewport.name + ': prévias da lista ausentes')
       assert.ok(peeks.every(i => i.avif && i.webp && i.sized && i.hidden), viewport.name + ': prévia sem AVIF/WebP, sem width/height ou exposta ao leitor de tela')
       const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth)
       assert.ok(overflow <= 2, viewport.name + ': overflow de ' + overflow + 'px')

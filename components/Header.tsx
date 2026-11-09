@@ -155,9 +155,9 @@ export default function Header() {
           Serviços
         </Link>
         {isHome ? (
-          <button onClick={() => scrollToSection('#trabalhos')} className="site-header__link">
+          <a href="#trabalhos" onClick={(event) => { event.preventDefault(); scrollToSection('#trabalhos') }} className="site-header__link">
             Trabalhos
-          </button>
+          </a>
         ) : (
           <Link href="/#trabalhos" prefetch={false} className="site-header__link">
             Trabalhos

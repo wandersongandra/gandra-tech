@@ -12,6 +12,7 @@ export const metadata: Metadata = {
     path: '/politica-de-privacidade',
   }),
   robots: { index: false, follow: false },
+  title: { absolute: 'Política de Privacidade — Gandra Tecnologia' },
 }
 
 export default function PoliticaDePrivacidade() {

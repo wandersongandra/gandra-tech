@@ -12,6 +12,7 @@ export const metadata: Metadata = {
     path: '/termos-de-uso',
   }),
   robots: { index: false, follow: false },
+  title: { absolute: 'Termos de Uso — Gandra Tecnologia' },
 }
 
 export default function TermosDeUso() {

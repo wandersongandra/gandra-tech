@@ -12,6 +12,7 @@
     "audit": "npm audit --audit-level=moderate",
     "optimize:images": "node scripts/optimize-images.mjs",
     "validate:build-security": "node scripts/validate-build-security.mjs",
+    "validate:seo": "node scripts/validate-seo.cjs",
     "check:production": "node scripts/check-production.mjs",
     "postbuild": "node scripts/generate-csp.mjs"
   },

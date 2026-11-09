@@ -232,5 +232,44 @@ export const media: Record<string, MediaEntry> = {
     ],
     "kind": "ui",
     "bg": "#f8f4ee"
+  },
+  "/images/projects/laboratorio-dental-araujo/work.webp": {
+    "base": "/images/r/projects/laboratorio-dental-araujo/work",
+    "width": 1200,
+    "height": 800,
+    "widths": [
+      480,
+      768,
+      1080,
+      1200
+    ],
+    "kind": "photo",
+    "bg": "#565250"
+  },
+  "/images/projects/laboratorio-dental-araujo/cover.webp": {
+    "base": "/images/r/projects/laboratorio-dental-araujo/cover",
+    "width": 1200,
+    "height": 630,
+    "widths": [
+      480,
+      768,
+      1080,
+      1200
+    ],
+    "kind": "ui",
+    "bg": "#f7f3ed"
+  },
+  "/images/projects/laboratorio-dental-araujo/main.webp": {
+    "base": "/images/r/projects/laboratorio-dental-araujo/main",
+    "width": 1200,
+    "height": 800,
+    "widths": [
+      480,
+      768,
+      1080,
+      1200
+    ],
+    "kind": "photo",
+    "bg": "#7b7270"
   }
 }

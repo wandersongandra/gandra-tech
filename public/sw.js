@@ -1,4 +1,4 @@
-const VERSION = 'materia-2026-10-v3'
+const VERSION = 'materia-2026-11-seo-v1'
 const STATIC_LIMIT = 120
 const SHELL_CACHE = `gandra-shell-${VERSION}`
 const STATIC_CACHE = `gandra-static-${VERSION}`
@@ -17,6 +17,7 @@ const NAVIGATION_PATHS = new Set([
   '/trabalhos/telma-santos',
   '/trabalhos/gisley-nunes-imoveis',
   '/trabalhos/ajn-consultoria-engenharia',
+  '/trabalhos/laboratorio-dental-araujo',
   '/contato',
   '/termos-de-uso',
   '/politica-de-privacidade',

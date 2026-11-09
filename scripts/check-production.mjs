@@ -12,6 +12,7 @@ const routes = [
   '/trabalhos/telma-santos',
   '/trabalhos/gisley-nunes-imoveis',
   '/trabalhos/ajn-consultoria-engenharia',
+  '/trabalhos/laboratorio-dental-araujo',
   '/contato',
   '/llms.txt',
   '/sitemap.xml',
@@ -123,6 +124,17 @@ for (const route of routes) {
     const message = error instanceof Error ? error.message : 'erro desconhecido'
     failures.push(`${route}: ${message}`)
   }
+}
+
+// Evita soft 404: a rota inexistente precisa devolver HTTP 404 real.
+try {
+  const missing = await fetch(`${baseUrl}/__seo-verificacao-404`, {
+    redirect: 'manual',
+    signal: AbortSignal.timeout(15_000),
+  })
+  if (missing.status !== 404) failures.push(`404: retornou HTTP ${missing.status}`)
+} catch (error) {
+  failures.push(`404: ${error instanceof Error ? error.message : 'erro desconhecido'}`)
 }
 
 try {

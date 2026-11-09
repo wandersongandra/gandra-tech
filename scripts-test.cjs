@@ -4,7 +4,7 @@ const path = require('node:path')
 const root = __dirname
 const source = fs.readFileSync(path.join(root, 'lib', 'projects.ts'), 'utf8')
 const slugs = [...source.matchAll(/slug:\s*'([^']+)'/g)].map((match) => match[1])
-const expected = ['sgs', 'telma-santos', 'gisley-nunes-imoveis', 'ajn-consultoria-engenharia']
+const expected = ['sgs', 'telma-santos', 'gisley-nunes-imoveis', 'ajn-consultoria-engenharia', 'laboratorio-dental-araujo']
 const failures = []
 
 if (JSON.stringify(slugs) !== JSON.stringify(expected)) {
@@ -33,7 +33,7 @@ assertLab.doesNotMatch(homeSrc, /ImmersiveLab/)
 for (const removed of ['components/sections/ImmersiveLab.tsx', 'components/motion/OrbitalArtifact.tsx', 'components/motion/HeroBlob.tsx']) {
   assertLab.ok(!require('node:fs').existsSync(require('node:path').join(__dirname, removed)), removed + ' deveria ter sido removido')
 }
-for (const slug of ['gisley-nunes-imoveis', 'ajn-consultoria-engenharia']) assertLab.ok(swSrc.includes("'/trabalhos/" + slug + "'"))
+for (const slug of ['gisley-nunes-imoveis', 'ajn-consultoria-engenharia', 'laboratorio-dental-araujo']) assertLab.ok(swSrc.includes("'/trabalhos/" + slug + "'"))
 
 // Caça a bugs 2026-10: o Pages responde /offline.html com 308 → /offline; uma
 // resposta "redirected" no cache quebra a navegação (net::ERR_FAILED).
