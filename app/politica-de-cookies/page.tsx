@@ -3,6 +3,7 @@ import Link from 'next/link'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
 import LegalContainer from '@/components/LegalContainer'
+import ClearSitePreferences from '@/components/ClearSitePreferences'
 import { createPageMetadata } from '@/lib/seo'
 import { leadSubmissionEnabled } from '@/lib/lead-availability'
 
@@ -59,6 +60,13 @@ export default function PoliticaDeCookies() {
           <section aria-labelledby="cookies-provedores">
             <h2 id="cookies-provedores">3. Infraestrutura, medição e segurança</h2>
             <p>
+              Um <em>service worker</em> também pode guardar cópias locais de páginas públicas,
+              imagens, fontes e arquivos do site na área de <em>Cache Storage</em> para melhorar
+              a continuidade da navegação e oferecer uma página de aviso quando não houver conexão.
+              Esse cache de arquivos é diferente dos cookies e das preferências listadas acima;
+              não é usado para guardar o conteúdo digitado em pedidos de orçamento.
+            </p>
+            <p>
               A hospedagem e a proteção da Cloudflare podem usar cookies técnicos de segurança,
               por exemplo durante uma verificação automatizada de acesso. A emissão concreta
               depende dos recursos de proteção acionados na visita.
@@ -66,7 +74,7 @@ export default function PoliticaDeCookies() {
             <p>
               O Cloudflare Web Analytics pode carregar um script de medição de desempenho e
               visitas para fornecer estatísticas agregadas. Segundo a documentação do provedor,
-              esse serviço não usa dados pessoais dos visitantes para análise individual.
+              essa medição não utiliza cookies nem armazenamento local para identificar visitantes.
               Não utilizamos pixels publicitários próprios ou cookies para anúncios personalizados.
             </p>
             {leadSubmissionEnabled && (
@@ -81,14 +89,22 @@ export default function PoliticaDeCookies() {
           <section aria-labelledby="cookies-controle">
             <h2 id="cookies-controle">4. Como controlar esses recursos</h2>
             <p>
-              Você pode limpar cookies e dados armazenados do domínio nas configurações do navegador.
-              Também pode desligar os efeitos sonoros no próprio site. A exclusão de preferências
-              pode fazer a animação de entrada reaparecer ou redefinir o modo de navegação.
+              Você pode apagar os registros de preferências visuais listados na seção 2 usando
+              o botão abaixo, sem apagar outros dados do navegador. A alteração de preferências
+              pode fazer a animação de entrada reaparecer ou redefinir os efeitos na próxima visita.
+            </p>
+            <ClearSitePreferences />
+            <p>
+              Esse botão não apaga cookies técnicos de segurança da Cloudflare nem o cache offline
+              de páginas e imagens. Para limpar esses outros dados, use as configurações do
+              navegador para remover os dados armazenados por <strong>gandra.tech</strong>.
+              Você também pode desligar os sons diretamente no site.
             </p>
             <p>
-              Não há, no código atual, cookies de publicidade ou categorias opcionais próprias
-              que exijam um painel de preferências. Se forem adicionados rastreadores não essenciais,
-              será necessária nova avaliação e implementação de escolhas adequadas antes da ativação.
+              No código próprio do site não identificamos cookies de publicidade nem mecanismos
+              de personalização de anúncios. Se forem adicionados rastreadores não essenciais,
+              haverá uma nova avaliação das informações e das escolhas oferecidas ao visitante
+              antes de sua ativação.
             </p>
           </section>
 

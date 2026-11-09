@@ -188,6 +188,9 @@ jobs:
       - name: Conversion journey on local export
         run: node scripts/conversion-qa.cjs
 
+      - name: Privacy preferences on local export
+        run: node scripts/privacy-qa.cjs
+
       - name: Archive screenshots
         if: always()
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
