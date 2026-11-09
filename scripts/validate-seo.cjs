@@ -6,6 +6,7 @@ const output = path.resolve(__dirname, '..', 'out')
 const origin = 'https://gandra.tech'
 const sitemap = fs.readFileSync(path.join(output, 'sitemap.xml'), 'utf8')
 const urls = [...sitemap.matchAll(/<loc>([^<]+)<\/loc>/g)].map((match) => match[1])
+const serviceRoutes = urls.map((url) => new URL(url).pathname).filter((route) => /^\/servicos\/[^/]+$/.test(route))
 
 assert.equal(urls.length, 14, 'sitemap deve conter as 14 páginas comerciais indexáveis')
 assert.equal(new Set(urls).size, urls.length, 'sitemap contém URLs duplicadas')
@@ -47,6 +48,12 @@ for (const url of urls) {
   assert.doesNotMatch(html, /<meta name="robots" content="[^"]*noindex/, `${route}: noindex indevido`)
   assert.equal((html.match(/<h1\b/g) || []).length, 1, `${route}: deve haver apenas um H1`)
 
+  // O rodapé oferece caminhos rastreáveis para cada serviço em toda rota pública.
+  // Isso permite encontrar as páginas mesmo fora da home animada.
+  for (const serviceRoute of serviceRoutes) {
+    assert.ok(html.includes(`href="${serviceRoute}"`), `${route}: link interno para ${serviceRoute} ausente`)
+  }
+
   for (const property of ['og:title', 'og:description', 'og:url', 'og:image', 'og:type', 'og:locale']) {
     assert.ok(html.includes(`property="${property}"`), `${route}: ${property} ausente`)
   }
@@ -67,6 +74,18 @@ for (const url of urls) {
     assert.match(image, /\bheight="\d+"/, `${route}: imagem sem height`)
   }
 }
+
+const servicesIndexHtml = getHtml('/servicos')
+assert.match(servicesIndexHtml, /Belo Horizonte/, 'serviços: contexto local real ausente')
+let documentedCases = 0
+for (const serviceRoute of serviceRoutes) {
+  const serviceHtml = getHtml(serviceRoute)
+  if (serviceHtml.includes('Projeto relacionado:')) {
+    documentedCases += 1
+    assert.match(serviceHtml, /Conhecer o case de/, `${serviceRoute}: link contextual para o case ausente`)
+  }
+}
+assert.ok(documentedCases >= 4, 'provas de projetos reais ausentes das páginas de serviço relacionadas')
 
 const robots = fs.readFileSync(path.join(output, 'robots.txt'), 'utf8')
 for (const blocked of ['/admin', '/api', '/dashboard']) {

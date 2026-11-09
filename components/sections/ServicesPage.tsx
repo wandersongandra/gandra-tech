@@ -16,9 +16,9 @@ export default function ServicesPage() {
           <p className="service-page__eyebrow">DO ESCOPO AO PRODUTO NO AR</p>
           <h1>Desenvolvimento de sites, sistemas e aplicações web.</h1>
           <p className="service-page__intro">
-            A Gandra Tecnologia cria experiências digitais para empresas, profissionais e
-            empreendedores em todo o Brasil, com atendimento remoto e uma abordagem que conecta
-            estratégia, design e engenharia.
+            Com atuação em Belo Horizonte (MG) e atendimento remoto para todo o Brasil,
+            a Gandra Tecnologia cria experiências digitais para empresas, profissionais
+            e empreendedores. Cada projeto conecta estratégia, design e engenharia.
           </p>
         </header>
 
@@ -54,7 +54,7 @@ export default function ServicesPage() {
                       prefetch={false}
                       className="service-page__case"
                     >
-                      Ver serviço em detalhes ↗
+                      Conhecer {service.title.toLowerCase()} ↗
                     </Link>
                     {relatedProject && (
                       <Link
