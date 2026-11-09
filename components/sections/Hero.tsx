@@ -1,8 +1,8 @@
+import Link from 'next/link'
 import KineticWordmark from '@/components/motion/KineticWordmark'
 import MagneticButton from '@/components/motion/MagneticButton'
 import LocalClock from '@/components/materia/LocalClock'
 import SplitWords from '@/components/materia/SplitWords'
-import { contactMailto } from '@/lib/site'
 
 /**
  * Hero "Matéria": título editorial revelado por máscara (CSS, sem esperar
@@ -37,10 +37,10 @@ export default function Hero() {
           </p>
           <div className="m-hero__actions">
             <MagneticButton strength={0.25}>
-              <a href={contactMailto} className="m-button m-button--solid">
+              <Link href="/contato#orcamento" prefetch={false} className="m-button m-button--solid">
                 <span className="m-button__label" data-text="Solicitar orçamento">Solicitar orçamento</span>
                 <span className="m-button__icon" aria-hidden="true">↗</span>
-              </a>
+              </Link>
             </MagneticButton>
             <a href="#servicos" className="m-link">
               Ver serviços <span aria-hidden="true">↓</span>

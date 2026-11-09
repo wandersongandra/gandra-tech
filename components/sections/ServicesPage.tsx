@@ -1,7 +1,6 @@
 import Link from 'next/link'
 import { services } from '@/lib/services'
 import { getProject } from '@/lib/projects'
-import { contactMailto } from '@/lib/site'
 
 export default function ServicesPage() {
   return (
@@ -49,6 +48,13 @@ export default function ServicesPage() {
                   </div>
                   <div className="service-page__links">
                     <Link
+                      href={`/contato?servico=${service.slug}#orcamento`}
+                      prefetch={false}
+                      className="service-page__case"
+                    >
+                      Pedir orçamento de {service.title.toLowerCase()} ↗
+                    </Link>
+                    <Link
                       href={`/servicos/${service.slug}`}
                       data-curtain={service.title}
                       prefetch={false}
@@ -81,9 +87,9 @@ export default function ServicesPage() {
             ser resolvido. A partir disso, definimos o escopo, as etapas e a melhor forma de construir
             a solução.
           </p>
-          <a href={contactMailto} className="link-arrow service-page__cta">
+          <Link href="/contato#orcamento" prefetch={false} className="link-arrow service-page__cta">
             Falar sobre um projeto ↗
-          </a>
+          </Link>
         </section>
       </div>
     </section>

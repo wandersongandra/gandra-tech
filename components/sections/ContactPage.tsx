@@ -6,6 +6,7 @@ import CopyEmailButton from '@/components/CopyEmailButton'
 import { activeSocialLinks, contactEmail, contactMailto, contactNotes } from '@/lib/site'
 import { faqItems } from '@/lib/faq'
 import { contactSteps } from '@/lib/process'
+import ContactBrief from '@/components/sections/ContactBrief'
 
 export default function ContactPage() {
   return (
@@ -38,8 +39,13 @@ export default function ContactPage() {
             </a>
           </FadeIn>
           <CopyEmailButton email={contactEmail} />
+          <a href="#orcamento" className="cp-hero__brief-link">
+            Prefere explicar o projeto primeiro? Prepare sua mensagem ↓
+          </a>
         </div>
       </section>
+
+      <ContactBrief />
 
       {/* Info grid */}
       <section className="cp-grid-section">
