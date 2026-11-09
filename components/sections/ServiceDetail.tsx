@@ -1,7 +1,6 @@
 import Link from 'next/link'
 import { getProject } from '@/lib/projects'
 import { getService, type Service } from '@/lib/services'
-import { contactMailto } from '@/lib/site'
 
 export default function ServiceDetail({ service }: { service: Service }) {
   const relatedProject = service.relatedProjectSlug
@@ -19,9 +18,9 @@ export default function ServiceDetail({ service }: { service: Service }) {
           <p className="service-detail__eyebrow">SERVIÇO / GANDRA TECH</p>
           <h1>{service.headline}</h1>
           <p className="service-detail__lead">{service.lead}</p>
-          <a href={contactMailto} className="link-arrow service-detail__primary-cta">
+          <Link href={`/contato?servico=${service.slug}#orcamento`} prefetch={false} className="link-arrow service-detail__primary-cta">
             Solicitar orçamento ↗
-          </a>
+          </Link>
         </header>
 
         <div className="service-detail__intro-grid">
@@ -123,9 +122,9 @@ export default function ServiceDetail({ service }: { service: Service }) {
             Conte o que precisa ser resolvido. O primeiro passo é entender o cenário antes de
             definir escopo, prazo e tecnologia.
           </p>
-          <a href={contactMailto} className="link-arrow service-detail__primary-cta">
+          <Link href={`/contato?servico=${service.slug}#orcamento`} prefetch={false} className="link-arrow service-detail__primary-cta">
             Falar sobre o projeto ↗
-          </a>
+          </Link>
         </section>
       </div>
     </section>
