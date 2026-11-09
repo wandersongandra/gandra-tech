@@ -965,6 +965,47 @@ body {
   min-width: 0;
 }
 
+.cp-brief__reference {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 18px 20px;
+  border-left: 3px solid var(--accent);
+  background: rgba(18, 17, 14, 0.045);
+}
+
+.cp-brief__reference .cp-grid__label {
+  display: block;
+  margin-bottom: 8px;
+}
+
+.cp-brief__reference p {
+  max-width: 390px;
+  font-family: var(--font-sans);
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--dim);
+}
+
+.cp-brief__reference strong {
+  color: var(--ink);
+}
+
+.cp-brief__reference button {
+  flex: 0 0 auto;
+  min-height: 44px;
+  padding: 8px 0;
+  border: 0;
+  border-bottom: 1px solid currentColor;
+  background: transparent;
+  color: var(--ink);
+  font-family: var(--font-sans);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
 .cp-brief__field label {
   font-family: var(--font-sans);
   font-size: 13px;
@@ -1060,6 +1101,67 @@ body {
   opacity: 0.55;
 }
 
+.cp-brief__send {
+  width: 100%;
+}
+
+.cp-brief__send:disabled {
+  cursor: not-allowed;
+  background: rgba(18, 17, 14, 0.55);
+  border-color: transparent;
+}
+
+.cp-brief__send:focus-visible,
+.cp-brief__consent input:focus-visible {
+  outline: 3px solid var(--accent);
+  outline-offset: 4px;
+}
+
+.cp-brief__consent {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  max-width: 560px;
+  font-family: var(--font-sans);
+  font-size: 13px;
+  line-height: 1.55;
+  cursor: pointer;
+}
+
+.cp-brief__consent input {
+  accent-color: var(--ink);
+  width: 19px;
+  height: 19px;
+  flex: 0 0 19px;
+  margin: 1px 0 0;
+}
+
+.cp-brief__consent a {
+  color: var(--ink);
+  text-underline-offset: 3px;
+}
+
+.cp-brief__challenge {
+  min-height: 74px;
+}
+
+.cp-brief__warning {
+  max-width: 520px;
+  font-family: var(--font-sans);
+  font-size: 13px;
+  line-height: 1.6;
+  color: #a43d28;
+}
+
+/* A armadilha antispam não interfere no layout nem na navegação por teclado. */
+.cp-brief__honeypot {
+  position: absolute;
+  left: -10000px;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}
+
 .cp-brief__preview {
   border-top: 1px solid rgba(18, 17, 14, 0.17);
   border-bottom: 1px solid rgba(18, 17, 14, 0.17);
@@ -1117,6 +1219,11 @@ body {
 }
 
 @media (max-width: 640px) {
+  .cp-brief__reference {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 8px;
+  }
   .cp-hero__email {
     font-size: clamp(20px, 6.5vw, 44px);
   }
@@ -1513,6 +1620,53 @@ body {
 
 .legal-page__content a:hover {
   color: var(--muted);
+}
+
+.legal-page__preferences {
+  margin: 20px 0 24px;
+}
+
+.legal-page__preferences button {
+  min-height: 48px;
+  padding: 10px 18px;
+  border: 1px solid var(--ink);
+  background: var(--ink);
+  color: var(--paper);
+  font-family: var(--font-sans);
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.5;
+  text-align: center;
+  cursor: pointer;
+  transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+
+.legal-page__preferences button:hover {
+  background: var(--accent);
+  border-color: var(--accent);
+}
+
+.legal-page__preferences button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.legal-page__preferences button:focus-visible {
+  outline: 3px solid var(--accent);
+  outline-offset: 4px;
+}
+
+.legal-page__content .legal-page__preferences-status {
+  margin-top: 12px;
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--ink);
+}
+
+@media (max-width: 640px) {
+  .legal-page__preferences button {
+    width: 100%;
+  }
 }
 
 @media (max-width: 640px) {

@@ -7,9 +7,9 @@ import { services } from '@/lib/services'
 import { createPageMetadata, createServiceJsonLd } from '@/lib/seo'
 
 export const metadata = createPageMetadata({
-  title: 'Criação de Sites e Sistemas Web em BH',
+  title: 'Criação de Sites e Sistemas Web em Vespasiano e BH',
   description:
-    'Criação de sites, sistemas web e automações com atuação em Belo Horizonte e atendimento nacional. Conheça os serviços da Gandra e solicite uma proposta.',
+    'Criação de sites, sistemas web e automações com base em Vespasiano, na Grande BH, e atendimento nacional. Conheça os serviços da Gandra e solicite uma proposta.',
   path: '/servicos',
 })
 

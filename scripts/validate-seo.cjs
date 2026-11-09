@@ -76,7 +76,7 @@ for (const url of urls) {
 }
 
 const servicesIndexHtml = getHtml('/servicos')
-assert.match(servicesIndexHtml, /Belo Horizonte/, 'serviços: contexto local real ausente')
+assert.match(servicesIndexHtml, /Vespasiano/, 'serviços: contexto local real ausente')
 let documentedCases = 0
 for (const serviceRoute of serviceRoutes) {
   const serviceHtml = getHtml(serviceRoute)
@@ -93,9 +93,19 @@ for (const blocked of ['/admin', '/api', '/dashboard']) {
 }
 assert.ok(robots.includes(`Sitemap: ${origin}/sitemap.xml`), 'robots.txt sem sitemap')
 
-for (const filename of ['politica-de-privacidade.html', 'termos-de-uso.html', '404.html']) {
+for (const filename of ['politica-de-privacidade.html', 'politica-de-cookies.html', 'termos-de-uso.html', '404.html']) {
   const html = fs.readFileSync(path.join(output, filename), 'utf8')
   assert.match(html, /<meta name="robots" content="[^"]*noindex/, `${filename}: noindex ausente`)
 }
+
+const cookiesHtml = getHtml('/politica-de-cookies')
+for (const key of ['gt-intro', 'gt-som', 'gt-tinta', 'gt-sig', 'gt-scroll']) {
+  assert.ok(cookiesHtml.includes(key), `política de cookies: falta explicar ${key}`)
+}
+assert.match(cookiesHtml, /Cloudflare Web Analytics/, 'política de cookies sem transparência da medição')
+for (const route of ['/', '/contato', '/termos-de-uso', '/politica-de-privacidade']) {
+  assert.ok(getHtml(route).includes('href="/politica-de-cookies"'), `${route}: link para política de cookies ausente`)
+}
+assert.doesNotMatch(sitemap, /politica-de-cookies/, 'página legal não deve constar no sitemap comercial')
 
 console.log(`SEO estático validado: ${urls.length} rotas com canonical, H1, metadados, JSON-LD e imagens dimensionadas.`)

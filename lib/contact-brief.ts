@@ -1,4 +1,5 @@
 import { services } from '@/lib/services'
+import { getProject } from '@/lib/projects'
 import { contactEmail } from '@/lib/site'
 
 export type ContactBriefFields = {
@@ -6,14 +7,20 @@ export type ContactBriefFields = {
   name: string
   contact: string
   project: string
+  referenceSlug?: string
 }
 
 export function isKnownServiceSlug(slug: string): boolean {
   return services.some((service) => service.slug === slug)
 }
 
+export function isKnownReferenceSlug(slug: string): boolean {
+  return Boolean(getProject(slug))
+}
+
 export function composeContactBrief(fields: ContactBriefFields) {
   const service = services.find((item) => item.slug === fields.serviceSlug)
+  const reference = fields.referenceSlug ? getProject(fields.referenceSlug) : undefined
   const name = fields.name.trim()
   const contact = fields.contact.trim()
   const project = fields.project.trim()
@@ -26,6 +33,7 @@ export function composeContactBrief(fields: ContactBriefFields) {
     '',
     'Gostaria de conversar sobre um projeto e solicitar uma proposta.',
     `Serviço de interesse: ${service?.title ?? 'Ainda estou definindo'}`,
+    reference ? `Case de referência: ${reference.name} (visto em gandra.tech/trabalhos/${reference.slug})` : null,
     name ? `Nome: ${name}` : null,
     contact ? `Contato para retorno: ${contact}` : null,
     '',
@@ -38,6 +46,7 @@ export function composeContactBrief(fields: ContactBriefFields) {
   return {
     subject,
     body,
+    referenceName: reference?.name ?? null,
     copyText: `Para: ${contactEmail}\nAssunto: ${subject}\n\n${body}`,
     mailto: `mailto:${contactEmail}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`,
   }

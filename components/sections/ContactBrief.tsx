@@ -1,29 +1,97 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { composeContactBrief, isKnownServiceSlug } from '@/lib/contact-brief'
+import { composeContactBrief, isKnownReferenceSlug, isKnownServiceSlug } from '@/lib/contact-brief'
 import { services } from '@/lib/services'
 import { contactEmail, contactMailto } from '@/lib/site'
+import { leadSubmissionEnabled, turnstileSiteKey } from '@/lib/lead-availability'
+import { isLeadAcceptedResponse } from '@/lib/lead-response'
+import { isValidLeadContact } from '@/lib/lead-contact-validation'
+import Link from 'next/link'
+import TurnstileChallenge from './TurnstileChallenge'
 
 export default function ContactBrief() {
   const [serviceSlug, setServiceSlug] = useState('')
+  const [referenceSlug, setReferenceSlug] = useState('')
   const [name, setName] = useState('')
   const [contact, setContact] = useState('')
   const [project, setProject] = useState('')
   const [copyState, setCopyState] = useState<'idle' | 'copied' | 'error'>('idle')
+  const [emailHintVisible, setEmailHintVisible] = useState(false)
   const [hydrated, setHydrated] = useState(false)
+  const [website, setWebsite] = useState('')
+  const [acknowledged, setAcknowledged] = useState(false)
+  const [challengeToken, setChallengeToken] = useState('')
+  const [challengeResetKey, setChallengeResetKey] = useState(0)
+  const [sendState, setSendState] = useState<'idle' | 'sending' | 'sent' | 'error'>('idle')
+  const [sendMessage, setSendMessage] = useState('')
 
   // A exportação estática mantém o mesmo HTML para todos. A origem do CTA é
   // lida apenas depois da hidratação, validada contra o catálogo real.
   useEffect(() => {
     setHydrated(true)
-    const slug = new URLSearchParams(window.location.search).get('servico') ?? ''
+    const params = new URLSearchParams(window.location.search)
+    const slug = params.get('servico') ?? ''
     if (isKnownServiceSlug(slug)) setServiceSlug(slug)
+    const reference = params.get('referencia') ?? ''
+    if (isKnownReferenceSlug(reference)) setReferenceSlug(reference)
   }, [])
 
-  const brief = composeContactBrief({ serviceSlug, name, contact, project })
+  const brief = composeContactBrief({ serviceSlug, referenceSlug, name, contact, project })
+
+  const sendDirectly = async () => {
+    if (!leadSubmissionEnabled || sendState === 'sending' || sendState === 'sent') return
+    if (name.trim().length < 2 || name.trim().length > 90) {
+      setSendMessage('Informe seu nome (pelo menos dois caracteres).')
+      return
+    }
+    const contactValue = contact.trim()
+    if (!isValidLeadContact(contactValue)) {
+      setSendMessage('Informe um e-mail válido ou WhatsApp com DDD.')
+      return
+    }
+    if (project.trim().length < 15) {
+      setSendMessage('Conte um pouco mais sobre o projeto (pelo menos 15 caracteres).')
+      return
+    }
+    if (!acknowledged) {
+      setSendMessage('Confirme a ciência da Política de Privacidade antes do envio.')
+      return
+    }
+    if (!challengeToken) {
+      setSendMessage('Conclua a verificação de segurança para enviar pelo site.')
+      return
+    }
+
+    setSendState('sending')
+    setSendMessage('Enviando sua solicitação com segurança…')
+    try {
+      const response = await fetch('/api/lead', {
+        method: 'POST',
+        credentials: 'omit',
+        headers: { 'Content-Type': 'application/json' },
+        // Não manter o botão indefinidamente em "Enviando" se a rede travar.
+        signal: AbortSignal.timeout(25_000),
+        body: JSON.stringify({
+          name: name.trim(), contact: contactValue, project: project.trim(),
+          serviceSlug, referenceSlug, token: challengeToken, website, consent: acknowledged,
+        }),
+      })
+      if (!(await isLeadAcceptedResponse(response))) {
+        throw new Error(`Resposta de envio não confirmada: ${response.status}`)
+      }
+      setSendState('sent')
+      setSendMessage('Seu pedido foi encaminhado! Vamos responder pelo contato informado.')
+    } catch {
+      setSendState('error')
+      setSendMessage('Não foi possível confirmar o envio. Tente novamente ou use a opção de e-mail abaixo.')
+      setChallengeToken('')
+      setChallengeResetKey((key) => key + 1)
+    }
+  }
 
   const copyBrief = async () => {
+    setEmailHintVisible(false)
     try {
       let copied = false
       if (navigator.clipboard?.writeText) {
@@ -79,7 +147,7 @@ export default function ContactBrief() {
               id="brief-service"
               disabled={!hydrated}
               value={serviceSlug}
-              onChange={(event) => { setServiceSlug(event.target.value); setCopyState('idle') }}
+              onChange={(event) => { setServiceSlug(event.target.value); setCopyState('idle'); setEmailHintVisible(false) }}
             >
               <option value="">Ainda estou definindo</option>
               {services.map((service) => (
@@ -87,6 +155,23 @@ export default function ContactBrief() {
               ))}
             </select>
           </div>
+          {brief.referenceName && (
+            <div className="cp-brief__reference" role="group" aria-label="Referência de projeto selecionada">
+              <div>
+                <span className="cp-grid__label">CASE QUE INSPIROU SEU CONTATO</span>
+                <p>
+                  <strong>{brief.referenceName}</strong> será citado como referência na sua mensagem.
+                  Podemos conversar sobre necessidades semelhantes, com uma solução própria para o seu negócio.
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => { setReferenceSlug(''); setCopyState('idle'); setEmailHintVisible(false) }}
+              >
+                Retirar referência
+              </button>
+            </div>
+          )}
           <div className="cp-brief__row">
             <div className="cp-brief__field">
               <label htmlFor="brief-name">Seu nome</label>
@@ -97,7 +182,7 @@ export default function ContactBrief() {
                 maxLength={90}
                 placeholder="Como podemos chamar você?"
                 value={name}
-                onChange={(event) => { setName(event.target.value); setCopyState('idle') }}
+                onChange={(event) => { setName(event.target.value); setCopyState('idle'); setEmailHintVisible(false) }}
               />
             </div>
             <div className="cp-brief__field">
@@ -109,7 +194,7 @@ export default function ContactBrief() {
                 maxLength={120}
                 placeholder="Seu contato preferido"
                 value={contact}
-                onChange={(event) => { setContact(event.target.value); setCopyState('idle') }}
+                onChange={(event) => { setContact(event.target.value); setCopyState('idle'); setEmailHintVisible(false) }}
               />
             </div>
           </div>
@@ -122,13 +207,40 @@ export default function ContactBrief() {
               maxLength={600}
               placeholder="O que você precisa resolver? Pode escrever do seu jeito."
               value={project}
-              onChange={(event) => { setProject(event.target.value); setCopyState('idle') }}
+                onChange={(event) => { setProject(event.target.value); setCopyState('idle'); setEmailHintVisible(false) }}
             />
           </div>
 
+          {leadSubmissionEnabled && (
+            <>
+              <div className="cp-brief__honeypot" aria-hidden="true">
+                <label htmlFor="brief-website">Deixe este campo vazio</label>
+                <input id="brief-website" name="website" autoComplete="off" tabIndex={-1}
+                  value={website} onChange={(event) => setWebsite(event.target.value)} />
+              </div>
+              <label className="cp-brief__consent" htmlFor="brief-consent">
+                <input id="brief-consent" type="checkbox" checked={acknowledged}
+                  onChange={(event) => setAcknowledged(event.target.checked)} />
+                <span>Li a <Link href="/politica-de-privacidade">Política de Privacidade</Link> e estou ciente do uso dos dados enviados para atender meu pedido.</span>
+              </label>
+              <TurnstileChallenge siteKey={turnstileSiteKey} onToken={setChallengeToken} resetKey={challengeResetKey} />
+              <button type="button" className="cp-brief__submit cp-brief__send"
+                disabled={!hydrated || sendState === 'sending' || sendState === 'sent'}
+                onClick={sendDirectly}>
+                {sendState === 'sending' ? 'Enviando pedido…' : sendState === 'sent' ? 'Pedido encaminhado' : 'Enviar pedido de orçamento'}
+                <span aria-hidden="true">↗</span>
+              </button>
+              <p className="cp-brief__feedback" role="status" aria-live="polite">{sendMessage}</p>
+            </>
+          )}
+
           <div className="cp-brief__actions">
-            <a href={hydrated ? brief.mailto : contactMailto} className="cp-brief__submit">
-              Abrir e-mail com a mensagem pronta <span aria-hidden="true">↗</span>
+            <a
+              href={hydrated ? brief.mailto : contactMailto}
+              className="cp-brief__submit"
+              onClick={() => { setEmailHintVisible(true); setCopyState('idle') }}
+            >
+              {leadSubmissionEnabled ? 'Prefiro enviar pelo meu e-mail' : 'Abrir e-mail com a mensagem pronta'} <span aria-hidden="true">↗</span>
             </a>
             <button type="button" className="cp-brief__copy" onClick={copyBrief} disabled={!hydrated}>
               {copyState === 'copied' ? 'Mensagem copiada' : 'Copiar mensagem'}
@@ -139,8 +251,14 @@ export default function ContactBrief() {
             <pre tabIndex={0}>{brief.copyText}</pre>
           </details>
           <p className="cp-brief__disclaimer">
-            O preenchimento não é salvo nem enviado pelo site. Revise e confirme o envio
-            no seu aplicativo de e-mail para {contactEmail}.
+            {leadSubmissionEnabled
+              ? <>Ao escolher o envio direto, os dados serão encaminhados à Gandra Tecnologia para atendimento, com verificação antispam. Também é possível abrir o seu aplicativo de e-mail para {contactEmail}.</>
+              : <>O preenchimento não é salvo nem enviado pelo site. Revise e confirme o envio no seu aplicativo de e-mail para {contactEmail}.</>}
+          </p>
+          <p className="cp-brief__disclaimer">
+            Pedir orçamento não gera contratação automática. Veja os{' '}
+            <Link href="/termos-de-uso">Termos de Uso</Link> e a{' '}
+            <Link href="/politica-de-privacidade">Política de Privacidade</Link>.
           </p>
           <noscript>
             <p className="cp-brief__disclaimer">
@@ -148,6 +266,7 @@ export default function ContactBrief() {
             </p>
           </noscript>
           <p className="cp-brief__feedback" role="status" aria-live="polite">
+            {emailHintVisible ? 'Confirme o envio no aplicativo de e-mail. Se ele não abrir, use “Copiar mensagem” e envie manualmente.' : ''}
             {copyState === 'copied' ? 'Mensagem copiada. Cole no aplicativo de sua preferência e envie para o endereço indicado.' : ''}
             {copyState === 'error' ? 'Não foi possível copiar automaticamente. Abra “Pré-visualizar a mensagem” e copie o texto manualmente.' : ''}
           </p>

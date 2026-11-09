@@ -22,7 +22,7 @@ O sitemap `https://gandra.tech/sitemap.xml` estava processado, com 13 URLs encon
 - Todos os serviços passam a ser acessíveis por links HTML semânticos no rodapé de **todas** as páginas comerciais, além dos links já existentes na home e na página de serviços.
 - Os links do índice de serviços recebem textos âncora específicos por serviço.
 - Quatro serviços que têm projetos relacionados mostram uma descrição factual do case e um link contextual. A área de automações permanece sem case forçado.
-- A página de serviços comunica a atuação em Belo Horizonte (MG) e o atendimento remoto nacional, sem promessas de posição no Google.
+- A página de serviços comunica a base em Vespasiano (Grande BH) e o atendimento remoto nacional, sem promessas de posição no Google.
 - O validador de export verifica os links internos em cada rota, o conteúdo contextual e os metadados existentes.
 
 ## Acompanhamento operacional — não realizado nesta PR

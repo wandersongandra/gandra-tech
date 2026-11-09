@@ -15,7 +15,7 @@ export default function ServicesPage() {
           <p className="service-page__eyebrow">DO ESCOPO AO PRODUTO NO AR</p>
           <h1>Desenvolvimento de sites, sistemas e aplicações web.</h1>
           <p className="service-page__intro">
-            Com atuação em Belo Horizonte (MG) e atendimento remoto para todo o Brasil,
+            Com base em Vespasiano (Grande BH) e atendimento remoto para todo o Brasil,
             a Gandra Tecnologia cria experiências digitais para empresas, profissionais
             e empreendedores. Cada projeto conecta estratégia, design e engenharia.
           </p>
