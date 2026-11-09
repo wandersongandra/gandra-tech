@@ -17,6 +17,22 @@ for (const match of source.matchAll(/(?:workImage|coverImage|mainImage|src):\s*'
   if (!fs.existsSync(asset)) failures.push(`asset ausente: ${match[1]}`)
 }
 
+// A faixa de projetos precisa usar marcas locais reais, não links frágeis ou
+// nomes em fonte gigante. Nenhuma imagem deve depender de servidor de terceiros.
+const marquee = fs.readFileSync(path.join(root, 'components', 'materia', 'ClientMarquee.tsx'), 'utf8')
+for (const [slug, file] of [
+  ['sgs', 'sgs.svg'],
+  ['telma-santos', 'telma-santos.webp'],
+  ['gisley-nunes-imoveis', 'gisley-nunes.jpeg'],
+  ['ajn-consultoria-engenharia', 'ajn.webp'],
+  ['laboratorio-dental-araujo', 'laboratorio-dental-araujo.png'],
+]) {
+  const asset = path.join(root, 'public', 'images', 'project-logos', file)
+  if (!fs.existsSync(asset) || fs.statSync(asset).size === 0) failures.push(`logo ausente: ${slug}`)
+  if (!marquee.includes(`'${slug}':`) && !marquee.includes(`${slug}:`)) failures.push(`logo não configurado: ${slug}`)
+  if (!marquee.includes(`/images/project-logos/${file}`)) failures.push(`logo com URL incorreta: ${slug}`)
+}
+
 if (failures.length) {
   console.error(failures.join('\n'))
   process.exit(1)
