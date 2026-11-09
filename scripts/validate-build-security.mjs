@@ -1,6 +1,7 @@
 import crypto from 'node:crypto'
 import fs from 'node:fs'
 import path from 'node:path'
+import { hasCspSource, hasTurnstilePreload } from './csp-sources.mjs'
 
 const root = process.cwd()
 const outDir = path.join(root, 'out')
@@ -207,23 +208,32 @@ if (!fs.existsSync(outDir) || !fs.statSync(outDir).isDirectory()) {
     }
   }
 
-  const contactPolicy = routePolicies.get('/contato') || ''
+  const turnstileSource = 'https://challenges.cloudflare.com'
   if (leadSubmissionEnabled) {
-    if (!contactPolicy.includes('script-src') || !contactPolicy.includes('https://challenges.cloudflare.com')) {
-      failures.push('Turnstile deve estar liberado na CSP de /contato')
-    }
-    if (!contactPolicy.includes('frame-src https://challenges.cloudflare.com')) {
-      failures.push('Turnstile iframe deve estar liberado apenas em /contato')
+    // A navegação Next.js troca a rota sem trocar a CSP do documento. Todas
+    // as políticas devem aceitar Turnstile para suportar CTA → /contato.
+    for (const [route, policy] of routePolicies) {
+      for (const directive of ['script-src', 'connect-src', 'frame-src']) {
+        if (!hasCspSource(policy, directive, turnstileSource)) {
+          failures.push(`${route}: ${directive} deve permitir Turnstile durante navegação SPA`)
+        }
+      }
     }
     if (!headers.includes('/contato\n  ! Content-Security-Policy') ||
         !headers.includes('  Cross-Origin-Embedder-Policy: unsafe-none')) {
       failures.push('/contato deve permitir embedding controlado do Turnstile')
     }
-    if (!fs.readFileSync(path.join(outDir, 'contato.html'), 'utf8').includes('challenges.cloudflare.com')) {
-      failures.push('widget Turnstile ausente da página de contato')
+    if (!hasTurnstilePreload(fs.readFileSync(path.join(outDir, 'contato.html'), 'utf8'))) {
+      failures.push('preload válido do widget Turnstile ausente da página de contato')
     }
-  } else if (contactPolicy.includes('https://challenges.cloudflare.com')) {
-    failures.push('Turnstile não deve ser carregado sem habilitação explícita')
+  } else {
+    for (const [route, policy] of routePolicies) {
+      for (const directive of ['script-src', 'connect-src', 'frame-src']) {
+        if (hasCspSource(policy, directive, turnstileSource)) {
+          failures.push(`${route}: ${directive} permite Turnstile sem habilitação explícita`)
+        }
+      }
+    }
   }
 
   const securityTxt = fs.readFileSync(path.join(outDir, '.well-known/security.txt'), 'utf8')

@@ -152,9 +152,13 @@ const MAX_HEADER_LINE = 2000
 const leadSubmissionEnabled = process.env.NEXT_PUBLIC_LEADS_ENABLED === '1' &&
   Boolean(process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY)
 
-function buildCsp(hashes, route = '') {
+function buildCsp(hashes) {
   const sortedHashes = [...hashes].sort()
-  const turnstile = leadSubmissionEnabled && route === '/contato'
+  // Next Link e a cortina navegam sem recarregar o documento. A CSP ativa
+  // continua sendo a da página de origem; a allowlist precisa valer para
+  // todas as rotas enquanto o formulário direto estiver habilitado.
+  // Não carrega o widget fora de /contato e não altera o modo desabilitado.
+  const turnstile = leadSubmissionEnabled
   return [
     "default-src 'self'",
     `script-src 'self' ${sortedHashes.join(' ')} https://static.cloudflareinsights.com${turnstile ? ' https://challenges.cloudflare.com' : ''}`.replace(/\s+/g, ' '),
@@ -225,7 +229,7 @@ const routeBlocks = executablePages
     return [
       page.route,
       '  ! Content-Security-Policy',
-      assertLine(`  Content-Security-Policy: ${buildCsp(page.hashes, page.route)}`, page.route),
+      assertLine(`  Content-Security-Policy: ${buildCsp(page.hashes)}`, page.route),
       ...overrides,
     ].join('\n')
   })

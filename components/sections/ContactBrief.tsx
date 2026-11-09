@@ -6,6 +6,7 @@ import { services } from '@/lib/services'
 import { contactEmail, contactMailto } from '@/lib/site'
 import { leadSubmissionEnabled, turnstileSiteKey } from '@/lib/lead-availability'
 import { isLeadAcceptedResponse } from '@/lib/lead-response'
+import { isValidLeadContact } from '@/lib/lead-contact-validation'
 import Link from 'next/link'
 import TurnstileChallenge from './TurnstileChallenge'
 
@@ -45,9 +46,7 @@ export default function ContactBrief() {
       return
     }
     const contactValue = contact.trim()
-    const isEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(contactValue)
-    const phoneDigits = contactValue.replace(/\D/g, '').length
-    if (!isEmail && (phoneDigits < 10 || phoneDigits > 15)) {
+    if (!isValidLeadContact(contactValue)) {
       setSendMessage('Informe um e-mail válido ou WhatsApp com DDD.')
       return
     }
