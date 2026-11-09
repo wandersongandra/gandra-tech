@@ -46,6 +46,9 @@ async function main() {
         const img = link.locator('img')
         assert.ok((await img.getAttribute('src')).endsWith(`/images/project-logos/${file}`), `${label}: logo ${slug}`)
         assert.ok(await img.evaluate(async (element) => {
+          // Uma marca fora da área visível mantém o lazy loading até ser vista.
+          // Antecipamos apenas no teste para validar todos os cinco arquivos.
+          element.loading = 'eager'
           await element.decode().catch(() => {})
           return element.complete && element.naturalWidth > 0 && element.naturalHeight > 0
         }), `${label}: logo ${slug} precisa carregar`)
