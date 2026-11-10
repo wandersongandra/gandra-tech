@@ -4,16 +4,36 @@ Este documento reúne tarefas que não podem ser resolvidas por código neste
 repositório. Marque um item somente depois de aplicar a configuração no painel
 correspondente e registrar a evidência da validação.
 
+Situação verificada em 09/11/2026: a PR de segurança #63 foi incorporada à
+`main` e publicada; o monitor remoto de produção passou. As duas regras WAF
+amplas baseadas em `User-Agent` foram desabilitadas, a regra de rate limit
+existente para `/api/lead` permaneceu ativa, cinco CNAMEs de e-mail passaram
+para **Somente DNS** e o TLS mínimo foi elevado para **1.2**. Os detalhes e
+as limitações estão em [`docs/security/audit-2026-11-09.md`](docs/security/audit-2026-11-09.md).
+
 ## DNS e infraestrutura
 
-- [ ] Habilitar DNSSEC na Cloudflare e publicar o DS no registrador.
-- [ ] Configurar rate limiting no WAF: 100 requisições/10 segundos global e 30 requisições/minuto em `/contato`.
-- [ ] Habilitar WAF Managed Rules com sensibilidade Medium.
-- [ ] Criar regra de bloqueio para User-Agents maliciosos, incluindo `sqlmap`, `nikto` e `nmap`.
-- [ ] Habilitar Always Online.
-- [ ] Configurar cache agressivo com Cache Everything e Edge TTL de 1 mês, validando antes o efeito sobre HTML e atualização de deploy.
-- [ ] Validar o certificado no SSL Labs com meta A+.
-- [ ] Configurar monitoramento de uptime com três monitores UptimeRobot.
+- [x] Desabilitar bypass WAF global por `User-Agent` e confirmar o rate limit
+  específico de `/api/lead` ativo (09/11; detalhes na auditoria).
+- [x] Ajustar cinco CNAMEs de e-mail para Somente DNS e confirmar resposta
+  pública; manter MX/SPF existentes (09/11).
+- [x] Definir TLS mínimo 1.2 e confirmar persistência no painel (09/11).
+- [ ] Avaliar proteção e falsos positivos das Managed Rules com os eventos
+  reais do WAF antes de modificar sua ação ou sensibilidade.
+- [ ] Examinar tráfego legítimo e anômalo antes de adicionar limites globais;
+  não empilhar regras de bloqueio genéricas em `/contato` (página estática) ou
+  bloquear exclusivamente por `User-Agent` falsificável.
+- [ ] Validar certificado de origem e configuração SSL antes de considerar
+  migrar `Completo` para `Completo (estrito)`.
+- [ ] Planejar DNSSEC na Cloudflare **em conjunto com** a publicação de DS no
+  registrador, com plano de reversão e testes externos.
+- [ ] Avaliar SSL Labs (meta A+, quando compatível com usuários reais) e
+  monitorar negociação TLS 1.0/1.1.
+- [ ] Conferir alertas externos de disponibilidade de `/`, `/servicos` e
+  `/llms.txt`; manter o check automatizado periódico existente.
+- [ ] Revisar cache por tipo de recurso e invalidação por deploy. **Não**
+  habilitar Cache Everything/TTL de 1 mês em HTML ou respostas de API sem
+  estratégia de versionamento e regressão; não ativar Always Online no escuro.
 
 ## Segurança da conta
 
@@ -23,8 +43,12 @@ correspondente e registrar a evidência da validação.
 
 ## Email
 
-- [ ] Escolher e consolidar o provedor: Email Routing da Cloudflare ou Hostinger.
-- [ ] Configurar SPF, DKIM e DMARC coerentes com o provedor escolhido.
+- [x] Preservar MX, SPF e CNAMEs DKIM existentes da Hostinger e os registros
+  específicos do subdomínio de envio Resend; DNS público conferido (09/11).
+- [ ] Confirmar recebimento e envio reais na Hostinger e validar alinhamento
+  SPF/DKIM/DMARC pelos cabeçalhos de mensagens autorizadas.
+- [ ] Avaliar relatórios DMARC e somente então elevar gradualmente `p=none`
+  para uma política de maior proteção, sem quebrar e-mails legítimos.
 
 ## Evidência operacional
 
