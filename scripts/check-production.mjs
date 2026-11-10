@@ -1,3 +1,5 @@
+import { checkLeadOriginBarrier } from './check-lead-origin.mjs'
+
 const baseUrl = 'https://gandra.tech'
 const routes = [
   '/',
@@ -157,43 +159,7 @@ try {
   failures.push(`/sw.js: ${message}`)
 }
 
-// Canary negativa: nunca envia um lead real. Um Origin externo deve ser
-// rejeitado antes de validar Turnstile ou contatar o provedor de e-mail.
-// A API pode estar desligada (503) ou habilitada com origem restrita (403),
-// mas não pode cair no HTML estático nem declarar sucesso.
-try {
-  const response = await fetch(`${baseUrl}/api/lead`, {
-    method: 'POST',
-    redirect: 'manual',
-    headers: {
-      Origin: 'https://origem-nao-autorizada.invalid',
-      'Content-Type': 'application/json',
-    },
-    body: '{}',
-    signal: AbortSignal.timeout(15_000),
-  })
-
-  const expected = new Map([[403, 'forbidden_origin'], [503, 'temporarily_unavailable']])
-  if (!expected.has(response.status)) {
-    failures.push(`/api/lead: origem não autorizada retornou HTTP ${response.status}`)
-  }
-  if (!(response.headers.get('content-type') || '').startsWith('application/json')) {
-    failures.push('/api/lead: resposta da Function não é JSON')
-  } else {
-    const body = await response.json().catch(() => null)
-    if (body?.code !== expected.get(response.status)) {
-      failures.push('/api/lead: resposta não confirmou bloqueio seguro da origem')
-    }
-  }
-  if (response.headers.get('cache-control') !== 'no-store') {
-    failures.push('/api/lead: resposta sensível deve usar Cache-Control: no-store')
-  }
-  if (response.headers.get('x-content-type-options') !== 'nosniff') {
-    failures.push('/api/lead: resposta sem X-Content-Type-Options: nosniff')
-  }
-} catch (error) {
-  failures.push(`/api/lead: ${error instanceof Error ? error.message : 'erro desconhecido'}`)
-}
+failures.push(...await checkLeadOriginBarrier())
 
 if (failures.length) {
   console.error('Healthcheck de produção falhou:')
@@ -201,6 +167,6 @@ if (failures.length) {
   process.exitCode = 1
 } else {
   console.log(
-    `Healthcheck de produção passou: ${routes.length} URLs, CSP estrita, headers, security.txt, service worker e bloqueio da API validados.`
+    `Healthcheck de produção passou: ${routes.length} URLs, CSP estrita, headers, security.txt, service worker e duas canaries de origem da API validados.`
   )
 }
