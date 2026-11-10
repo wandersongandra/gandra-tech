@@ -30,3 +30,6 @@ jobs:
 
       - name: Validate authoritative email DNS records
         run: npm run check:dns
+
+      - name: Validate DNSSEC delegation and signed answers
+        run: npm run check:dnssec
