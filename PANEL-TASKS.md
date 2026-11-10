@@ -110,3 +110,52 @@ tokens, recovery codes, screenshots com dados sensíveis ou credenciais.
   certificados Cloudflare Origin CA não lista certificados, o que não prova
   ausência de certificado válido na origem Cloudflare Pages. Não migrar
   forçadamente para `Completo (estrito)` sem teste compatível e rollback.
+
+## Rechecagem pelo Chrome autenticado — 10/11/2026
+
+Esta seção registra uma nova inspeção **somente leitura** dos painéis da zona,
+seguida de navegação pública. Ela não comprova conclusão das tarefas de e-mail,
+certificado de origem ou MFA pendentes acima.
+
+- **DNSSEC:** o painel de DNS informa explicitamente que `gandra.tech` está
+  protegido. NS permanecem `neil.ns.cloudflare.com` e `walk.ns.cloudflare.com`.
+- **DNS web:** apex e `www` usam CNAME com proxy para
+  `gandra-tech.pages.dev`. O redirecionamento `Canonical www para gandra.tech`
+  continua habilitado; navegação real de
+  `http://www.gandra.tech/servicos?verificacao=1` chegou a
+  `https://gandra.tech/servicos?verificacao=1`.
+- **E-mail:** MX Hostinger com prioridades 5/10, três CNAMEs DKIM Hostinger,
+  registros de autoconfiguração e CNAMEs do subdomínio Resend continuam em
+  **Somente DNS**. SPF encontrado:
+  `v=spf1 include:_spf.mail.hostinger.com include:_spf.reach.hostinger.com ~all`.
+  TXT DKIM da Resend está presente; DMARC segue `v=DMARC1; p=none`.
+  O painel de DMARC não dispõe de relatórios de alinhamento ativados. **Não**
+  mudar `p=` sem testar mensagens reais entregues e revisar fontes de envio.
+- **SSL:** modo `Completo` com automático ligado. Certificado de borda universal
+  ativo até 13/12/2026 e backup emitido até 17/12/2026 (gerenciados pela
+  Cloudflare). A tabela de Origin CA continua sem certificados. Como a origem
+  é Pages, esse inventário isoladamente não comprova nem refuta suporte ao
+  modo `Completo (estrito)`; manter pendente a validação da origem.
+- **WAF:** as regras customizadas `Allow AI Crawlers` (ação Ignorar por
+  User-Agent) e `AI Crawl Control - Block AI bots by User Agent` estão
+  **Desabilitadas**. A regra de rate limit `Gandra Leads — limite por IP`,
+  restrita a `/api/lead`, está **Ativa**. Existem bloqueios amostrados pelas
+  proteções gerenciadas padrão; uma ação histórica `Ignorar` para
+  `/robots.txt` foi registrada antes desta rechecagem, mas não corresponde
+  a uma regra atualmente ativa. Não habilitar novamente bypass genérico por
+  User-Agent. Não foi criada implantação própria de Managed Rules.
+- **Cache:** sem Cache Rules personalizadas nem Response Cache Rules. Não
+  adicionar Cache Everything em HTML/API sem ensaio de invalidação.
+- **TLS de borda:** mínimo TLS 1.2 e TLS 1.3 habilitado. `Sempre usar HTTPS`
+  está desligado no painel, mas a navegação real via HTTP foi redirecionada
+  corretamente para HTTPS. Não há necessidade comprovada de mudar esse switch.
+- **SEO/HTML:** a página inicial pública renderizou sem erros de console
+  capturados nesta rodada. Inspeção direta do DOM confirmou **um H1 e seis
+  H2**; não é necessária alteração de hierarquia. `robots.txt` inclui
+  conteúdo gerenciado pela Cloudflare e regras autorais; conferir a
+  consistência dessas duas camadas antes de mudar Bot Preference Sync.
+
+**Resultado:** nenhuma mudança de painel, DNS, TLS, cache, WAF ou e-mail foi
+efetuada nesta rechecagem. Pendências restantes exigem teste de certificado
+de origem/rollback, relatórios e cabeçalhos de mensagens entregues,
+verificação de MFA e monitoramento de disponibilidade contínuo.
