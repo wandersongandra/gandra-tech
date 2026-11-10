@@ -1721,6 +1721,115 @@ body {
   }
 }
 
+
+/* ==========================================================================
+   STACK
+   ========================================================================== */
+.m-stack {
+  padding: 0 0 clamp(64px, 8vw, 120px);
+  color: var(--m-paper);
+  background: var(--m-ink);
+  overflow: clip;
+}
+
+.m-stack .m-section-head {
+  border-top-color: var(--m-line-dark);
+  color: var(--m-muted-dark);
+}
+
+.m-stack .m-section-head > span:first-child {
+  color: var(--m-paper);
+}
+
+.m-stack__title {
+  max-width: 16ch;
+  margin-bottom: clamp(40px, 6vw, 72px);
+}
+
+.m-stack__index {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 24px;
+  margin-bottom: clamp(48px, 7vw, 88px);
+  list-style: none;
+}
+
+.m-stack__group {
+  display: grid;
+  gap: 10px;
+  align-content: start;
+  padding-top: 16px;
+  border-top: 1px solid var(--m-line-dark);
+}
+
+.m-stack__group-label {
+  color: var(--m-signal);
+}
+
+.m-stack__group-items {
+  color: var(--m-muted-dark);
+  font-size: 12px;
+  line-height: 1.55;
+  text-transform: none;
+  letter-spacing: 0.01em;
+}
+
+.m-stack__viewport {
+  display: flex;
+  overflow: clip;
+}
+
+.m-stack__track {
+  display: flex;
+  width: max-content;
+  will-change: transform;
+}
+
+.m-stack__rail {
+  display: flex;
+  flex-shrink: 0;
+  align-items: baseline;
+  list-style: none;
+}
+
+.m-stack__item {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.22em;
+  padding-right: 0.22em;
+  color: var(--m-muted-dark);
+  font-size: clamp(44px, 8vw, 128px);
+  font-weight: 500;
+  line-height: 0.92;
+  letter-spacing: -0.04em;
+  text-transform: none;
+  white-space: nowrap;
+}
+
+.m-stack__name {
+  color: inherit;
+  transition: color 0.25s ease;
+}
+
+.m-stack__sep {
+  color: rgba(236, 232, 223, 0.22);
+  font-weight: 400;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .m-stack__item:hover .m-stack__name,
+  .m-stack__item:focus-visible .m-stack__name {
+    color: var(--m-signal);
+  }
+}
+
+@media (max-width: 767px) {
+  .m-stack__index {
+    grid-template-columns: 1fr 1fr;
+    gap: 28px 20px;
+  }
+}
+
 /* ==========================================================================
    PROCESSO
    ========================================================================== */
@@ -2243,6 +2352,27 @@ body {
   }
   .m-clients__logo-surface,
   .m-clients__all {
+    transition: none;
+  }
+  .m-stack__track {
+    transform: none !important;
+  }
+  .m-stack__rail:not(:first-child) {
+    display: none;
+  }
+  .m-stack__track,
+  .m-stack__rail {
+    flex-wrap: wrap;
+    width: auto;
+    padding: 0 var(--m-gutter);
+    column-gap: 0.3em;
+    row-gap: 0.15em;
+  }
+  .m-stack__item {
+    white-space: normal;
+    font-size: clamp(28px, 8vw, 44px);
+  }
+  .m-stack__name {
     transition: none;
   }
   .m-header,
@@ -2819,7 +2949,10 @@ html[data-tinta='on'] .m-header::before {
    ficava em 3,4:1 — o tom queimado passa de 4,5:1 */
 html[data-tinta='on'] .cp-hero__label,
 html[data-tinta='on'] .m-manifesto__title,
-html[data-tinta='on'] .m-manifesto__cap-num {
+html[data-tinta='on'] .m-manifesto__cap-num,
+html[data-tinta='on'] .m-stack__group-label,
+html[data-tinta='on'] .m-stack__name:hover,
+html[data-tinta='on'] .m-stack__name:focus-visible {
   color: #a32b0c;
 }
 /* legenda da capa do case: o fundo da placa vem da imagem (não inverte),

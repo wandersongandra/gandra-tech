@@ -51,7 +51,7 @@ export default function Process() {
     <section ref={sectionRef} className="m-process" aria-labelledby="process-title">
       <div className="m-shell">
         <div className="m-section-head mono">
-          <span>(04) Processo</span>
+          <span>(05) Processo</span>
           <span>Cada projeto começa pelo contexto certo</span>
           <span aria-hidden="true">03 etapas</span>
         </div>

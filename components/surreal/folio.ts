@@ -33,7 +33,7 @@ const belowFold = (el: Element) => el.getBoundingClientRect().top > window.inner
 /* 1. Títulos que sangram: a tinta chega espalhada e assenta.             */
 /* --------------------------------------------------------------------- */
 const BLEED_SKIP =
-  '.m-display, .m-case__h2, .m-label, .mono, .m-contact__title, .m-case__finale-title, .m-hero__title, .cp-hero__title, .m-clients__title, .m-manifesto__title, .service-page__item h2, .sr-only'
+  '.m-display, .m-case__h2, .m-label, .mono, .m-contact__title, .m-case__finale-title, .m-hero__title, .cp-hero__title, .m-clients__title, .m-manifesto__title, .m-stack__title, .m-stack__name, .service-page__item h2, .sr-only'
 
 export function inkBleed(defs: SVGSVGElement, opts: Opts): Off {
   const heads = Array.from(document.querySelectorAll<HTMLElement>('main h1, main h2')).filter(
