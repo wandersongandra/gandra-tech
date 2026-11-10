@@ -25,8 +25,10 @@ as limitações estão em [`docs/security/audit-2026-11-09.md`](docs/security/au
   bloquear exclusivamente por `User-Agent` falsificável.
 - [ ] Validar certificado de origem e configuração SSL antes de considerar
   migrar `Completo` para `Completo (estrito)`.
-- [ ] Planejar DNSSEC na Cloudflare **em conjunto com** a publicação de DS no
-  registrador, com plano de reversão e testes externos.
+- [x] Ativar DNSSEC na Cloudflare, publicar o DS na Hostinger e validar a
+  cadeia de assinaturas via DNS público (`AD: true`, 10/11/2026).
+- [x] Criar e validar redirecionamento `www.gandra.tech` para `gandra.tech`
+  com 301, preservando caminho e parâmetros (10/11/2026).
 - [ ] Avaliar SSL Labs (meta A+, quando compatível com usuários reais) e
   monitorar negociação TLS 1.0/1.1.
 - [ ] Conferir alertas externos de disponibilidade de `/`, `/servicos` e
@@ -82,3 +84,29 @@ tokens, recovery codes, screenshots com dados sensíveis ou credenciais.
 - O monitor de DNS passa a rejeitar SPF com `+all`, `?all`, ausência do
   mecanismo final seguro ou políticas `all` contraditórias. Isso só reforça o
   **monitor**: não altera o TXT real de produção nem prova autenticação de envio.
+
+## Conclusão dos ajustes de DNSSEC e canonical WWW — 10/11/2026
+
+- Após login na **conta Hostinger titular** de `gandra.tech`, a zona manteve
+  os NS `neil.ns.cloudflare.com` e `walk.ns.cloudflare.com`; bloqueio de
+  transferência e privacidade do registro continuaram ativos.
+- Foi habilitada a assinatura DNSSEC na Cloudflare. O registro DS com **Key Tag
+  2371, Algorithm 13 (ECDSA P-256) e Digest Type 2 (SHA-256)** foi adicionado
+  na Hostinger, conferindo o digest com os dados gerados pela Cloudflare.
+- O Google Public DNS retornou o registro DS esperado na delegação `.tech`
+  e respondeu consultas `A` e `MX` de `gandra.tech` com `Status: 0` e
+  **`AD: true`**, confirmando validação criptográfica fim a fim. O painel
+  Cloudflare passou a informar: `Sucesso! gandra.tech está protegido com DNSSEC.`
+- Criada regra Cloudflare `Canonical www para gandra.tech`, ativa, com
+  redirecionamento 301 de `https://www.gandra.tech/*` para
+  `https://gandra.tech/${1}` e preservação de query string. A navegação
+  real por `www` (inclusive a partir de HTTP) chegou ao endereço canônico
+  com caminho/parâmetro preservado e conteúdo do site carregado.
+- DNS MX permaneceu em `mx1.hostinger.com` (prioridade 5) e
+  `mx2.hostinger.com` (prioridade 10). Não foram alterados SPF, DKIM, DMARC,
+  nameservers ou conteúdo do site; as animações permaneceram intactas.
+- SSL/TLS continua em modo **automático**, atualmente `Completo`, pois a
+  identidade/cadeia do certificado da origem não foi verificada. O painel de
+  certificados Cloudflare Origin CA não lista certificados, o que não prova
+  ausência de certificado válido na origem Cloudflare Pages. Não migrar
+  forçadamente para `Completo (estrito)` sem teste compatível e rollback.
