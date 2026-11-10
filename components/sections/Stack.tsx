@@ -2,43 +2,55 @@
 import { useEffect, useRef } from 'react'
 import { useMotionPrefs } from '@/components/motion/useMotion'
 import { withGsap } from '@/lib/gsap'
-import { stackGroups, stackItems } from '@/lib/stack'
+import { stackGroups, stackItems, stackMarqueeRows } from '@/lib/stack'
 
 const copies = [0, 1] as const
+const rows = stackMarqueeRows()
 
 /**
- * Stacks de verdade, logo abaixo da abordagem. Os nomes rodam devagar numa
- * faixa mono; o hover pausa o trilho e acende o nome em laranja. Com
- * prefers-reduced-motion a faixa fica parada e só a primeira sequência
- * permanece visível.
+ * Stacks de verdade, logo abaixo da abordagem. Os nomes rodam devagar em
+ * duas faixas mono em sentidos opostos; o hover pausa os trilhos e acende
+ * o nome em laranja. Com prefers-reduced-motion as faixas ficam paradas e
+ * só a primeira sequência de cada uma permanece visível.
  */
 export default function Stack() {
   const sectionRef = useRef<HTMLElement>(null)
   const viewportRef = useRef<HTMLDivElement>(null)
-  const trackRef = useRef<HTMLDivElement>(null)
+  const trackRefs = useRef<Array<HTMLDivElement | null>>([])
   const { ready, reduced } = useMotionPrefs()
 
   useEffect(() => withGsap(({ gsap, ScrollTrigger }) => {
     const section = sectionRef.current
     const viewport = viewportRef.current
-    const track = trackRef.current
-    if (!section || !viewport || !track || !ready || reduced) return
+    const tracks = trackRefs.current.filter((track): track is HTMLDivElement => Boolean(track))
+    if (!section || !viewport || tracks.length < 2 || !ready || reduced) return
 
-    const tween = gsap.to(track, {
-      xPercent: -50,
-      duration: 52,
-      ease: 'none',
-      repeat: -1,
+    const tweens = tracks.map((track, index) => {
+      if (index === 0) {
+        return gsap.to(track, {
+          xPercent: -50,
+          duration: 58,
+          ease: 'none',
+          repeat: -1,
+        })
+      }
+      gsap.set(track, { xPercent: -50 })
+      return gsap.to(track, {
+        xPercent: 0,
+        duration: 74,
+        ease: 'none',
+        repeat: -1,
+      })
     })
 
     let hovered = false
     const pause = () => {
       hovered = true
-      tween.pause()
+      tweens.forEach((tween) => tween.pause())
     }
     const resume = () => {
       hovered = false
-      tween.play()
+      tweens.forEach((tween) => tween.play())
     }
 
     viewport.addEventListener('mouseenter', pause)
@@ -53,14 +65,16 @@ export default function Stack() {
       onUpdate: (self) => {
         if (hovered) return
         const boost = Math.min(Math.abs(self.getVelocity()) / 420, 2.4)
-        tween.timeScale(1 + boost)
-        gsap.to(tween, { timeScale: 1, duration: 0.9, ease: 'power3.out', overwrite: true })
+        tweens.forEach((tween) => {
+          tween.timeScale(1 + boost)
+          gsap.to(tween, { timeScale: 1, duration: 0.9, ease: 'power3.out', overwrite: true })
+        })
       },
     })
 
     return () => {
       st.kill()
-      tween.kill()
+      tweens.forEach((tween) => tween.kill())
       viewport.removeEventListener('mouseenter', pause)
       viewport.removeEventListener('mouseleave', resume)
       viewport.removeEventListener('focusin', pause)
@@ -88,23 +102,28 @@ export default function Stack() {
           ))}
         </ul>
       </div>
-      <div ref={viewportRef} className="m-stack__viewport">
-        <div ref={trackRef} className="m-stack__track">
-          {copies.map((copy) => (
-            <ul
-              className="m-stack__rail"
-              key={copy}
-              aria-hidden="true"
+      <div ref={viewportRef} className="m-stack__bands">
+        {rows.map((row, rowIndex) => (
+          <div className="m-stack__viewport" key={rowIndex}>
+            <div
+              className="m-stack__track"
+              ref={(node) => {
+                trackRefs.current[rowIndex] = node
+              }}
             >
-              {stackItems.map((name) => (
-                <li key={`${copy}-${name}`} className="m-stack__item mono">
-                  <span className="m-stack__name">{name}</span>
-                  <span className="m-stack__sep" aria-hidden="true">/</span>
-                </li>
+              {copies.map((copy) => (
+                <ul className="m-stack__rail" key={copy} aria-hidden="true">
+                  {row.map((name) => (
+                    <li key={`${rowIndex}-${copy}-${name}`} className="m-stack__item mono">
+                      <span className="m-stack__name">{name}</span>
+                      <span className="m-stack__sep" aria-hidden="true">/</span>
+                    </li>
+                  ))}
+                </ul>
               ))}
-            </ul>
-          ))}
-        </div>
+            </div>
+          </div>
+        ))}
       </div>
     </section>
   )

@@ -101,14 +101,17 @@ for (const project of projects) {
 assert.equal(getService('não-existe'), undefined)
 
 const expectedStack = [
-  'HTML', 'CSS', 'JavaScript', 'TypeScript', 'React', 'Next.js', 'Astro', 'GSAP', 'Lenis', 'Tailwind',
-  'Node.js', 'PHP', 'Laravel', 'Python', 'NestJS',
-  'Docker', 'Cloudflare Pages', 'Cloudflare Workers', 'PostgreSQL', 'GitHub',
-  'Playwright',
+  'HTML', 'CSS', 'JavaScript', 'TypeScript', 'React', 'Next.js', 'Astro', 'GSAP', 'Lenis', 'Tailwind', 'Vite', 'Motion', 'OGL', 'WordPress',
+  'Node.js', 'PHP', 'Laravel', 'Python', 'NestJS', 'FastAPI', 'Fastify',
+  'Docker', 'Cloudflare Pages', 'Cloudflare Workers', 'GitHub', 'Nginx', 'AWS S3', 'Vercel', 'Firebase',
+  'PostgreSQL', 'MySQL', 'Redis', 'Supabase',
+  'Flutter',
+  'Playwright', 'Figma', 'n8n', 'IA',
 ]
 assert.deepEqual(stackItems, expectedStack, 'lista de stacks precisa bater com o inventário evidenciado')
 assertUnique(stackItems, 'nomes de stack')
-assert.equal(stackGroups.length, 4, 'grupos de stack inesperados')
+assert.equal(stackGroups.length, 6, 'grupos de stack inesperados')
+assert.deepEqual(stackGroups.map((group) => group.id), ['front', 'back', 'infra', 'data', 'mobile', 'tools'])
 for (const group of stackGroups) {
   assert.ok(group.label.trim(), `grupo ${group.id}: label vazio`)
   assert.ok(group.items.length > 0, `grupo ${group.id}: sem itens`)
