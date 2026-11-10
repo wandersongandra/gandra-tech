@@ -53,8 +53,17 @@ export async function checkDns(resolver) {
     const answers = (await resolver.resolveTxt('gandra.tech')).map((chunks) => chunks.join(''))
     const spf = answers.filter((txt) => /^v=spf1(?:\s|$)/i.test(txt))
     if (spf.length !== 1) failures.push(`gandra.tech: esperado exatamente um SPF, encontrados ${spf.length}`)
-    else if (!spf[0].includes('include:_spf.mail.hostinger.com') || !spf[0].includes('include:_spf.reach.hostinger.com')) {
-      failures.push('gandra.tech: SPF não contém os envios legítimos da Hostinger')
+    else {
+      if (!spf[0].includes('include:_spf.mail.hostinger.com') || !spf[0].includes('include:_spf.reach.hostinger.com')) {
+        failures.push('gandra.tech: SPF não contém os envios legítimos da Hostinger')
+      }
+
+      const mechanisms = spf[0].trim().split(/\s+/).slice(1)
+      const allMechanisms = mechanisms.filter((value) => /^[+?~-]?all$/i.test(value))
+      const lastMechanism = mechanisms.at(-1)
+      if (allMechanisms.length !== 1 || !/^[~-]all$/i.test(lastMechanism || '')) {
+        failures.push('gandra.tech: SPF permissivo ou sem mecanismo final ~all/-all único')
+      }
     }
   } catch (error) {
     failures.push(`gandra.tech: SPF indisponível (${error?.code || String(error)})`)

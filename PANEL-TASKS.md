@@ -55,3 +55,30 @@ as limitações estão em [`docs/security/audit-2026-11-09.md`](docs/security/au
 Para cada item concluído, registrar fora deste arquivo a data, o painel, o
 ambiente, a configuração aplicada e o resultado do teste. Nunca versionar
 tokens, recovery codes, screenshots com dados sensíveis ou credenciais.
+
+## Rechecagem operacional — 10/11/2026
+
+- A zona `gandra.tech` continua ativa nos NS `neil.ns.cloudflare.com` e
+  `walk.ns.cloudflare.com`. O painel Cloudflare mostra DNSSEC **desabilitado**;
+  a consulta oficial de RDAP na ICANN informa `Unsigned`.
+- A ICANN identifica **HOSTINGER operations, UAB** como registrador do `.tech`.
+  A sessão Hostinger disponível no navegador não lista `gandra.tech` entre os
+  domínios administrados. Portanto, não há como confirmar/gravar o DS na conta
+  correta com esse acesso. Nenhuma ativação DNSSEC foi iniciada.
+- A Cloudflare mantém SSL/TLS **Completo** em modo automático. A zona usa
+  Cloudflare Pages como destino dos CNAMEs web. O certificado da origem efetiva
+  ainda não foi inspecionado: não trocar para `Completo (estrito)` apenas pelo
+  certificado público da borda.
+- No painel de regras, os dois bypass/bloqueios por `User-Agent` continuam
+  **Desabilitados**, e `Gandra Leads — limite por IP` continua **Ativo**. A
+  seção de regras gerenciadas não apresenta uma implantação própria; existem
+  proteções padrão da Cloudflare. Avaliar ativação de regras gerenciadas somente
+  após examinar eventos e o risco de falso positivo.
+- MX, SPF, DMARC e CNAMEs de e-mail permanecem como na auditoria anterior.
+  Duas mensagens de devolução da Hostinger foram examinadas: código de resposta
+  `452 4.2.2` (*caixa do destinatário sem espaço*), sem evidência de falha de
+  SPF/DKIM. Não há, nesta amostra, cabeçalhos suficientes para certificar o
+  alinhamento de mensagens **entregues**. DMARC segue `p=none` por segurança.
+- O monitor de DNS passa a rejeitar SPF com `+all`, `?all`, ausência do
+  mecanismo final seguro ou políticas `all` contraditórias. Isso só reforça o
+  **monitor**: não altera o TXT real de produção nem prova autenticação de envio.
