@@ -27,3 +27,6 @@ jobs:
 
       - name: Validate production surface
         run: node scripts/check-production.mjs
+
+      - name: Validate authoritative email DNS records
+        run: npm run check:dns

@@ -20,8 +20,8 @@ const valid = {
   consent: true,
 }
 
-function request(payload = valid, headers = {}) {
-  return new Request('https://gandra.tech/api/lead', {
+function request(payload = valid, headers = {}, url = 'https://gandra.tech/api/lead') {
+  return new Request(url, {
     method: 'POST',
     headers: { Origin: 'https://gandra.tech', 'Content-Type': 'application/json', ...headers },
     body: JSON.stringify(payload),
@@ -46,7 +46,7 @@ globalThis.fetch = async (url, init) => {
 }
 
 async function expectStatus(payload, status, options = {}) {
-  const response = await onRequestPost({ request: request(payload, options.headers), env: options.env || env })
+  const response = await onRequestPost({ request: request(payload, options.headers, options.url), env: options.env || env })
   assert.equal(response.status, status)
   assert.equal(response.headers.get('Cache-Control'), 'no-store')
   assert.equal(response.headers.get('X-Content-Type-Options'), 'nosniff')
@@ -71,6 +71,15 @@ try {
   calls.length = 0
   assert.equal((await expectStatus(valid, 403, { headers: { Origin: 'https://exemplo.com' } })).code, 'forbidden_origin')
   assert.equal(calls.length, 0)
+
+  // O domínio pages.dev é acessível publicamente e não herda as regras WAF
+  // da zona gandra.tech. Um cliente HTTP consegue falsificar o Origin.
+  calls.length = 0
+  assert.equal((await expectStatus(valid, 403, {
+    url: 'https://gandra-tech.pages.dev/api/lead',
+    headers: { Origin: 'https://gandra.tech' },
+  })).code, 'forbidden_origin')
+  assert.equal(calls.length, 0, 'host alternativo não pode consumir Turnstile ou Resend')
 
   for (const bad of [
     { ...valid, website: 'robô' },
