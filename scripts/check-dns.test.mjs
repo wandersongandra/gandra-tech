@@ -44,4 +44,37 @@ const errors = await checkDns(faultyTxt)
 assert.ok(errors.some((msg) => msg.includes('exatamente um SPF')))
 assert.ok(errors.some((msg) => msg.includes('política p=')))
 
-console.log('DNS monitor: contratos e falhas de CNAME proxied, SPF duplicado e DMARC inválido testados.')
+const permissiveSpf = { ...resolver, async resolveTxt(name) {
+  if (name === 'gandra.tech') {
+    return [['v=spf1 include:_spf.mail.hostinger.com include:_spf.reach.hostinger.com +all']]
+  }
+  return resolver.resolveTxt(name)
+} }
+assert.ok(
+  (await checkDns(permissiveSpf)).some((msg) => msg.includes('SPF permissivo')),
+  'SPF +all não pode passar como política de produção segura',
+)
+
+const neutralSpf = { ...resolver, async resolveTxt(name) {
+  if (name === 'gandra.tech') {
+    return [['v=spf1 include:_spf.mail.hostinger.com include:_spf.reach.hostinger.com ?all']]
+  }
+  return resolver.resolveTxt(name)
+} }
+assert.ok(
+  (await checkDns(neutralSpf)).some((msg) => msg.includes('SPF permissivo')),
+  'SPF ?all não pode passar como política de produção segura',
+)
+
+const duplicatedAll = { ...resolver, async resolveTxt(name) {
+  if (name === 'gandra.tech') {
+    return [['v=spf1 include:_spf.mail.hostinger.com include:_spf.reach.hostinger.com +all ~all']]
+  }
+  return resolver.resolveTxt(name)
+} }
+assert.ok(
+  (await checkDns(duplicatedAll)).some((msg) => msg.includes('SPF permissivo')),
+  'SPF com mecanismos all contraditórios também deve ser recusado',
+)
+
+console.log('DNS monitor: contratos e falhas de CNAME proxied, SPF duplicado/permissivo e DMARC inválido testados.')
