@@ -20,6 +20,7 @@ function loadTypeScriptModule(relativePath) {
 const { projects, getNextProject, getProject } = loadTypeScriptModule('lib/projects.ts')
 const { services, getService } = loadTypeScriptModule('lib/services.ts')
 const { legalData } = loadTypeScriptModule('lib/legal.ts')
+const { stackGroups, stackItems } = loadTypeScriptModule('lib/stack.ts')
 
 assert.match(legalData.endereco, /Nova Pampulha.*Vespasiano/, 'localidade pública da Gandra deve refletir a base atual')
 assert.doesNotMatch(legalData.endereco, /apartamento|apto\.?|\bap\s*\d+|bloco|\b\d{4}\b/i,
@@ -99,4 +100,21 @@ for (const project of projects) {
 
 assert.equal(getService('não-existe'), undefined)
 
-console.log(`Testes de conteúdo passaram: ${projects.length} projetos e ${services.length} serviços válidos.`)
+const expectedStack = [
+  'HTML', 'CSS', 'JavaScript', 'TypeScript', 'React', 'Next.js', 'Astro', 'GSAP', 'Lenis', 'Tailwind', 'Vite', 'Motion', 'OGL', 'WordPress',
+  'Node.js', 'PHP', 'Laravel', 'Python', 'NestJS', 'FastAPI', 'Fastify',
+  'Docker', 'Cloudflare Pages', 'Cloudflare Workers', 'GitHub', 'Nginx', 'AWS S3', 'Vercel', 'Firebase',
+  'PostgreSQL', 'MySQL', 'Redis', 'Supabase',
+  'Flutter',
+  'Playwright', 'Figma', 'n8n', 'IA',
+]
+assert.deepEqual(stackItems, expectedStack, 'lista de stacks precisa bater com o inventário evidenciado')
+assertUnique(stackItems, 'nomes de stack')
+assert.equal(stackGroups.length, 6, 'grupos de stack inesperados')
+assert.deepEqual(stackGroups.map((group) => group.id), ['front', 'back', 'infra', 'data', 'mobile', 'tools'])
+for (const group of stackGroups) {
+  assert.ok(group.label.trim(), `grupo ${group.id}: label vazio`)
+  assert.ok(group.items.length > 0, `grupo ${group.id}: sem itens`)
+}
+
+console.log(`Testes de conteúdo passaram: ${projects.length} projetos, ${services.length} serviços e ${stackItems.length} stacks válidos.`)

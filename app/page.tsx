@@ -5,6 +5,7 @@ import Services from '@/components/sections/Services'
 import WorkList from '@/components/sections/WorkList'
 import Contact from '@/components/sections/Contact'
 import Process from '@/components/sections/Process'
+import Stack from '@/components/sections/Stack'
 import ClientMarquee from '@/components/materia/ClientMarquee'
 import { DeferredManifesto } from '@/components/sections/HomeDeferredMotion'
 import StructuredData from '@/components/StructuredData'
@@ -40,6 +41,7 @@ export default function Home() {
         <Services />
         <WorkList />
         <DeferredManifesto />
+        <Stack />
         <Process />
         <Contact />
       </main>
