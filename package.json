@@ -8,7 +8,7 @@
     "start": "next start",
     "lint": "node scripts-lint.cjs",
     "typecheck": "tsc -p tsconfig.typecheck.json --noEmit --pretty false",
-    "test": "node scripts-test.cjs && node scripts/validate-content.cjs && node --experimental-strip-types scripts/lead-api.test.mjs && node --experimental-strip-types scripts/lead-response.test.mjs && node --experimental-strip-types scripts/lead-contact-validation.test.mjs && node scripts/lead-transport.test.mjs && node scripts/csp-sources.test.mjs && node scripts/check-lead-origin.test.mjs && node scripts/check-dns.test.mjs && node scripts/check-dnssec.test.mjs && node --experimental-strip-types scripts/site-preferences.test.mjs",
+    "test": "node scripts-test.cjs && node scripts/validate-content.cjs && node --experimental-strip-types scripts/lead-api.test.mjs && node --experimental-strip-types scripts/lead-response.test.mjs && node --experimental-strip-types scripts/lead-contact-validation.test.mjs && node scripts/lead-transport.test.mjs && node scripts/csp-sources.test.mjs && node scripts/check-lead-origin.test.mjs && node scripts/check-dns.test.mjs && node scripts/check-dnssec.test.mjs && node scripts/check-canonical.test.mjs && node scripts/check-edge-tls.test.mjs && node --experimental-strip-types scripts/site-preferences.test.mjs",
     "audit": "npm audit --audit-level=moderate",
     "optimize:images": "node scripts/optimize-images.mjs",
     "validate:build-security": "node scripts/validate-build-security.mjs",
@@ -17,6 +17,8 @@
     "check:production": "node scripts/check-production.mjs",
     "check:dns": "node scripts/check-dns.mjs",
     "check:dnssec": "node scripts/check-dnssec.mjs",
+    "check:canonical": "node scripts/check-canonical.mjs",
+    "check:tls": "node scripts/check-edge-tls.mjs",
     "postbuild": "node scripts/generate-csp.mjs"
   },
   "dependencies": {
