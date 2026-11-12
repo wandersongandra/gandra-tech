@@ -84,7 +84,7 @@ export default function ClientMarquee() {
                         <Image
                           className="m-clients__logo"
                           src={logos[project.slug].src}
-                          alt=""
+                          alt={`${project.name} — marca do projeto`}
                           width={logos[project.slug].width}
                           height={logos[project.slug].height}
                           loading="lazy"

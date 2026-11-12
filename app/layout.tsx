@@ -95,7 +95,14 @@ const structuredData = [
     alternateName: brandName,
     url: siteUrl,
     description: siteDescription,
+    email: contactEmail,
     logo: `${siteUrl}/apple-touch-icon.png`,
+    address: {
+      '@type': 'PostalAddress',
+      addressLocality: 'Vespasiano',
+      addressRegion: 'MG',
+      addressCountry: 'BR',
+    },
     areaServed: { '@type': 'Country', name: 'Brasil' },
     availableLanguage: 'pt-BR',
     contactPoint: {
