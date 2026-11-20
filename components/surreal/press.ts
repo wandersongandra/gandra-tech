@@ -581,6 +581,9 @@ export function setInkMode(on: boolean, sfx?: Sfx, animate = true) {
 function konami(sfx: Sfx): () => void {
   let i = 0
   const onKey = (e: KeyboardEvent) => {
+    // Extensões e ferramentas de acessibilidade podem disparar eventos de
+    // teclado sintéticos sem `key`. Nunca deixar a interação quebrar o site.
+    if (typeof e.key !== 'string') return
     const k = e.key.toLowerCase()
     i = k === KONAMI[i] ? i + 1 : k === KONAMI[0] ? 1 : 0
     if (i === KONAMI.length) {

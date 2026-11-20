@@ -3,14 +3,12 @@ import Footer from '@/components/Footer'
 import WorkIndex from '@/components/sections/WorkIndex'
 import Breadcrumbs from '@/components/Breadcrumbs'
 import StructuredData from '@/components/StructuredData'
-import { projects } from '@/lib/projects'
 import { createPageMetadata } from '@/lib/seo'
+import { projects } from '@/lib/projects'
 
 export const metadata = createPageMetadata({
-  title: 'Cases de Sites, Sistemas e Produtos Digitais',
-  description: `Conheça projetos de sites, sistemas e produtos digitais desenvolvidos pela Gandra Tecnologia: ${projects
-    .map((p) => p.name)
-    .join(', ')}.`,
+  title: 'Portfólio de Sites e Sistemas Criados',
+  description: 'Veja cases reais de sites institucionais, portfólios e sistemas criados pela Gandra Tecnologia. Conheça o contexto e as soluções de cada projeto.',
   path: '/trabalhos',
 })
 

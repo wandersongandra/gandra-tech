@@ -44,7 +44,7 @@ export default function Contact() {
       <InkTrail />
       <div className="m-shell m-contact__inner">
         <div className="m-section-head mono">
-          <span>(05) Contato</span>
+          <span>(06) Contato</span>
           <span>Vamos conversar</span>
           <span aria-hidden="true">2026</span>
         </div>

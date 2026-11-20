@@ -50,7 +50,14 @@ A página principal é organizada em seções reutilizáveis: Hero, Services,
 WorkList, Manifesto e Contact. A página `/servicos` detalha os cinco serviços
 da empresa. O portfólio está em `/trabalhos` com páginas individuais por case.
 
-O site publica `/robots.txt`, `/sitemap.xml` e `/llms.txt`.
+O site publica `/robots.txt`, `/sitemap.xml` e `/llms.txt`. Cada rota pública
+possui metadados e canonical próprios; a exportação pode ser conferida com
+`npm run validate:seo` após `npm run build`. A data `siteLastModified` em
+`lib/site.ts` deve refletir alterações reais de conteúdo, nunca só um deploy.
+
+O portfólio inclui o case do Laboratório Dental Araújo, baseado no site público
+e em imagens do próprio projeto. As animações da identidade visual continuam
+independentes dos metadados e da geração estática das páginas.
 
 ## Como adicionar um novo projeto
 

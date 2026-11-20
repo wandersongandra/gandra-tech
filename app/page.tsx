@@ -5,13 +5,18 @@ import Services from '@/components/sections/Services'
 import WorkList from '@/components/sections/WorkList'
 import Contact from '@/components/sections/Contact'
 import Process from '@/components/sections/Process'
+import Stack from '@/components/sections/Stack'
 import ClientMarquee from '@/components/materia/ClientMarquee'
 import { DeferredManifesto } from '@/components/sections/HomeDeferredMotion'
 import StructuredData from '@/components/StructuredData'
 import HashScroll from '@/components/HashScroll'
+import type { Metadata } from 'next'
 import { createServiceJsonLd } from '@/lib/seo'
 import { services } from '@/lib/services'
 import { siteDescription, siteUrl } from '@/lib/site'
+
+// A home usa o título padrão do layout, já com marca ao final.
+export const metadata: Metadata = { alternates: { canonical: siteUrl } }
 
 export default function Home() {
   return (
@@ -36,6 +41,7 @@ export default function Home() {
         <Services />
         <WorkList />
         <DeferredManifesto />
+        <Stack />
         <Process />
         <Contact />
       </main>

@@ -1,6 +1,7 @@
 import crypto from 'node:crypto'
 import fs from 'node:fs'
 import path from 'node:path'
+import { hasCspSource, hasTurnstilePreload } from './csp-sources.mjs'
 
 const root = process.cwd()
 const outDir = path.join(root, 'out')
@@ -20,6 +21,7 @@ const expectedRoutes = [
   '/contato',
   '/termos-de-uso',
   '/politica-de-privacidade',
+  '/politica-de-cookies',
 ]
 const expectedPublicFiles = [
   '_headers',
@@ -30,6 +32,8 @@ const expectedPublicFiles = [
   '.well-known/security.txt',
 ]
 const failures = []
+const leadSubmissionEnabled = process.env.NEXT_PUBLIC_LEADS_ENABLED === '1' &&
+  Boolean(process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY)
 
 function exists(relativePath) {
   return fs.existsSync(path.join(outDir, relativePath))
@@ -201,6 +205,34 @@ if (!fs.existsSync(outDir) || !fs.statSync(outDir).isDirectory()) {
       if (/type\s*=\s*["']?application\/ld\+json/i.test(match[1]) || !match[2].trim()) continue
       const digest = crypto.createHash('sha256').update(match[2], 'utf8').digest('base64')
       if (!policy.includes(`'sha256-${digest}'`)) failures.push(`rota ${route}: script inline sem hash na CSP`)
+    }
+  }
+
+  const turnstileSource = 'https://challenges.cloudflare.com'
+  if (leadSubmissionEnabled) {
+    // A navegação Next.js troca a rota sem trocar a CSP do documento. Todas
+    // as políticas devem aceitar Turnstile para suportar CTA → /contato.
+    for (const [route, policy] of routePolicies) {
+      for (const directive of ['script-src', 'connect-src', 'frame-src']) {
+        if (!hasCspSource(policy, directive, turnstileSource)) {
+          failures.push(`${route}: ${directive} deve permitir Turnstile durante navegação SPA`)
+        }
+      }
+    }
+    if (!headers.includes('/contato\n  ! Content-Security-Policy') ||
+        !headers.includes('  Cross-Origin-Embedder-Policy: unsafe-none')) {
+      failures.push('/contato deve permitir embedding controlado do Turnstile')
+    }
+    if (!hasTurnstilePreload(fs.readFileSync(path.join(outDir, 'contato.html'), 'utf8'))) {
+      failures.push('preload válido do widget Turnstile ausente da página de contato')
+    }
+  } else {
+    for (const [route, policy] of routePolicies) {
+      for (const directive of ['script-src', 'connect-src', 'frame-src']) {
+        if (hasCspSource(policy, directive, turnstileSource)) {
+          failures.push(`${route}: ${directive} permite Turnstile sem habilitação explícita`)
+        }
+      }
     }
   }
 

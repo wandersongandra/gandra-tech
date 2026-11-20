@@ -6,6 +6,7 @@ import CopyEmailButton from '@/components/CopyEmailButton'
 import { activeSocialLinks, contactEmail, contactMailto, contactNotes } from '@/lib/site'
 import { faqItems } from '@/lib/faq'
 import { contactSteps } from '@/lib/process'
+import ContactBrief from '@/components/sections/ContactBrief'
 
 export default function ContactPage() {
   return (
@@ -26,7 +27,7 @@ export default function ContactPage() {
             duration={0.95}
             animateOpacity={false}
           >
-            Trabalho bom começa com uma conversa honesta.
+            Vamos conversar sobre seu site, sistema ou automação.
           </WordReveal>
           <FadeIn as="p" className="cp-hero__sub" trigger="load" delay={0.3} y={20} duration={0.7} animateOpacity={false}>
             Conta o que você tem em mente. A gente responde com atenção — sem roteiro de vendas,
@@ -38,8 +39,13 @@ export default function ContactPage() {
             </a>
           </FadeIn>
           <CopyEmailButton email={contactEmail} />
+          <a href="#orcamento" className="cp-hero__brief-link">
+            Prefere explicar o projeto primeiro? Prepare sua mensagem ↓
+          </a>
         </div>
       </section>
+
+      <ContactBrief />
 
       {/* Info grid */}
       <section className="cp-grid-section">
@@ -84,8 +90,8 @@ export default function ContactPage() {
             <div className="cp-grid__col">
               <div className="cp-grid__label">LOCALIZAÇÃO</div>
               <p className="cp-grid__location">
-                Atendimento remoto<br />
-                Todo o Brasil
+                Vespasiano — MG<br />
+                Atendimento remoto em todo o Brasil
               </p>
               <div className="cp-grid__label" style={{ marginTop: 40 }}>DISPONIBILIDADE</div>
               <p className="cp-grid__location">

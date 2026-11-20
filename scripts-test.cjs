@@ -4,7 +4,7 @@ const path = require('node:path')
 const root = __dirname
 const source = fs.readFileSync(path.join(root, 'lib', 'projects.ts'), 'utf8')
 const slugs = [...source.matchAll(/slug:\s*'([^']+)'/g)].map((match) => match[1])
-const expected = ['sgs', 'telma-santos', 'gisley-nunes-imoveis', 'ajn-consultoria-engenharia']
+const expected = ['sgs', 'telma-santos', 'gisley-nunes-imoveis', 'ajn-consultoria-engenharia', 'laboratorio-dental-araujo']
 const failures = []
 
 if (JSON.stringify(slugs) !== JSON.stringify(expected)) {
@@ -15,6 +15,22 @@ for (const match of source.matchAll(/(?:workImage|coverImage|mainImage|src):\s*'
   const relativeAsset = match[1].replace(/^[/\\]+/, '')
   const asset = path.join(root, 'public', relativeAsset)
   if (!fs.existsSync(asset)) failures.push(`asset ausente: ${match[1]}`)
+}
+
+// A faixa de projetos precisa usar marcas locais reais, não links frágeis ou
+// nomes em fonte gigante. Nenhuma imagem deve depender de servidor de terceiros.
+const marquee = fs.readFileSync(path.join(root, 'components', 'materia', 'ClientMarquee.tsx'), 'utf8')
+for (const [slug, file] of [
+  ['sgs', 'sgs.svg'],
+  ['telma-santos', 'telma-santos.webp'],
+  ['gisley-nunes-imoveis', 'gisley-nunes.jpeg'],
+  ['ajn-consultoria-engenharia', 'ajn.webp'],
+  ['laboratorio-dental-araujo', 'laboratorio-dental-araujo.png'],
+]) {
+  const asset = path.join(root, 'public', 'images', 'project-logos', file)
+  if (!fs.existsSync(asset) || fs.statSync(asset).size === 0) failures.push(`logo ausente: ${slug}`)
+  if (!marquee.includes(`'${slug}':`) && !marquee.includes(`${slug}:`)) failures.push(`logo não configurado: ${slug}`)
+  if (!marquee.includes(`/images/project-logos/${file}`)) failures.push(`logo com URL incorreta: ${slug}`)
 }
 
 if (failures.length) {
@@ -33,7 +49,7 @@ assertLab.doesNotMatch(homeSrc, /ImmersiveLab/)
 for (const removed of ['components/sections/ImmersiveLab.tsx', 'components/motion/OrbitalArtifact.tsx', 'components/motion/HeroBlob.tsx']) {
   assertLab.ok(!require('node:fs').existsSync(require('node:path').join(__dirname, removed)), removed + ' deveria ter sido removido')
 }
-for (const slug of ['gisley-nunes-imoveis', 'ajn-consultoria-engenharia']) assertLab.ok(swSrc.includes("'/trabalhos/" + slug + "'"))
+for (const slug of ['gisley-nunes-imoveis', 'ajn-consultoria-engenharia', 'laboratorio-dental-araujo']) assertLab.ok(swSrc.includes("'/trabalhos/" + slug + "'"))
 
 // Caça a bugs 2026-10: o Pages responde /offline.html com 308 → /offline; uma
 // resposta "redirected" no cache quebra a navegação (net::ERR_FAILED).

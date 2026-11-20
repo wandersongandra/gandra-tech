@@ -27,3 +27,15 @@ jobs:
 
       - name: Validate production surface
         run: node scripts/check-production.mjs
+
+      - name: Validate authoritative email DNS records
+        run: npm run check:dns
+
+      - name: Validate DNSSEC delegation and signed answers
+        run: npm run check:dnssec
+
+      - name: Validate canonical HTTPS redirects
+        run: npm run check:canonical
+
+      - name: Validate edge TLS certificate
+        run: npm run check:tls

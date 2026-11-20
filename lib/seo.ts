@@ -1,6 +1,6 @@
 import type { Metadata } from 'next'
 import type { Service } from '@/lib/services'
-import { siteDescription, siteName, siteUrl } from '@/lib/site'
+import { brandName, siteDescription, siteName, siteUrl } from '@/lib/site'
 
 const defaultImage = '/og-image.png'
 
@@ -9,6 +9,7 @@ type PageMetadataOptions = {
   description?: string
   path: string
   image?: string
+  ogType?: 'website' | 'article'
 }
 
 export function createPageMetadata({
@@ -16,8 +17,9 @@ export function createPageMetadata({
   description = siteDescription,
   path,
   image = defaultImage,
+  ogType = 'website',
 }: PageMetadataOptions): Metadata {
-  const fullTitle = `${title} — ${siteName}`
+  const fullTitle = `${title} | ${brandName}`
   const canonical = new URL(path, siteUrl).toString()
   const imageUrl = new URL(image, siteUrl).toString()
 
@@ -27,7 +29,7 @@ export function createPageMetadata({
     robots: { index: true, follow: true },
     alternates: { canonical },
     openGraph: {
-      type: 'website',
+      type: ogType,
       locale: 'pt_BR',
       url: canonical,
       siteName,

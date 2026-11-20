@@ -3,7 +3,6 @@ import { useCallback, useEffect, useRef, useState, type MouseEvent } from 'react
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { scrollToSection } from '@/lib/scroll'
-import { contactMailto } from '@/lib/site'
 
 const FOCUSABLE_SELECTOR = [
   'a[href]',
@@ -155,9 +154,9 @@ export default function Header() {
           Serviços
         </Link>
         {isHome ? (
-          <button onClick={() => scrollToSection('#trabalhos')} className="site-header__link">
+          <a href="#trabalhos" onClick={(event) => { event.preventDefault(); scrollToSection('#trabalhos') }} className="site-header__link">
             Trabalhos
-          </button>
+          </a>
         ) : (
           <Link href="/#trabalhos" prefetch={false} className="site-header__link">
             Trabalhos
@@ -167,10 +166,10 @@ export default function Header() {
           Contato
         </Link>
       </nav>
-      <a href={contactMailto} className="m-header__cta">
+      <Link href="/contato#orcamento" prefetch={false} className="m-header__cta">
         <span className="m-header__cta-dot" aria-hidden="true" />
         Iniciar projeto
-      </a>
+      </Link>
       <button
         ref={menuButtonRef}
         type="button"

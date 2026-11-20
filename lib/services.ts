@@ -41,11 +41,11 @@ export const services: Service[] = [
       'Implementação web com conteúdo acessível aos mecanismos de busca.',
       'Publicação e orientações para a continuidade do site.',
     ],
-    relatedProjectSlug: 'telma-santos',
+    relatedProjectSlug: 'laboratorio-dental-araujo',
     relatedServiceSlugs: ['portfolios-profissionais', 'aplicacoes-web'],
-    seoTitle: 'Desenvolvimento de Sites Institucionais',
+    seoTitle: 'Criação de Sites Institucionais para Empresas',
     seoDescription:
-      'Desenvolvimento de sites institucionais sob medida para empresas, com arquitetura de conteúdo, design responsivo, SEO técnico e publicação.',
+      'Criamos sites institucionais responsivos e preparados para o Google, com conteúdo claro e identidade própria. Apresente sua empresa e solicite um orçamento.',
     headline: 'Sites institucionais para explicar melhor o negócio e transformar visita em contato.',
     lead:
       'Um site institucional precisa responder com clareza o que a empresa faz, para quem faz e como o visitante pode avançar. O projeto combina conteúdo, design e engenharia para criar uma presença digital profissional, rápida e fácil de manter.',
@@ -105,9 +105,9 @@ export const services: Service[] = [
     ],
     relatedProjectSlug: 'telma-santos',
     relatedServiceSlugs: ['sites-institucionais', 'aplicacoes-web'],
-    seoTitle: 'Criação de Portfólios Profissionais',
+    seoTitle: 'Criação de Portfólios Profissionais Online',
     seoDescription:
-      'Criação de portfólios profissionais sob medida para especialistas, consultores e criadores apresentarem projetos, trajetória e serviços.',
+      'Portfólios profissionais com design autoral, navegação responsiva e estrutura para apresentar serviços e projetos. Mostre seu trabalho e peça uma proposta.',
     headline: 'Portfólios profissionais para apresentar trabalho, repertório e posicionamento.',
     lead:
       'Um bom portfólio não é apenas uma galeria. Ele organiza trajetória, projetos, serviços e contexto para que quem chega entenda rapidamente o valor do trabalho e encontre um caminho claro para entrar em contato.',
@@ -170,7 +170,7 @@ export const services: Service[] = [
     relatedServiceSlugs: ['aplicacoes-web', 'automacao-de-processos-e-integracoes'],
     seoTitle: 'Desenvolvimento de Sistemas Sob Medida',
     seoDescription:
-      'Desenvolvimento de sistemas sob medida para empresas com processos próprios, dashboards, permissões, fluxos operacionais e regras de negócio.',
+      'Desenvolvemos sistemas sob medida para processos, permissões, dashboards e rotinas empresariais. Organize sua operação com software próprio. Solicite proposta.',
     headline: 'Sistemas sob medida para processos que não cabem em software genérico.',
     lead:
       'Quando a operação depende de regras, documentos, aprovações, indicadores ou fluxos muito específicos, adaptar o negócio a uma ferramenta pronta pode criar mais atrito. Um sistema sob medida parte do processo real e evolui conforme a prioridade da empresa.',
@@ -231,9 +231,9 @@ export const services: Service[] = [
     ],
     relatedProjectSlug: 'sgs',
     relatedServiceSlugs: ['sistemas-sob-medida', 'automacao-de-processos-e-integracoes'],
-    seoTitle: 'Desenvolvimento de Aplicações Web',
+    seoTitle: 'Desenvolvimento de Aplicações Web Sob Medida',
     seoDescription:
-      'Desenvolvimento de aplicações web responsivas para produtos digitais, áreas de cliente, ferramentas internas e experiências acessadas pelo navegador.',
+      'Criamos aplicações web responsivas para áreas de cliente, ferramentas internas e produtos digitais, com foco em usabilidade e evolução. Apresente seu projeto.',
     headline:
       'Aplicações web para produtos, áreas de cliente e operações acessadas pelo navegador.',
     lead:
@@ -296,7 +296,7 @@ export const services: Service[] = [
     relatedServiceSlugs: ['sistemas-sob-medida', 'aplicacoes-web'],
     seoTitle: 'Automação de Processos e Integrações',
     seoDescription:
-      'Automação de processos empresariais e integrações entre sistemas, APIs, webhooks, planilhas e rotinas operacionais.',
+      'Automatize processos empresariais e conecte APIs, sistemas, planilhas e rotinas com integrações sob medida. Reduza tarefas manuais. Fale sobre seu projeto.',
     headline: 'Automação de processos para reduzir tarefas manuais e conectar ferramentas.',
     lead:
       'Automação faz sentido quando uma equipe repete os mesmos passos, copia dados entre sistemas ou depende de conferências manuais para manter a operação atualizada. O objetivo é remover atrito sem criar uma solução mais difícil de manter do que o processo original.',

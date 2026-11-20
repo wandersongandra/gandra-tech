@@ -9,9 +9,12 @@
 export const siteName = 'Gandra Tecnologia'
 export const brandName = 'Gandra Tech'
 export const siteUrl = 'https://gandra.tech'
+export const siteTitle = 'Desenvolvimento de Sites e Sistemas Web | Gandra Tech'
 export const siteDescription =
-  'Desenvolvimento de sites, sistemas sob medida, aplicações web e automações para empresas e profissionais em todo o Brasil.'
-export const siteLastModified = '2026-10-05'
+  'Sites institucionais, sistemas sob medida e automações com design autoral e engenharia web. Transforme sua ideia em presença digital. Peça um orçamento.'
+// Atualizar somente quando o conteúdo público ou seus metadados mudarem.
+// Não usar a data do build: um deploy sem alteração editorial não é modificação.
+export const siteLastModified = '2026-11-09'
 
 export const contactEmail = 'contato@gandra.tech'
 export const contactSubject = 'Novo projeto - Gandra Tecnologia'

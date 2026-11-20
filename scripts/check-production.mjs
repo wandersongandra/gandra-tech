@@ -1,3 +1,5 @@
+import { checkLeadOriginBarrier } from './check-lead-origin.mjs'
+
 const baseUrl = 'https://gandra.tech'
 const routes = [
   '/',
@@ -12,6 +14,7 @@ const routes = [
   '/trabalhos/telma-santos',
   '/trabalhos/gisley-nunes-imoveis',
   '/trabalhos/ajn-consultoria-engenharia',
+  '/trabalhos/laboratorio-dental-araujo',
   '/contato',
   '/llms.txt',
   '/sitemap.xml',
@@ -125,6 +128,17 @@ for (const route of routes) {
   }
 }
 
+// Evita soft 404: a rota inexistente precisa devolver HTTP 404 real.
+try {
+  const missing = await fetch(`${baseUrl}/__seo-verificacao-404`, {
+    redirect: 'manual',
+    signal: AbortSignal.timeout(15_000),
+  })
+  if (missing.status !== 404) failures.push(`404: retornou HTTP ${missing.status}`)
+} catch (error) {
+  failures.push(`404: ${error instanceof Error ? error.message : 'erro desconhecido'}`)
+}
+
 try {
   const sw = await fetch(`${baseUrl}/sw.js`, {
     redirect: 'manual',
@@ -145,12 +159,14 @@ try {
   failures.push(`/sw.js: ${message}`)
 }
 
+failures.push(...await checkLeadOriginBarrier())
+
 if (failures.length) {
   console.error('Healthcheck de produção falhou:')
   for (const failure of failures) console.error(`- ${failure}`)
   process.exitCode = 1
 } else {
   console.log(
-    `Healthcheck de produção passou: ${routes.length} URLs, CSP estrita, headers, security.txt e service worker validados.`
+    `Healthcheck de produção passou: ${routes.length} URLs, CSP estrita, headers, security.txt, service worker e duas canaries de origem da API validados.`
   )
 }

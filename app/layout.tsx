@@ -9,7 +9,8 @@ import Intro from '@/components/surreal/Intro'
 import { INTRO_SCRIPT } from '@/lib/intro'
 import ServiceWorkerRegister from '@/components/ServiceWorkerRegister'
 import ScrollMemory from '@/components/ScrollMemory'
-import { contactEmail, brandName, siteDescription, siteName, siteUrl } from '@/lib/site'
+import StructuredData from '@/components/StructuredData'
+import { contactEmail, brandName, siteDescription, siteName, siteTitle, siteUrl } from '@/lib/site'
 import './globals.css'
 import './materia.css'
 import './case.css'
@@ -52,24 +53,24 @@ const jetbrains = JetBrains_Mono({
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: {
-    default: `${siteName} — Sites, sistemas e automações sob medida`,
-    template: `%s — ${siteName}`,
+    default: siteTitle,
+    template: `%s | ${brandName}`,
   },
   description: siteDescription,
   robots: { index: true, follow: true },
-  alternates: { canonical: '/' },
+  // Cada página declara seu próprio canonical; não herdar a home para novas rotas.
   openGraph: {
     type: 'website',
     locale: 'pt_BR',
     url: siteUrl,
     siteName,
-    title: `${siteName} — Sites, sistemas e automações sob medida`,
+    title: siteTitle,
     description: siteDescription,
     images: [{ url: '/og-image.png', width: 1200, height: 630, alt: `${siteName} — Sites, sistemas e automações sob medida` }],
   },
   twitter: {
     card: 'summary_large_image',
-    title: `${siteName} — Sites, sistemas e automações sob medida`,
+    title: siteTitle,
     description: siteDescription,
     images: ['/og-image.png'],
   },
@@ -124,11 +125,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
       </head>
       <body>
         <Intro />
-        {structuredData.map((data) => (
-          <script key={data['@type']} type="application/ld+json">
-            {JSON.stringify(data)}
-          </script>
-        ))}
+        <StructuredData data={structuredData} />
         <a className="skip-link" href="#main-content">Pular para o conteúdo principal</a>
         <ServiceWorkerRegister />
         <div className="grain" aria-hidden="true" />

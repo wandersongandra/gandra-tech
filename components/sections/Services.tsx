@@ -6,7 +6,6 @@ import MagneticButton from '@/components/motion/MagneticButton'
 import { useMotionPrefs } from '@/components/motion/useMotion'
 import { services } from '@/lib/services'
 import { getProject } from '@/lib/projects'
-import { contactMailto } from '@/lib/site'
 import { withGsap } from '@/lib/gsap'
 
 /**
@@ -186,10 +185,10 @@ export default function Services() {
               Conheça cada serviço <span aria-hidden="true">→</span>
             </Link>
             <MagneticButton strength={0.25}>
-              <a href={contactMailto} className="m-button m-button--outline">
+              <Link href="/contato#orcamento" prefetch={false} className="m-button m-button--outline">
                 <span className="m-button__label" data-text="Vamos conversar">Vamos conversar</span>
                 <span className="m-button__icon" aria-hidden="true">↗</span>
-              </a>
+              </Link>
             </MagneticButton>
           </div>
         </div>

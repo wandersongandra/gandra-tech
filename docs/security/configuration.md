@@ -2,6 +2,8 @@
 
 Documento de referência do hardening do site estático `gandra.tech`. Ele separa o que está no repositório do que precisa ser confirmado no painel Cloudflare, GitHub ou no provedor de email.
 
+> **Atualização em 09/11/2026:** este documento preserva um histórico de estados anteriores do projeto (inclusive trechos que descrevem o formulário como somente `mailto`). Para a situação **atual verificada no painel Cloudflare**, incluindo WAF, DNS de e-mail, SSL e correções planejadas, consulte [a auditoria de 09/11/2026](audit-2026-11-09.md). Não use os estados antigos abaixo para concluir que a borda está segura.
+
 ## Estado resumido
 
 | Área | Estado | Evidência ou limite |
