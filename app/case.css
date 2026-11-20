@@ -833,7 +833,10 @@
   }
 }
 
-.m-svg-defs {
+/* fora do fluxo: um <svg> inline no fim do <body> cria uma linha de texto
+   e deixava uma faixa de papel abaixo do rodapé */
+.m-svg-defs,
+.m-folio-defs {
   position: absolute;
   width: 0;
   height: 0;
