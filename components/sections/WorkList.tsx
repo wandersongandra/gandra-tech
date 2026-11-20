@@ -99,6 +99,18 @@ export default function WorkList() {
       // Recalcula posição também no resize (mesma linha pode continuar selecionada).
       if (current) {
         const r = current.getBoundingClientRect()
+        const name = current.querySelector<HTMLElement>('.work-row__name')
+        if (name && window.matchMedia('(max-width: 767px)').matches) {
+          // Celular: o nome ocupa a largura toda, então a prévia sobe acima
+          // dele (alinhada à direita) e invade a base da linha anterior, que
+          // já está esmaecida. CSS: largura min(48vw, 200), 16:10, translateY -50%.
+          const peekW = Math.min(window.innerWidth * 0.48, 200)
+          const peekH = (peekW * 10) / 16
+          const nameTop = name.getBoundingClientRect().top - r.top
+          current.style.setProperty('--peek-x', `${(r.width - peekW - 10 - 28).toFixed(1)}px`)
+          current.style.setProperty('--peek-y', `${(nameTop - 12 - peekH / 2).toFixed(1)}px`)
+          return
+        }
         // CSS: translateX(peek-x + 28). Largura touch = min(68vw, 280).
         const peekW = Math.min(window.innerWidth * 0.68, 280)
         const maxX = window.innerWidth - r.left - peekW - 28 - 12
