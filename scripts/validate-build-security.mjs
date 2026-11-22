@@ -108,6 +108,13 @@ if (!fs.existsSync(outDir) || !fs.statSync(outDir).isDirectory()) {
     if (/\b(?:src|href|action)\s*=\s*["']http:\/\//i.test(html)) {
       failures.push(`recurso HTTP inseguro encontrado em ${relative}`)
     }
+
+    for (const match of html.matchAll(/<a\b[^>]*\btarget\s*=\s*["']?_blank["']?[^>]*>/gi)) {
+      const tag = match[0]
+      if (!/\brel\s*=\s*["'][^"']*\bnoopener\b/i.test(tag) || !/\brel\s*=\s*["'][^"']*\bnoreferrer\b/i.test(tag)) {
+        failures.push(`link target="_blank" sem rel="noopener noreferrer" em ${relative}`)
+      }
+    }
   }
 
   const headersPath = path.join(outDir, '_headers')
@@ -175,7 +182,7 @@ if (!fs.existsSync(outDir) || !fs.statSync(outDir).isDirectory()) {
 
   // Cloudflare Pages descarta linhas do _headers acima de 2.000 caracteres
   // e aceita no máximo 100 regras. Uma CSP descartada some da produção.
-  const headerLines = headers.split('\n')
+  const headerLines = headers.split(/\r?\n/)
   headerLines.forEach((line, index) => {
     if (line.length > 2000) failures.push(`_headers linha ${index + 1} tem ${line.length} caracteres (limite 2000)`)
   })
