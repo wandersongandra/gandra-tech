@@ -1,21 +1,10 @@
 import { checkLeadOriginBarrier } from './check-lead-origin.mjs'
 
 const baseUrl = 'https://gandra.tech'
-const routes = [
-  '/',
-  '/servicos',
-  '/servicos/sites-institucionais',
-  '/servicos/portfolios-profissionais',
-  '/servicos/sistemas-sob-medida',
-  '/servicos/aplicacoes-web',
-  '/servicos/automacao-de-processos-e-integracoes',
-  '/trabalhos',
-  '/trabalhos/sgs',
-  '/trabalhos/telma-santos',
-  '/trabalhos/gisley-nunes-imoveis',
-  '/trabalhos/ajn-consultoria-engenharia',
-  '/trabalhos/laboratorio-dental-araujo',
-  '/contato',
+const fixedRoutes = [
+  '/termos-de-uso',
+  '/politica-de-privacidade',
+  '/politica-de-cookies',
   '/llms.txt',
   '/sitemap.xml',
   '/robots.txt',
@@ -33,6 +22,29 @@ const requiredHeaders = [
   'content-security-policy',
 ]
 const failures = []
+let routes = []
+
+try {
+  const sitemapResponse = await fetch(`${baseUrl}/sitemap.xml`, {
+    redirect: 'manual',
+    signal: AbortSignal.timeout(15_000),
+  })
+  if (sitemapResponse.status !== 200) throw new Error(`sitemap.xml: HTTP ${sitemapResponse.status}`)
+  const sitemap = await sitemapResponse.text()
+  const sitemapRoutes = [...sitemap.matchAll(/<loc>([^<]+)<\/loc>/g)].flatMap((match) => {
+    try {
+      const url = new URL(match[1])
+      return url.origin === baseUrl ? [url.pathname] : []
+    } catch {
+      return []
+    }
+  })
+  if (!sitemapRoutes.length) throw new Error('sitemap.xml sem URLs do domínio oficial')
+  routes = [...new Set([...sitemapRoutes, ...fixedRoutes])]
+} catch (error) {
+  failures.push(`sitemap.xml: ${error instanceof Error ? error.message : 'erro desconhecido'}`)
+  routes = fixedRoutes
+}
 
 function validateCsp(csp, route) {
   if (!csp) return

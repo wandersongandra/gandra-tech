@@ -60,6 +60,11 @@ export default function FadeIn({
       delay,
     }
 
+    // O opacity: 0 inicial vem de html.js [data-fade-pending] (só existe com
+    // JS). Assim que o GSAP grava a opacidade inline, o atributo sai: o tempo
+    // e o visual do fade continuam idênticos; sem JS o conteúdo fica visível.
+    const release = () => el.removeAttribute('data-fade-pending')
+
     const setFinal = () => {
       tween?.kill()
       st?.kill()
@@ -72,10 +77,12 @@ export default function FadeIn({
         rotation: 0,
         clearProps: 'transform,filter,opacity',
       })
+      release()
     }
 
     const setInitial = () => {
       gsap.set(el, from)
+      release()
     }
 
     const animate = () => {
@@ -83,6 +90,7 @@ export default function FadeIn({
       played = true
       tween?.kill()
       tween = gsap.fromTo(el, from, to)
+      release()
       return tween
     }
 
@@ -133,7 +141,10 @@ export default function FadeIn({
     }
   }, () => {
     // sem GSAP: mostra o conteúdo parado em vez de deixá-lo invisível
-    if (ref.current) ref.current.style.opacity = '1'
+    if (ref.current) {
+      ref.current.style.opacity = '1'
+      ref.current.removeAttribute('data-fade-pending')
+    }
   }), [animateOpacity, delay, duration, repeat, rotation, scale, start, trigger, x, y])
 
   const T = Tag
@@ -143,7 +154,8 @@ export default function FadeIn({
       ref={ref}
       className={className}
       data-motion-hidden="true"
-      style={{ opacity: animateOpacity ? 0 : 1, ...style }}
+      data-fade-pending={animateOpacity ? '' : undefined}
+      style={animateOpacity ? style : { opacity: 1, ...style }}
     >
       {children}
     </T>

@@ -3,7 +3,7 @@ import WordReveal from '@/components/motion/WordReveal'
 import FadeIn from '@/components/motion/FadeIn'
 import PageTransition from '@/components/motion/PageTransition'
 import CopyEmailButton from '@/components/CopyEmailButton'
-import { activeSocialLinks, contactEmail, contactMailto, contactNotes } from '@/lib/site'
+import { activeSocialLinks, contactEmail, contactMailto, contactNotes, whatsappUrl } from '@/lib/site'
 import { faqItems } from '@/lib/faq'
 import { contactSteps } from '@/lib/process'
 import ContactBrief from '@/components/sections/ContactBrief'
@@ -33,15 +33,14 @@ export default function ContactPage() {
             Conta o que você tem em mente. A gente responde com atenção — sem roteiro de vendas,
             sem promessa vazia.
           </FadeIn>
-          <FadeIn trigger="load" delay={0.5} y={16} duration={0.7} animateOpacity={false}>
-            <a href={contactMailto} className="cp-hero__email" data-no-stain>
-              {contactEmail} ↗
-            </a>
-          </FadeIn>
-          <CopyEmailButton email={contactEmail} />
           <a href="#orcamento" className="cp-hero__brief-link">
-            Prefere explicar o projeto primeiro? Prepare sua mensagem ↓
+            Preencha o formulário de orçamento ↓
           </a>
+          {whatsappUrl ? (
+            <a href={whatsappUrl} target="_blank" rel="noopener noreferrer" className="cp-hero__brief-link">
+              Conversar no WhatsApp ↗ <span className="sr-only"> (abre em nova aba)</span>
+            </a>
+          ) : null}
         </div>
       </section>
 
@@ -54,9 +53,12 @@ export default function ContactPage() {
 
             <div className="cp-grid__col cp-grid__col--main">
               <div className="cp-grid__label">CONTATO DIRETO</div>
-              <a href={contactMailto} className="cp-grid__email-link">
-                {contactEmail}
-              </a>
+              <div className="cp-grid__email-actions">
+                <a href={contactMailto} className="cp-grid__email-link">
+                  {contactEmail}
+                </a>
+                <CopyEmailButton email={contactEmail} />
+              </div>
               {activeSocialLinks.length > 0 && (
                 <>
                   <div className="cp-grid__label" style={{ marginTop: 40 }}>REDES</div>
@@ -96,7 +98,8 @@ export default function ContactPage() {
               <div className="cp-grid__label" style={{ marginTop: 40 }}>DISPONIBILIDADE</div>
               <p className="cp-grid__location">
                 Novos projetos<br />
-                sob consulta
+                sob consulta<br />
+                Respondo em até 1 dia útil.
               </p>
             </div>
 

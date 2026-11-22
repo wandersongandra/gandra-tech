@@ -655,7 +655,11 @@ body {
   color: var(--m-muted);
   font-size: clamp(16px, 1.15vw, 18px);
   line-height: 1.6;
-  animation: m-fade-up 1s var(--m-ease-out) 0.45s both;
+  /* Mesma animação de m-fade-up (duração, delay e easing intactos). A cópia só
+     começa em opacity 0.01: invisível ao olho, mas o Chrome registra o LCP já
+     no primeiro paint em vez de esperar o fade terminar (elementos com
+     opacity 0 não contam como candidatos a LCP). */
+  animation: m-fade-up-lcp 1s var(--m-ease-out) 0.45s both;
 }
 
 .m-hero__actions {
@@ -668,6 +672,11 @@ body {
 
 @keyframes m-fade-up {
   from { opacity: 0; transform: translate3d(0, 18px, 0); }
+  to { opacity: 1; transform: none; }
+}
+
+@keyframes m-fade-up-lcp {
+  from { opacity: 0.01; transform: translate3d(0, 18px, 0); }
   to { opacity: 1; transform: none; }
 }
 
@@ -982,7 +991,7 @@ body {
   overflow: hidden;
   color: var(--m-muted-dark);
   font-family: var(--m-mono);
-  font-size: 11px;
+  font-size: 12px;
   line-height: 1.45;
   letter-spacing: 0.01em;
   text-overflow: ellipsis;
@@ -2215,6 +2224,11 @@ body {
 }
 
 @media (max-width: 767px) {
+  /* Reserva o alvo fixo de som para não cobrir a barra final do rodapé. */
+  .m-footer {
+    padding-bottom: calc(74px + env(safe-area-inset-bottom, 0px));
+  }
+
   .m-footer .kinetic__letter {
     font-size: 17vw;
   }
@@ -2845,6 +2859,15 @@ html[data-intro='skip'] main {
   pointer-events: none;
 }
 
+/* Em toque, rolagem vertical e zoom continuam nativos; o eixo horizontal fica
+   livre para o gesto do pincel decidir depois do limiar de direção. */
+@media (pointer: coarse) {
+  html,
+  body {
+    touch-action: pan-y pinch-zoom;
+  }
+}
+
 html.is-painting,
 html.is-painting * {
   cursor: crosshair;
@@ -3199,7 +3222,7 @@ html[data-tinta='on'] .m-press__wet {
     position: absolute;
     left: var(--m-gutter);
     bottom: calc(24px + env(safe-area-inset-bottom, 0px));
-    font-size: 11px;
+    font-size: 12px;
     letter-spacing: 0.08em;
     text-transform: uppercase;
     color: var(--m-muted);
@@ -3242,6 +3265,30 @@ html[data-tinta='on'] .m-press__wet {
   pointer-events: none;
 }
 
+/* Véu de leitura: um gradiente suave entre os glifos e o bloco de texto.
+   Os glifos continuam visíveis e animando; só ficam atenuados atrás das
+   frases. A .container vira contexto de empilhamento (z 0, acima do canvas
+   em -1) e o véu fica abaixo do próprio texto. Segue --black, que inverte
+   no modo tinta. */
+.cp-hero[data-glyphs] .container {
+  position: relative;
+  z-index: 0;
+}
+
+.cp-hero[data-glyphs] .container::before {
+  content: '';
+  position: absolute;
+  inset: -8% -4%;
+  z-index: -1;
+  pointer-events: none;
+  background: radial-gradient(
+    ellipse 70% 75% at 32% 50%,
+    color-mix(in srgb, var(--black) 82%, transparent) 0%,
+    color-mix(in srgb, var(--black) 58%, transparent) 55%,
+    transparent 100%
+  );
+}
+
 @media print {
   .m-glyphs { display: none; }
 }
@@ -3268,7 +3315,8 @@ html[data-tinta='on'] .m-press__wet {
    hora; segurar ~0,55 s (ou manter a tecla) carimba. No toque, sem menu de
    contexto nem seleção, e sem o atraso de duplo toque. */
 .m-contact__email,
-.cp-hero__email[href^='mailto:'] {
+.cp-hero__email[href^='mailto:'],
+.cp-grid__email-link[href^='mailto:'] {
   touch-action: manipulation;
   -webkit-touch-callout: none;
   -webkit-user-select: none;
@@ -3277,11 +3325,13 @@ html[data-tinta='on'] .m-press__wet {
 
 @media (prefers-reduced-motion: no-preference) {
   .m-contact__email,
-  .cp-hero__email[href^='mailto:'] {
+  .cp-hero__email[href^='mailto:'],
+  .cp-grid__email-link[href^='mailto:'] {
     transition: color 0.4s ease, transform 0.55s cubic-bezier(0.3, 0, 0.2, 1);
   }
   .m-contact__email.is-charging,
-  .cp-hero__email.is-charging {
+  .cp-hero__email.is-charging,
+  .cp-grid__email-link.is-charging {
     transform: scale(0.97);
   }
 }

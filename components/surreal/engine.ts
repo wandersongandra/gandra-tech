@@ -182,7 +182,11 @@ function melt(mark: HTMLElement, ctx: Ctx, defs: SVGElement): Effect | null {
     return feet.map((fx) => {
       const el = document.createElement('span')
       el.className = 'm-drip'
-      el.innerHTML = '<span class="m-drip__stem"></span><span class="m-drip__bulb"></span>'
+      const stem = document.createElement('span')
+      stem.className = 'm-drip__stem'
+      const bulb = document.createElement('span')
+      bulb.className = 'm-drip__bulb'
+      el.append(stem, bulb)
       el.style.color = color
       const w = fs * (0.035 + rand() * 0.045)
       el.style.setProperty('--w', `${w.toFixed(1)}px`)

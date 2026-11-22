@@ -33,6 +33,7 @@ function assertUnique(values, label) {
 const projectSlugs = projects.map((project) => project.slug)
 assert.deepEqual(projectSlugs, ['sgs', 'telma-santos', 'gisley-nunes-imoveis', 'ajn-consultoria-engenharia', 'laboratorio-dental-araujo'])
 assertUnique(projectSlugs, 'slugs de projetos')
+assert.equal(getProject('sgs').ownership, 'Produto próprio da Gandra Tecnologia', 'SGS deve declarar a relação confirmada com a Gandra')
 
 for (const project of projects) {
   for (const field of ['slug', 'name', 'category', 'year', 'headline', 'overview', 'contexto', 'desafio', 'solucao', 'resultado', 'papel', 'workImage', 'coverImage', 'mainImage', 'seoTitle', 'seoDescription']) {
@@ -43,6 +44,15 @@ for (const project of projects) {
   assert.ok(Array.isArray(project.relatedServiceSlugs) && project.relatedServiceSlugs.length > 0, `projeto ${project.slug}: relatedServiceSlugs inválido`)
   assert.ok(Array.isArray(project.details) && project.details.length >= 3, `projeto ${project.slug}: details inválido`)
   assert.ok(Array.isArray(project.gallery) && project.gallery.length > 0, `projeto ${project.slug}: gallery inválida`)
+  if (project.metrics) {
+    assert.ok(Array.isArray(project.metrics) && project.metrics.length > 0, `projeto ${project.slug}: metrics inválido`)
+    for (const metric of project.metrics) {
+      for (const field of ['value', 'label', 'source']) assert.ok(metric[field]?.trim(), `projeto ${project.slug}: métrica sem ${field}`)
+    }
+  }
+  if (project.testimonial) {
+    for (const field of ['quote', 'author', 'role']) assert.ok(project.testimonial[field]?.trim(), `projeto ${project.slug}: depoimento sem ${field}`)
+  }
   for (const image of project.gallery) {
     assert.equal(typeof image.src, 'string', `projeto ${project.slug}: gallery sem src`)
     assert.equal(typeof image.alt, 'string', `projeto ${project.slug}: gallery sem alt`)

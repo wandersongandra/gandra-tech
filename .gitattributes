@@ -1,0 +1,28 @@
+# Padronização de quebras de linha para garantir segurança e integridade de hashes CSP
+* text=auto eol=lf
+
+# Scripts e código-fonte
+*.js text eol=lf
+*.mjs text eol=lf
+*.cjs text eol=lf
+*.ts text eol=lf
+*.tsx text eol=lf
+*.json text eol=lf
+*.css text eol=lf
+*.html text eol=lf
+*.md text eol=lf
+*.yml text eol=lf
+*.yaml text eol=lf
+*.txt text eol=lf
+_headers text eol=lf
+
+# Binários e fontes
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.webp binary
+*.avif binary
+*.ico binary
+*.woff binary
+*.woff2 binary
+*.ttf binary

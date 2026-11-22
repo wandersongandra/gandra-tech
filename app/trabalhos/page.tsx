@@ -5,6 +5,7 @@ import Breadcrumbs from '@/components/Breadcrumbs'
 import StructuredData from '@/components/StructuredData'
 import { createPageMetadata } from '@/lib/seo'
 import { projects } from '@/lib/projects'
+import { siteUrl } from '@/lib/site'
 
 export const metadata = createPageMetadata({
   title: 'Portfólio de Sites e Sistemas Criados',
@@ -20,12 +21,12 @@ export default function Trabalhos() {
           '@context': 'https://schema.org',
           '@type': 'CollectionPage',
           name: 'Portfólio de sites e sistemas desenvolvidos',
-          url: 'https://gandra.tech/trabalhos',
+          url: `${siteUrl}/trabalhos`,
           inLanguage: 'pt-BR',
           hasPart: projects.map((project) => ({
             '@type': 'CreativeWork',
             name: project.name,
-            url: `https://gandra.tech/trabalhos/${project.slug}`,
+            url: `${siteUrl}/trabalhos/${project.slug}`,
             description: project.overview,
           })),
         }}

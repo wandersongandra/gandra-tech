@@ -209,15 +209,22 @@ const fallbackCsp = buildCsp(fallback ? fallback.hashes : new Set())
 
 const marker = '# CSP por rota (gerado por scripts/generate-csp.mjs)'
 // Idempotente: remove blocos gerados numa execução anterior.
-const source = fs.readFileSync(headersPath, 'utf8').split(marker)[0]
-const withFallback = source.replace(
-  /^\s*Content-Security-Policy:.*$/m,
-  assertLine(`  Content-Security-Policy: ${fallbackCsp}`, '/*')
-)
+// CRLF (checkout no Windows com core.autocrlf) + ^\s* em modo multilinha
+// consumiam a quebra de linha anterior e colavam a CSP no header de cima,
+// deixando o fallback (e o 404) sem CSP. Normaliza e casa só espaços/tabs.
+const source = fs.readFileSync(headersPath, 'utf8').replace(/\r\n?/g, '\n').split(marker)[0]
+const cspLine = /^[ \t]*Content-Security-Policy:.*$/m
 
-if (withFallback === source) {
+// Testa a presença da linha (e não "o texto mudou"): numa segunda execução a
+// política gerada é idêntica à anterior e a comparação acusava falsa ausência.
+if (!cspLine.test(source)) {
   throw new Error('linha Content-Security-Policy não encontrada em out/_headers')
 }
+
+const withFallback = source.replace(
+  cspLine,
+  assertLine(`  Content-Security-Policy: ${fallbackCsp}`, '/*')
+)
 
 const routeBlocks = executablePages
   .filter((page) => page.route !== '/404')

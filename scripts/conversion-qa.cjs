@@ -4,7 +4,7 @@ const path = require('node:path')
 const { chromium } = require('playwright')
 
 const origin = process.env.QA_ORIGIN || 'http://127.0.0.1:4173'
-const screenshotDir = path.join(__dirname, '..', 'artifacts', 'visual')
+const screenshotDir = path.resolve(process.env.QA_SCREENSHOT_DIR || path.join(__dirname, '..', 'artifacts', 'visual'))
 fs.mkdirSync(screenshotDir, { recursive: true })
 
 async function main() {
@@ -99,7 +99,10 @@ async function main() {
     const noJs = await browser.newContext({ javaScriptEnabled: false })
     const fallback = await noJs.newPage()
     await fallback.goto(`${origin}/contato.html`, { waitUntil: 'load' })
-    assert.ok(await fallback.locator('#brief-service').isDisabled(), 'sem JS: campo não pode fingir que envia dados')
+    // Com JS os campos nascem habilitados (antes da hidratação); sem JS eles
+    // ficam ocultos (html:not(.js)) — em nenhum caso fingem que enviam dados.
+    const service = fallback.locator('#brief-service')
+    assert.ok((await service.isHidden()) || (await service.isDisabled()), 'sem JS: campo não pode fingir que envia dados')
     assert.match(await fallback.locator('.cp-brief__submit').getAttribute('href'), /^mailto:contato@gandra\.tech/)
     assert.ok(await fallback.locator('noscript').count() >= 1, 'sem JS: aviso ausente')
     await noJs.close()

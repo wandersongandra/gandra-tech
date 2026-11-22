@@ -38,7 +38,6 @@ export default function Picture({ src, alt, sizes, className, fit = 'cover', foc
     <picture className="m-picture">
       <source type="image/avif" srcSet={srcSet(info, 'avif')} sizes={sizes} />
       <source type="image/webp" srcSet={srcSet(info, 'webp')} sizes={sizes} />
-      {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
         src={fallbackSrc(info)}
         alt={alt}

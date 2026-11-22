@@ -1,26 +1,31 @@
 const VERSION = 'materia-2026-11-seo-v1'
 const STATIC_LIMIT = 120
+// Imagens e fontes (stale-while-revalidate): sem teto, o cache crescia a cada
+// variante AVIF/WebP baixada. Mantém só as mais recentes.
+const RUNTIME_LIMIT = 150
 const SHELL_CACHE = `gandra-shell-${VERSION}`
 const STATIC_CACHE = `gandra-static-${VERSION}`
 const RUNTIME_CACHE = `gandra-runtime-${VERSION}`
 const PRECACHE_URLS = ['/', '/offline.html', '/favicon.svg', '/apple-touch-icon.png']
+// Gerado por scripts/generate-site-catalog.mjs a partir de lib/site-catalog.ts.
 const NAVIGATION_PATHS = new Set([
-  '/',
-  '/servicos',
-  '/servicos/sites-institucionais',
-  '/servicos/portfolios-profissionais',
-  '/servicos/sistemas-sob-medida',
-  '/servicos/aplicacoes-web',
-  '/servicos/automacao-de-processos-e-integracoes',
-  '/trabalhos',
-  '/trabalhos/sgs',
-  '/trabalhos/telma-santos',
-  '/trabalhos/gisley-nunes-imoveis',
-  '/trabalhos/ajn-consultoria-engenharia',
-  '/trabalhos/laboratorio-dental-araujo',
-  '/contato',
-  '/termos-de-uso',
-  '/politica-de-privacidade',
+  "/",
+  "/servicos",
+  "/servicos/sites-institucionais",
+  "/servicos/portfolios-profissionais",
+  "/servicos/sistemas-sob-medida",
+  "/servicos/aplicacoes-web",
+  "/servicos/automacao-de-processos-e-integracoes",
+  "/trabalhos",
+  "/trabalhos/sgs",
+  "/trabalhos/telma-santos",
+  "/trabalhos/gisley-nunes-imoveis",
+  "/trabalhos/ajn-consultoria-engenharia",
+  "/trabalhos/laboratorio-dental-araujo",
+  "/contato",
+  "/termos-de-uso",
+  "/politica-de-privacidade",
+  "/politica-de-cookies"
 ])
 
 // O Cloudflare Pages tira o ".html" do endereço: /offline.html responde com
@@ -131,6 +136,7 @@ async function staleWhileRevalidate(request, url) {
     .then(async (response) => {
       if (isSafeCacheableResponse(response)) {
         await cache.put(request, response.clone())
+        await trim(cache, RUNTIME_LIMIT)
       }
       return response
     })

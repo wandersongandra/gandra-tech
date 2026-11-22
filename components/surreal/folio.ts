@@ -281,7 +281,7 @@ export function glyphField(host: HTMLElement, opts: Opts): Off {
     const own = set.get(i)
     // parado e sem letra: nada a repintar
     if (!own && prev === lift[i]) return prev > 0
-    let alive = lift[i] > 0 || lift[i] !== k
+    const alive = lift[i] > 0 || lift[i] !== k
     ctx.clearRect(x * cw, y * ch, cw, ch)
     if (own) {
       const age = (now - own[1]) / 1000
@@ -514,7 +514,7 @@ export function liquidLinks(defs: SVGSVGElement, opts: Opts): Off {
 /* 7. Segurar para carimbar: clique normal continua instantâneo; segurar  */
 /*    (ou manter a tecla) carimba "GANDRA ✶ APROVADO" ao lado do e-mail.  */
 /* --------------------------------------------------------------------- */
-const STAMP_TARGETS = '.m-contact__email, .cp-hero__email[href^="mailto:"]'
+const STAMP_TARGETS = '.m-contact__email, .cp-hero__email[href^="mailto:"], .cp-grid__email-link[href^="mailto:"]'
 const HOLD_MS = 550
 
 export function holdStamp(opts: Opts): Off {
@@ -599,16 +599,18 @@ export function holdStamp(opts: Opts): Off {
     }
     swallow = null
   }
-  const onMenu = (e: Event) => {
-    if (target(e.target) && (swallow || held)) e.preventDefault()
-  }
+  // O menu de contexto não é mais bloqueado: no toque longo o visitante precisa
+  // conseguir "copiar endereço de e-mail". Segurar continua carimbando.
+  const NATIVE_SPACE = 'a, button, input, textarea, select, [contenteditable]'
   const onKey = (e: KeyboardEvent) => {
     const el = target(e.target)
     if (!el) return
-    // Enter: o primeiro toque segue o link; mantido, carimba a cada repetição.
-    // Espaço: carimba (no link ele só rolaria a página).
+    // Espaço mantém o comportamento nativo em links, botões e campos (não é
+    // sequestrado). Enter: o primeiro toque segue o link; mantido, carimba a
+    // cada repetição — o carimbo continua acessível pelo teclado.
+    if (e.key === ' ' && e.target instanceof Element && e.target.closest(NATIVE_SPACE)) return
     const enterHold = e.key === 'Enter' && e.repeat
-    if (!enterHold && e.key !== ' ') return
+    if (!enterHold) return
     e.preventDefault()
     const now = performance.now()
     if (now - lastKey < 320) return
@@ -620,7 +622,6 @@ export function holdStamp(opts: Opts): Off {
   document.addEventListener('pointercancel', cancel, { passive: true })
   document.addEventListener('dragstart', cancel)
   document.addEventListener('click', onClick, true)
-  document.addEventListener('contextmenu', onMenu)
   document.addEventListener('keydown', onKey)
   return () => {
     cancel()
@@ -629,7 +630,6 @@ export function holdStamp(opts: Opts): Off {
     document.removeEventListener('pointercancel', cancel)
     document.removeEventListener('dragstart', cancel)
     document.removeEventListener('click', onClick, true)
-    document.removeEventListener('contextmenu', onMenu)
     document.removeEventListener('keydown', onKey)
     stamps.forEach((s) => s.remove())
   }
@@ -664,7 +664,10 @@ export function origami(opts: Opts): Off {
     // os que ficaram para trás (salto, restauração de rolagem) abrem sem animar
     for (const prev of items) {
       if (prev === el) break
-      if (prev.classList.contains('is-folded')) (io.unobserve(prev), prev.classList.remove('is-folded'))
+      if (prev.classList.contains('is-folded')) {
+        io.unobserve(prev)
+        prev.classList.remove('is-folded')
+      }
     }
     io.unobserve(el)
     el.classList.remove('is-folded')

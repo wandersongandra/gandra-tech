@@ -61,13 +61,20 @@ export default function KineticWordmark({ text, className }: Props) {
     }
     root.classList.add('is-free')
     applyBox()
+    // Leituras em lote antes das escritas: um único layout por frame. As
+    // larguras mudam a cada frame (os eixos wdth/wght animam), então precisam
+    // ser lidas no frame — mas de uma vez. Antes, cada transform escrito era
+    // seguido de um offsetWidth (recálculo de estilo forçado por letra).
+    // transform não altera offsetWidth/clientWidth: o resultado é idêntico.
     const place = () => {
+      const widths = masks.map((mask) => mask.offsetWidth)
+      const rootWidth = root.clientWidth
       let x = 0
-      for (const mask of masks) {
+      masks.forEach((mask, index) => {
         mask.style.transform = `translate3d(${x.toFixed(2)}px, 0, 0)`
-        x += mask.offsetWidth
-      }
-      const scale = root.clientWidth / Math.max(1, x)
+        x += widths[index]
+      })
+      const scale = rootWidth / Math.max(1, x)
       inner.style.transform = `scaleX(${scale.toFixed(4)})`
     }
     place()

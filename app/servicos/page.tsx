@@ -5,6 +5,7 @@ import StructuredData from '@/components/StructuredData'
 import ServicesPage from '@/components/sections/ServicesPage'
 import { services } from '@/lib/services'
 import { createPageMetadata, createServiceJsonLd } from '@/lib/seo'
+import { siteUrl } from '@/lib/site'
 
 export const metadata = createPageMetadata({
   title: 'Criação de Sites e Sistemas Web em Vespasiano e BH',
@@ -22,13 +23,12 @@ export default function Servicos() {
             '@context': 'https://schema.org',
             '@type': 'CollectionPage',
             name: 'Desenvolvimento de sites, sistemas e automações',
-            url: 'https://gandra.tech/servicos',
+            url: `${siteUrl}/servicos`,
             description:
               'Sites institucionais, portfólios profissionais, sistemas sob medida, automações e aplicações web para empresas e profissionais em todo o Brasil.',
             inLanguage: 'pt-BR',
             hasPart: services.map(createServiceJsonLd),
           },
-          ...services.map(createServiceJsonLd),
         ]}
       />
       <Header />

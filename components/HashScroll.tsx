@@ -11,7 +11,7 @@ import { withGsap } from '@/lib/gsap'
  * rolamos até a âncora, sem animação.
  */
 export default function HashScroll() {
-  useEffect(() => withGsap(({ gsap, ScrollTrigger }) => {
+  useEffect(() => withGsap(({ ScrollTrigger }) => {
     const hash = window.location.hash
     if (!hash || hash.length < 2) return
     let target: Element | null = null

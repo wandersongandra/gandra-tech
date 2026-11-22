@@ -5,6 +5,7 @@
  * credenciais do Resend antes de aceitar um pedido.
  * O envio usa somente o destinatário fixo da Gandra Tecnologia.
  */
+import { siteCatalog } from '../../lib/site-catalog.ts'
 
 type LeadEnv = {
   LEADS_API_ENABLED?: string
@@ -18,20 +19,8 @@ type LeadContext = { request: Request; env: LeadEnv }
 
 const DESTINATION = 'contato@gandra.tech'
 const BODY_LIMIT = 4096
-const ALLOWED_SERVICES = new Map([
-  ['sites-institucionais', 'Sites institucionais'],
-  ['portfolios-profissionais', 'Portfólios profissionais'],
-  ['sistemas-sob-medida', 'Sistemas sob medida'],
-  ['aplicacoes-web', 'Aplicações web'],
-  ['automacao-de-processos-e-integracoes', 'Automação de processos e integrações'],
-])
-const ALLOWED_REFERENCES = new Map([
-  ['sgs', 'SGS Segurança'],
-  ['telma-santos', 'Portfólio Telma Santos'],
-  ['gisley-nunes-imoveis', 'Gisley Nunes Imóveis'],
-  ['ajn-consultoria-engenharia', 'AJN Consultoria e Engenharia'],
-  ['laboratorio-dental-araujo', 'Laboratório Dental Araújo'],
-])
+const ALLOWED_SERVICES = new Map(siteCatalog.services.map((service) => [service.slug, service.title]))
+const ALLOWED_REFERENCES = new Map(siteCatalog.projects.map((project) => [project.slug, project.name]))
 
 function json(status: number, code: string) {
   return new Response(JSON.stringify({ code }), {

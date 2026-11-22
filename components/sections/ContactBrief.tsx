@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState, useSyncExternalStore, type FormEvent } from 'react'
 import { composeContactBrief, isKnownReferenceSlug, isKnownServiceSlug } from '@/lib/contact-brief'
 import { services } from '@/lib/services'
 import { contactEmail, contactMailto } from '@/lib/site'
@@ -10,7 +10,30 @@ import { isValidLeadContact } from '@/lib/lead-contact-validation'
 import Link from 'next/link'
 import TurnstileChallenge from './TurnstileChallenge'
 
+type FieldName = 'name' | 'contact' | 'project' | 'consent' | 'challenge'
+type FieldErrors = Partial<Record<FieldName, string>>
+
+const subscribeHydration = () => () => {}
+const getClientHydration = () => true
+const getServerHydration = () => false
+
+/** id do elemento que recebe o foco quando o campo é o primeiro inválido. */
+const FIELD_IDS: Record<FieldName, string> = {
+  name: 'brief-name',
+  contact: 'brief-contact',
+  project: 'brief-project',
+  consent: 'brief-consent',
+  challenge: 'brief-challenge',
+}
+
 export default function ContactBrief() {
+  // Campos não controlados: ficam habilitados desde o primeiro paint e o que
+  // for digitado antes da hidratação não é apagado quando o React assume.
+  const serviceRef = useRef<HTMLSelectElement>(null)
+  const nameRef = useRef<HTMLInputElement>(null)
+  const contactRef = useRef<HTMLInputElement>(null)
+  const projectRef = useRef<HTMLTextAreaElement>(null)
+  const consentRef = useRef<HTMLInputElement>(null)
   const [serviceSlug, setServiceSlug] = useState('')
   const [referenceSlug, setReferenceSlug] = useState('')
   const [name, setName] = useState('')
@@ -18,50 +41,78 @@ export default function ContactBrief() {
   const [project, setProject] = useState('')
   const [copyState, setCopyState] = useState<'idle' | 'copied' | 'error'>('idle')
   const [emailHintVisible, setEmailHintVisible] = useState(false)
-  const [hydrated, setHydrated] = useState(false)
+  const hydrated = useSyncExternalStore(subscribeHydration, getClientHydration, getServerHydration)
   const [website, setWebsite] = useState('')
   const [acknowledged, setAcknowledged] = useState(false)
   const [challengeToken, setChallengeToken] = useState('')
   const [challengeResetKey, setChallengeResetKey] = useState(0)
   const [sendState, setSendState] = useState<'idle' | 'sending' | 'sent' | 'error'>('idle')
   const [sendMessage, setSendMessage] = useState('')
+  const [errors, setErrors] = useState<FieldErrors>({})
 
   // A exportação estática mantém o mesmo HTML para todos. A origem do CTA é
   // lida apenas depois da hidratação, validada contra o catálogo real.
   useEffect(() => {
-    setHydrated(true)
+    // Recupera o que o visitante já digitou antes de o JavaScript assumir.
+    if (nameRef.current?.value) setName(nameRef.current.value)
+    if (contactRef.current?.value) setContact(contactRef.current.value)
+    if (projectRef.current?.value) setProject(projectRef.current.value)
+    if (consentRef.current?.checked) setAcknowledged(true)
     const params = new URLSearchParams(window.location.search)
+    const chosen = serviceRef.current?.value ?? ''
     const slug = params.get('servico') ?? ''
-    if (isKnownServiceSlug(slug)) setServiceSlug(slug)
+    if (chosen && isKnownServiceSlug(chosen)) {
+      setServiceSlug(chosen)
+    } else if (isKnownServiceSlug(slug)) {
+      setServiceSlug(slug)
+      if (serviceRef.current) serviceRef.current.value = slug
+    }
     const reference = params.get('referencia') ?? ''
     if (isKnownReferenceSlug(reference)) setReferenceSlug(reference)
   }, [])
 
   const brief = composeContactBrief({ serviceSlug, referenceSlug, name, contact, project })
 
+  const clearError = (field: FieldName) => {
+    setErrors((current) => {
+      if (!current[field]) return current
+      const next = { ...current }
+      delete next[field]
+      return next
+    })
+  }
+
+  const validate = (): FieldErrors => {
+    const found: FieldErrors = {}
+    if (name.trim().length < 2 || name.trim().length > 90) {
+      found.name = 'Informe seu nome (pelo menos dois caracteres).'
+    }
+    if (!isValidLeadContact(contact.trim())) {
+      found.contact = 'Informe um e-mail válido ou WhatsApp com DDD.'
+    }
+    if (project.trim().length < 15) {
+      found.project = 'Conte um pouco mais sobre o projeto (pelo menos 15 caracteres).'
+    }
+    if (!acknowledged) {
+      found.consent = 'Confirme a ciência da Política de Privacidade antes do envio.'
+    }
+    if (!challengeToken) {
+      found.challenge = 'Conclua a verificação de segurança para enviar pelo site.'
+    }
+    return found
+  }
+
   const sendDirectly = async () => {
     if (!leadSubmissionEnabled || sendState === 'sending' || sendState === 'sent') return
-    if (name.trim().length < 2 || name.trim().length > 90) {
-      setSendMessage('Informe seu nome (pelo menos dois caracteres).')
+    const found = validate()
+    setErrors(found)
+    const invalid = (Object.keys(FIELD_IDS) as FieldName[]).filter((field) => found[field])
+    if (invalid.length) {
+      setSendMessage(invalid.length === 1 ? found[invalid[0]] ?? '' : 'Revise os campos indicados antes de enviar.')
+      document.getElementById(FIELD_IDS[invalid[0]])?.focus()
       return
     }
     const contactValue = contact.trim()
-    if (!isValidLeadContact(contactValue)) {
-      setSendMessage('Informe um e-mail válido ou WhatsApp com DDD.')
-      return
-    }
-    if (project.trim().length < 15) {
-      setSendMessage('Conte um pouco mais sobre o projeto (pelo menos 15 caracteres).')
-      return
-    }
-    if (!acknowledged) {
-      setSendMessage('Confirme a ciência da Política de Privacidade antes do envio.')
-      return
-    }
-    if (!challengeToken) {
-      setSendMessage('Conclua a verificação de segurança para enviar pelo site.')
-      return
-    }
 
     setSendState('sending')
     setSendMessage('Enviando sua solicitação com segurança…')
@@ -97,6 +148,13 @@ export default function ContactBrief() {
     }
   }
 
+  // Enter num campo envia (formulário de verdade); o fetch continua sendo o
+  // único caminho de envio — a CSP (form-action 'none') barra o envio nativo.
+  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault()
+    void sendDirectly()
+  }
+
   const copyBrief = async () => {
     setEmailHintVisible(false)
     try {
@@ -127,6 +185,18 @@ export default function ContactBrief() {
     }
   }
 
+  const errorProps = (field: FieldName) =>
+    errors[field]
+      ? { 'aria-invalid': true as const, 'aria-describedby': `${FIELD_IDS[field]}-error` }
+      : {}
+
+  const fieldError = (field: FieldName) =>
+    errors[field] ? (
+      <p id={`${FIELD_IDS[field]}-error`} className="cp-brief__error">
+        {errors[field]}
+      </p>
+    ) : null
+
   return (
     <section id="orcamento" className="cp-brief" aria-labelledby="cp-brief-title" data-no-stain>
       <div className="container cp-brief__layout">
@@ -137,6 +207,7 @@ export default function ContactBrief() {
             Você não precisa ter um briefing pronto. Conte o que pretende resolver;
             nós alinhamos o escopo na conversa.
           </p>
+          <p className="cp-brief__response-time">Respondo em até 1 dia útil.</p>
           <div className="cp-brief__guidance">
             <span className="cp-grid__label">O QUE AJUDA NO PRIMEIRO CONTATO</span>
             <ol>
@@ -147,13 +218,19 @@ export default function ContactBrief() {
           </div>
         </div>
 
-        <div className="cp-brief__fields" role="group" aria-label="Preparar pedido de orçamento">
+        <form
+          className="cp-brief__fields"
+          aria-label="Preparar pedido de orçamento"
+          noValidate
+          onSubmit={handleSubmit}
+        >
           <div className="cp-brief__field">
             <label htmlFor="brief-service">Qual serviço você procura?</label>
             <select
+              ref={serviceRef}
               id="brief-service"
-              disabled={!hydrated}
-              value={serviceSlug}
+              name="servico"
+              defaultValue=""
               onChange={(event) => { setServiceSlug(event.target.value); setCopyState('idle'); setEmailHintVisible(false) }}
             >
               <option value="">Ainda estou definindo</option>
@@ -183,39 +260,56 @@ export default function ContactBrief() {
             <div className="cp-brief__field">
               <label htmlFor="brief-name">Seu nome</label>
               <input
+                ref={nameRef}
                 id="brief-name"
-                disabled={!hydrated}
+                name="nome"
                 autoComplete="name"
                 maxLength={90}
+                required={leadSubmissionEnabled}
                 placeholder="Como podemos chamar você?"
-                value={name}
-                onChange={(event) => { setName(event.target.value); setCopyState('idle'); setEmailHintVisible(false) }}
+                defaultValue=""
+                {...errorProps('name')}
+                onChange={(event) => { setName(event.target.value); clearError('name'); setCopyState('idle'); setEmailHintVisible(false) }}
               />
+              {fieldError('name')}
             </div>
             <div className="cp-brief__field">
               <label htmlFor="brief-contact">E-mail ou WhatsApp para retorno</label>
+              {/* Campo misto: sem autocomplete="email" (que só sugere e-mails) e
+                  com teclado de texto, que aceita "@" e números. */}
               <input
+                ref={contactRef}
                 id="brief-contact"
-                disabled={!hydrated}
-                autoComplete="email"
+                name="contato"
+                autoComplete="on"
+                inputMode="text"
+                autoCapitalize="none"
+                spellCheck={false}
                 maxLength={120}
+                required={leadSubmissionEnabled}
                 placeholder="Seu contato preferido"
-                value={contact}
-                onChange={(event) => { setContact(event.target.value); setCopyState('idle'); setEmailHintVisible(false) }}
+                defaultValue=""
+                {...errorProps('contact')}
+                onChange={(event) => { setContact(event.target.value); clearError('contact'); setCopyState('idle'); setEmailHintVisible(false) }}
               />
+              {fieldError('contact')}
             </div>
           </div>
           <div className="cp-brief__field">
             <label htmlFor="brief-project">Conte um pouco sobre o projeto</label>
             <textarea
+              ref={projectRef}
               id="brief-project"
-              disabled={!hydrated}
+              name="projeto"
               rows={5}
               maxLength={600}
+              required={leadSubmissionEnabled}
               placeholder="O que você precisa resolver? Pode escrever do seu jeito."
-              value={project}
-                onChange={(event) => { setProject(event.target.value); setCopyState('idle'); setEmailHintVisible(false) }}
+              defaultValue=""
+              {...errorProps('project')}
+              onChange={(event) => { setProject(event.target.value); clearError('project'); setCopyState('idle'); setEmailHintVisible(false) }}
             />
+            {fieldError('project')}
           </div>
 
           {leadSubmissionEnabled && (
@@ -226,14 +320,22 @@ export default function ContactBrief() {
                   value={website} onChange={(event) => setWebsite(event.target.value)} />
               </div>
               <label className="cp-brief__consent" htmlFor="brief-consent">
-                <input id="brief-consent" type="checkbox" checked={acknowledged}
-                  onChange={(event) => setAcknowledged(event.target.checked)} />
+                <input ref={consentRef} id="brief-consent" type="checkbox" defaultChecked={false} required
+                  {...errorProps('consent')}
+                  onChange={(event) => { setAcknowledged(event.target.checked); clearError('consent') }} />
                 <span>Li a <Link href="/politica-de-privacidade">Política de Privacidade</Link> e estou ciente do uso dos dados enviados para atender meu pedido.</span>
               </label>
-              <TurnstileChallenge siteKey={turnstileSiteKey} onToken={setChallengeToken} resetKey={challengeResetKey} />
-              <button type="button" className="cp-brief__submit cp-brief__send"
-                disabled={!hydrated || sendState === 'sending' || sendState === 'sent'}
-                onClick={sendDirectly}>
+              {fieldError('consent')}
+              <div id="brief-challenge" tabIndex={-1}>
+                <TurnstileChallenge
+                  siteKey={turnstileSiteKey}
+                  onToken={(token) => { setChallengeToken(token); if (token) clearError('challenge') }}
+                  resetKey={challengeResetKey}
+                />
+              </div>
+              {fieldError('challenge')}
+              <button type="submit" className="cp-brief__submit cp-brief__send"
+                disabled={!hydrated || sendState === 'sending' || sendState === 'sent'}>
                 {sendState === 'sending' ? 'Enviando pedido…' : sendState === 'sent' ? 'Pedido encaminhado' : 'Enviar pedido de orçamento'}
                 <span aria-hidden="true">↗</span>
               </button>
@@ -255,7 +357,7 @@ export default function ContactBrief() {
           </div>
           <details className="cp-brief__preview">
             <summary>Pré-visualizar a mensagem</summary>
-            <pre tabIndex={0}>{brief.copyText}</pre>
+            <pre>{brief.copyText}</pre>
           </details>
           <p className="cp-brief__disclaimer">
             {leadSubmissionEnabled
@@ -269,7 +371,7 @@ export default function ContactBrief() {
           </p>
           <noscript>
             <p className="cp-brief__disclaimer">
-              Sem JavaScript, os campos ficam desativados. Escreva diretamente para {contactEmail} pelo link de e-mail acima.
+              Sem JavaScript, os campos do pedido não são exibidos. Escreva diretamente para {contactEmail} pelo link de e-mail acima.
             </p>
           </noscript>
           <p className="cp-brief__feedback" role="status" aria-live="polite">
@@ -277,7 +379,7 @@ export default function ContactBrief() {
             {copyState === 'copied' ? 'Mensagem copiada. Cole no aplicativo de sua preferência e envie para o endereço indicado.' : ''}
             {copyState === 'error' ? 'Não foi possível copiar automaticamente. Abra “Pré-visualizar a mensagem” e copie o texto manualmente.' : ''}
           </p>
-        </div>
+        </form>
       </div>
     </section>
   )

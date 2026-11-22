@@ -187,7 +187,7 @@ export function createFluidSim(canvas: HTMLCanvasElement, quality: FluidQuality)
     gl.bindBuffer(gl.ARRAY_BUFFER, blitBuf)
   }
 
-  const use = (p: Prog) => {
+  const bindProgram = (p: Prog) => {
     gl.useProgram(p.program)
     gl.enableVertexAttribArray(p.aPos)
     gl.vertexAttribPointer(p.aPos, 2, gl.FLOAT, false, 0, 0)
@@ -208,7 +208,7 @@ export function createFluidSim(canvas: HTMLCanvasElement, quality: FluidQuality)
     radius: number,
     signed: boolean
   ) => {
-    use(progSplat)
+    bindProgram(progSplat)
     blit(target.write)
     gl.activeTexture(gl.TEXTURE0)
     gl.bindTexture(gl.TEXTURE_2D, target.read.tex)
@@ -242,7 +242,7 @@ export function createFluidSim(canvas: HTMLCanvasElement, quality: FluidQuality)
     const [tx, ty] = texel()
 
     // advect velocity
-    use(progAdvect)
+    bindProgram(progAdvect)
     blit(vel.write)
     gl.activeTexture(gl.TEXTURE0)
     gl.bindTexture(gl.TEXTURE_2D, vel.read.tex)
@@ -258,7 +258,7 @@ export function createFluidSim(canvas: HTMLCanvasElement, quality: FluidQuality)
     vel.swap()
 
     // divergence
-    use(progDiv)
+    bindProgram(progDiv)
     blit(divergence)
     gl.activeTexture(gl.TEXTURE0)
     gl.bindTexture(gl.TEXTURE_2D, vel.read.tex)
@@ -270,7 +270,7 @@ export function createFluidSim(canvas: HTMLCanvasElement, quality: FluidQuality)
     blit(pressure.read)
     gl.clearColor(0.5, 0.5, 0.5, 1)
     gl.clear(gl.COLOR_BUFFER_BIT)
-    use(progPressure)
+    bindProgram(progPressure)
     for (let i = 0; i < q.iterations; i++) {
       blit(pressure.write)
       gl.activeTexture(gl.TEXTURE0)
@@ -285,7 +285,7 @@ export function createFluidSim(canvas: HTMLCanvasElement, quality: FluidQuality)
     }
 
     // gradient subtract
-    use(progGrad)
+    bindProgram(progGrad)
     blit(vel.write)
     gl.activeTexture(gl.TEXTURE0)
     gl.bindTexture(gl.TEXTURE_2D, pressure.read.tex)
@@ -298,7 +298,7 @@ export function createFluidSim(canvas: HTMLCanvasElement, quality: FluidQuality)
     vel.swap()
 
     // advect dye
-    use(progAdvect)
+    bindProgram(progAdvect)
     blit(dye.write)
     gl.activeTexture(gl.TEXTURE0)
     gl.bindTexture(gl.TEXTURE_2D, vel.read.tex)
@@ -328,7 +328,7 @@ export function createFluidSim(canvas: HTMLCanvasElement, quality: FluidQuality)
   const draw = (now: number) => {
     if (lost) return
     resize()
-    use(progDisplay)
+    bindProgram(progDisplay)
     blit(null)
     gl.enable(gl.BLEND)
     gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA)

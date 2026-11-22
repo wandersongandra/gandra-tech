@@ -10,7 +10,7 @@ import { INTRO_SCRIPT } from '@/lib/intro'
 import ServiceWorkerRegister from '@/components/ServiceWorkerRegister'
 import ScrollMemory from '@/components/ScrollMemory'
 import StructuredData from '@/components/StructuredData'
-import { contactEmail, brandName, siteDescription, siteName, siteTitle, siteUrl } from '@/lib/site'
+import { contactEmail, brandName, siteDescription, siteName, siteTitle, siteUrl, whatsappNumber } from '@/lib/site'
 import './globals.css'
 import './materia.css'
 import './case.css'
@@ -31,23 +31,36 @@ const archivo = Archivo({
   preload: true,
 })
 
-/* Instrument Serif itálico: a voz humana, usada só em palavras de acento. */
+/*
+ * Instrument Serif itálico: a voz humana, usada só em palavras de acento.
+ * Todas as regras com var(--m-italic)/var(--font-italic) são itálicas (o <em>
+ * do formulário herda o itálico do navegador), então só esse estilo é baixado.
+ * Pré-carregada porque aparece no H1 da home ("evoluir") e nos títulos dos
+ * cases: chegando cedo, não troca de fonte depois do primeiro paint (CLS).
+ */
 const instrumentSerif = Instrument_Serif({
   subsets: ['latin'],
   variable: '--font-instrument',
   weight: '400',
-  style: ['normal', 'italic'],
+  style: ['italic'],
   display: 'swap',
-  preload: false,
+  preload: true,
 })
 
-/* JetBrains Mono: anotações técnicas, índices e metadados. */
+/*
+ * JetBrains Mono: anotações técnicas, índices e metadados. 'optional': se não
+ * chegar no período curto de bloqueio, a página fica com o fallback mono e não
+ * troca no meio da leitura (era a principal fonte de CLS em cases e serviços);
+ * o arquivo fica em cache para as próximas páginas. Pré-carregada: sem preload
+ * ela era pedida só depois do CSS e perdia a janela do 'optional' até em rede
+ * rápida — o primeiro acesso ficava sem a tipografia da marca nos rótulos.
+ */
 const jetbrains = JetBrains_Mono({
   subsets: ['latin'],
   variable: '--font-jetbrains',
   weight: ['400', '500'],
-  display: 'swap',
-  preload: false,
+  display: 'optional',
+  preload: true,
 })
 
 export const metadata: Metadata = {
@@ -84,6 +97,10 @@ export const viewport: Viewport = {
   width: 'device-width',
   initialScale: 1,
   viewportFit: 'cover',
+  themeColor: [
+    { media: '(prefers-color-scheme: light)', color: '#ece8df' },
+    { media: '(prefers-color-scheme: dark)', color: '#12110e' },
+  ],
 }
 
 const structuredData = [
@@ -101,6 +118,7 @@ const structuredData = [
     contactPoint: {
       '@type': 'ContactPoint',
       email: contactEmail,
+      ...(whatsappNumber ? { telephone: `+${whatsappNumber}` } : {}),
       contactType: 'sales',
       availableLanguage: 'pt-BR',
     },
