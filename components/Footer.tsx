@@ -1,5 +1,5 @@
 'use client'
-import { useEffect, useState } from 'react'
+import { useSyncExternalStore } from 'react'
 import Link from 'next/link'
 import KineticWordmark from '@/components/motion/KineticWordmark'
 import LetterDrop from '@/components/motion/LetterDrop'
@@ -21,11 +21,11 @@ const navigation = [
 const BUILD_YEAR = Number(siteLastModified.slice(0, 4))
 
 function useCurrentYear() {
-  const [year, setYear] = useState(BUILD_YEAR)
-  useEffect(() => {
-    setYear(new Date().getFullYear())
-  }, [])
-  return year
+  return useSyncExternalStore(
+    () => () => {},
+    () => new Date().getFullYear(),
+    () => BUILD_YEAR,
+  )
 }
 
 export default function Footer() {

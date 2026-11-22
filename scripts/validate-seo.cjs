@@ -7,8 +7,14 @@ const origin = 'https://gandra.tech'
 const sitemap = fs.readFileSync(path.join(output, 'sitemap.xml'), 'utf8')
 const urls = [...sitemap.matchAll(/<loc>([^<]+)<\/loc>/g)].map((match) => match[1])
 const serviceRoutes = urls.map((url) => new URL(url).pathname).filter((route) => /^\/servicos\/[^/]+$/.test(route))
+const llms = fs.readFileSync(path.join(output, 'llms.txt'), 'utf8')
+const catalog = JSON.parse(fs.readFileSync(path.join(output, 'site-catalog.json'), 'utf8'))
+const sitemapRoutes = urls.map((url) => new URL(url).pathname)
 
-assert.equal(urls.length, 14, 'sitemap deve conter as 14 páginas comerciais indexáveis')
+assert.equal(urls.length, catalog.commercialRoutes.length, 'sitemap deve conter todas as páginas comerciais do catálogo')
+for (const route of catalog.commercialRoutes) {
+  assert.ok(sitemapRoutes.includes(route), `sitemap sem rota comercial do catálogo: ${route}`)
+}
 assert.equal(new Set(urls).size, urls.length, 'sitemap contém URLs duplicadas')
 const modificationDates = [...sitemap.matchAll(/<lastmod>([^<]+)<\/lastmod>/g)].map((match) => match[1])
 assert.equal(modificationDates.length, urls.length, 'sitemap sem lastmod para alguma URL')
@@ -16,6 +22,13 @@ for (const date of modificationDates) {
   const timestamp = Date.parse(date)
   assert.ok(Number.isFinite(timestamp) && timestamp <= Date.now() + 86_400_000, `lastmod inválido: ${date}`)
 }
+
+for (const projectUrl of urls.filter((url) => /\/trabalhos\/[^/]+$/.test(new URL(url).pathname))) {
+  assert.ok(llms.includes(projectUrl), `llms.txt sem o projeto publicado ${projectUrl}`)
+}
+assert.match(llms, /Vespasiano/, 'llms.txt sem a base em Vespasiano')
+assert.match(llms, /Grande BH/, 'llms.txt sem o contexto da Grande BH')
+assert.match(llms, /\/contato#orcamento/, 'llms.txt sem o formulário de orçamento')
 
 function getHtml(route) {
   const filename = route === '/' ? 'index.html' : `${route.slice(1)}.html`

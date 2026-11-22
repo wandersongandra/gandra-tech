@@ -1,13 +1,15 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useState, useSyncExternalStore } from 'react'
 import { removeSitePreferences } from '@/lib/site-preferences'
 
-export default function ClearSitePreferences() {
-  const [ready, setReady] = useState(false)
-  const [state, setState] = useState<'idle' | 'cleared' | 'unavailable'>('idle')
+const subscribe = () => () => {}
+const getClientReady = () => true
+const getServerReady = () => false
 
-  useEffect(() => setReady(true), [])
+export default function ClearSitePreferences() {
+  const ready = useSyncExternalStore(subscribe, getClientReady, getServerReady)
+  const [state, setState] = useState<'idle' | 'cleared' | 'unavailable'>('idle')
 
   const clearPreferences = () => {
     try {

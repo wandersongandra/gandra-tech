@@ -8,8 +8,6 @@ const nextConfig: NextConfig = {
   },
   images: {
     unoptimized: true,
-    // Screenshots de UI com texto precisam de compressão mais leve para não borrar.
-    qualities: [75, 80, 95],
   },
 }
 

@@ -22,6 +22,6 @@ export const faqItems = [
   {
     question: 'Como começa um projeto?',
     answer:
-      'Envie uma mensagem para contato@gandra.tech contando o que precisa, o objetivo, referências e o prazo desejado. A primeira etapa é entender se há aderência.',
+      'Preencha o formulário de orçamento na página de contato ou envie uma mensagem para contato@gandra.tech contando o que precisa, o objetivo, referências e o prazo desejado. A primeira etapa é entender se há aderência.',
   },
 ]

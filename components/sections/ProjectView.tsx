@@ -2,7 +2,7 @@ import Link from 'next/link'
 import type { CSSProperties } from 'react'
 import { projects, siteDomain, type Project } from '@/lib/projects'
 import { getMedia, type MediaInfo } from '@/lib/media'
-import { contactEmail, contactMailto } from '@/lib/site'
+import { contactEmail, contactMailto, whatsappUrl } from '@/lib/site'
 import { getService, type Service } from '@/lib/services'
 import SplitWords from '@/components/materia/SplitWords'
 import Picture from '@/components/materia/Picture'
@@ -173,6 +173,12 @@ export default function ProjectView({ project, next }: { project: Project; next:
                 <dd>{project.phase}</dd>
               </div>
             ) : null}
+            {project.ownership ? (
+              <div className="m-case__sheet-wide">
+                <dt className="mono">Relação</dt>
+                <dd>{project.ownership}</dd>
+              </div>
+            ) : null}
             {project.stack ? (
               <div className="m-case__sheet-wide">
                 <dt className="mono">Stack</dt>
@@ -222,6 +228,29 @@ export default function ProjectView({ project, next }: { project: Project; next:
             </div>
           ))}
         </section>
+
+        {project.metrics?.length ? (
+          <section className="m-case__metrics m-shell" aria-labelledby="case-metrics-title">
+            <h2 id="case-metrics-title" className="m-label">Resultados medidos</h2>
+            <dl className="m-case__metrics-grid">
+              {project.metrics.map((metric) => (
+                <div key={metric.label}>
+                  <dt>{metric.label}</dt>
+                  <dd>
+                    <strong>{metric.value}</strong>
+                    <small>Fonte: {metric.source}</small>
+                  </dd>
+                </div>
+              ))}
+            </dl>
+          </section>
+        ) : null}
+        {project.testimonial ? (
+          <figure className="m-case__quote m-shell">
+            <blockquote><p>“{project.testimonial.quote}”</p></blockquote>
+            <figcaption>{project.testimonial.author} — {project.testimonial.role}</figcaption>
+          </figure>
+        ) : null}
 
         {/* --- Decisões de projeto -------------------------------------- */}
         <section className="m-case__decisions m-shell" aria-labelledby="case-decisions-title">
@@ -370,6 +399,11 @@ export default function ProjectView({ project, next }: { project: Project; next:
               <a href={contactMailto} className="m-link m-case__finale-mail">
                 {contactEmail}
               </a>
+              {whatsappUrl ? (
+                <a href={whatsappUrl} target="_blank" rel="noopener noreferrer" className="m-link">
+                  WhatsApp ↗ <span className="sr-only"> (abre em nova aba)</span>
+                </a>
+              ) : null}
             </div>
           </div>
         </section>

@@ -5,33 +5,32 @@ import { hasCspSource, hasTurnstilePreload } from './csp-sources.mjs'
 
 const root = process.cwd()
 const outDir = path.join(root, 'out')
-const expectedRoutes = [
-  '/',
-  '/servicos',
-  '/servicos/sites-institucionais',
-  '/servicos/portfolios-profissionais',
-  '/servicos/sistemas-sob-medida',
-  '/servicos/aplicacoes-web',
-  '/servicos/automacao-de-processos-e-integracoes',
-  '/trabalhos',
-  '/trabalhos/sgs',
-  '/trabalhos/telma-santos',
-  '/trabalhos/gisley-nunes-imoveis',
-  '/trabalhos/ajn-consultoria-engenharia',
-  '/contato',
-  '/termos-de-uso',
-  '/politica-de-privacidade',
-  '/politica-de-cookies',
-]
 const expectedPublicFiles = [
   '_headers',
   'robots.txt',
   'sitemap.xml',
   'llms.txt',
+  'site-catalog.json',
   'sw.js',
   '.well-known/security.txt',
 ]
 const failures = []
+let expectedRoutes = []
+const catalogPath = path.join(outDir, 'site-catalog.json')
+if (!fs.existsSync(catalogPath)) {
+  failures.push('site-catalog.json ausente no export')
+} else {
+  try {
+    const catalog = JSON.parse(fs.readFileSync(catalogPath, 'utf8'))
+    if (!Array.isArray(catalog.navigationRoutes) || catalog.navigationRoutes.length === 0) {
+      failures.push('site-catalog.json sem navigationRoutes')
+    } else {
+      expectedRoutes = catalog.navigationRoutes
+    }
+  } catch {
+    failures.push('site-catalog.json inválido')
+  }
+}
 const leadSubmissionEnabled = process.env.NEXT_PUBLIC_LEADS_ENABLED === '1' &&
   Boolean(process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY)
 

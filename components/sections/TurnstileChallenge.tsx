@@ -40,6 +40,7 @@ export default function TurnstileChallenge({ siteKey, onToken, resetKey }: Props
   useEffect(() => {
     if (!ready || !container.current || !window.turnstile || widgetId.current !== null) return
     const api = window.turnstile
+    let active = true
     try {
       widgetId.current = api.render(container.current, {
         sitekey: siteKey,
@@ -50,10 +51,13 @@ export default function TurnstileChallenge({ siteKey, onToken, resetKey }: Props
         'error-callback': () => { setFailed(true); onTokenRef.current('') },
       })
     } catch {
-      setFailed(true)
       onTokenRef.current('')
+      queueMicrotask(() => {
+        if (active) setFailed(true)
+      })
     }
     return () => {
+      active = false
       if (widgetId.current !== null) api.remove(widgetId.current)
       widgetId.current = null
     }

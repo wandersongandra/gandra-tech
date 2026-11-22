@@ -10,6 +10,7 @@ TypeScript, GSAP e Lenis. Produção em <https://gandra.tech>
 | Framework | Next.js 16 |
 | UI | React 19 |
 | Linguagem | TypeScript 5 |
+| Runtime de CI | Node.js 22 |
 | Motion | GSAP 3 |
 | Smooth scroll | Lenis |
 | Testes de navegador | Playwright |
@@ -29,6 +30,7 @@ Abra o endereço exibido pelo Next.js no terminal.
     npm run audit
     npm run build
     npm run validate:build-security
+    npm run validate:seo
 
 Para verificar o domínio publicado sem alterar nada:
 
@@ -54,6 +56,11 @@ O site publica `/robots.txt`, `/sitemap.xml` e `/llms.txt`. Cada rota pública
 possui metadados e canonical próprios; a exportação pode ser conferida com
 `npm run validate:seo` após `npm run build`. A data `siteLastModified` em
 `lib/site.ts` deve refletir alterações reais de conteúdo, nunca só um deploy.
+
+O catálogo público de serviços, cases e rotas parte de `lib/site-catalog.ts`.
+`npm test` e `npm run build` regeneram `public/site-catalog.json`, o bloco de
+rotas do service worker e `public/llms.txt`; não mantenha essas listas em
+arquivos paralelos.
 
 O portfólio inclui o case do Laboratório Dental Araújo, baseado no site público
 e em imagens do próprio projeto. As animações da identidade visual continuam

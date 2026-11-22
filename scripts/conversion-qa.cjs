@@ -4,7 +4,7 @@ const path = require('node:path')
 const { chromium } = require('playwright')
 
 const origin = process.env.QA_ORIGIN || 'http://127.0.0.1:4173'
-const screenshotDir = path.join(__dirname, '..', 'artifacts', 'visual')
+const screenshotDir = path.resolve(process.env.QA_SCREENSHOT_DIR || path.join(__dirname, '..', 'artifacts', 'visual'))
 fs.mkdirSync(screenshotDir, { recursive: true })
 
 async function main() {

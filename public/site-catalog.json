@@ -1,0 +1,101 @@
+{
+  "services": [
+    {
+      "slug": "sites-institucionais",
+      "title": "Sites institucionais",
+      "shortDescription": "Presença digital profissional para explicar o negócio e gerar confiança."
+    },
+    {
+      "slug": "portfolios-profissionais",
+      "title": "Portfólios profissionais",
+      "shortDescription": "Uma apresentação digital autoral para mostrar trabalho, trajetória e serviços."
+    },
+    {
+      "slug": "sistemas-sob-medida",
+      "title": "Sistemas sob medida",
+      "shortDescription": "Software para organizar a operação interna, dashboards, fluxos de trabalho e regras de negócio."
+    },
+    {
+      "slug": "aplicacoes-web",
+      "title": "Aplicações web",
+      "shortDescription": "Produtos e experiências acessados pelo navegador por clientes, equipes ou usuários finais."
+    },
+    {
+      "slug": "automacao-de-processos-e-integracoes",
+      "title": "Automação de processos e integrações",
+      "shortDescription": "Conexão de ferramentas e sistemas para automatizar rotinas e sincronizar dados entre etapas."
+    }
+  ],
+  "projects": [
+    {
+      "slug": "sgs",
+      "name": "SGS Segurança",
+      "category": "Plataforma digital",
+      "year": "2026",
+      "overview": "Plataforma digital de segurança do trabalho concebida para centralizar inspeções, APRs, permissões de trabalho, auditorias, indicadores, documentos e evidências."
+    },
+    {
+      "slug": "telma-santos",
+      "name": "Portfólio Telma Santos",
+      "category": "Portfólio profissional",
+      "year": "2026",
+      "overview": "Projeto de portfólio desenvolvido para apresentar trabalho, identidade visual e serviços."
+    },
+    {
+      "slug": "gisley-nunes-imoveis",
+      "name": "Gisley Nunes Imóveis",
+      "category": "Site e painel administrativo",
+      "year": "2026",
+      "overview": "Site imobiliário com busca de imóveis, páginas detalhadas e um painel de gestão para a equipe cadastrar anúncios, organizar imagens e acompanhar contatos."
+    },
+    {
+      "slug": "ajn-consultoria-engenharia",
+      "name": "AJN Consultoria e Engenharia",
+      "category": "Site institucional",
+      "year": "2026",
+      "overview": "Reconstrução do site institucional da AJN, migrando a estrutura legada em WordPress para páginas estáticas em Astro, com catálogo de serviços, conteúdo técnico e blog."
+    },
+    {
+      "slug": "laboratorio-dental-araujo",
+      "name": "Laboratório Dental Araújo",
+      "category": "Site institucional e SEO",
+      "year": "2026",
+      "overview": "Site institucional do Laboratório Dental Araújo, em Belo Horizonte, criado para apresentar serviços de prótese dentária a cirurgiões-dentistas e clínicas, com conteúdo técnico, trabalhos e canais de contato."
+    }
+  ],
+  "commercialRoutes": [
+    "/",
+    "/servicos",
+    "/servicos/sites-institucionais",
+    "/servicos/portfolios-profissionais",
+    "/servicos/sistemas-sob-medida",
+    "/servicos/aplicacoes-web",
+    "/servicos/automacao-de-processos-e-integracoes",
+    "/trabalhos",
+    "/trabalhos/sgs",
+    "/trabalhos/telma-santos",
+    "/trabalhos/gisley-nunes-imoveis",
+    "/trabalhos/ajn-consultoria-engenharia",
+    "/trabalhos/laboratorio-dental-araujo",
+    "/contato"
+  ],
+  "navigationRoutes": [
+    "/",
+    "/servicos",
+    "/servicos/sites-institucionais",
+    "/servicos/portfolios-profissionais",
+    "/servicos/sistemas-sob-medida",
+    "/servicos/aplicacoes-web",
+    "/servicos/automacao-de-processos-e-integracoes",
+    "/trabalhos",
+    "/trabalhos/sgs",
+    "/trabalhos/telma-santos",
+    "/trabalhos/gisley-nunes-imoveis",
+    "/trabalhos/ajn-consultoria-engenharia",
+    "/trabalhos/laboratorio-dental-araujo",
+    "/contato",
+    "/termos-de-uso",
+    "/politica-de-privacidade",
+    "/politica-de-cookies"
+  ]
+}

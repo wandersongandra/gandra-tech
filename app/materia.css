@@ -2224,6 +2224,11 @@ body {
 }
 
 @media (max-width: 767px) {
+  /* Reserva o alvo fixo de som para não cobrir a barra final do rodapé. */
+  .m-footer {
+    padding-bottom: calc(74px + env(safe-area-inset-bottom, 0px));
+  }
+
   .m-footer .kinetic__letter {
     font-size: 17vw;
   }
@@ -2854,6 +2859,15 @@ html[data-intro='skip'] main {
   pointer-events: none;
 }
 
+/* Em toque, rolagem vertical continua nativa; o eixo horizontal fica livre
+   para o gesto do pincel decidir depois do limiar de direção. */
+@media (pointer: coarse) {
+  html,
+  body {
+    touch-action: pan-y;
+  }
+}
+
 html.is-painting,
 html.is-painting * {
   cursor: crosshair;
@@ -3301,7 +3315,8 @@ html[data-tinta='on'] .m-press__wet {
    hora; segurar ~0,55 s (ou manter a tecla) carimba. No toque, sem menu de
    contexto nem seleção, e sem o atraso de duplo toque. */
 .m-contact__email,
-.cp-hero__email[href^='mailto:'] {
+.cp-hero__email[href^='mailto:'],
+.cp-grid__email-link[href^='mailto:'] {
   touch-action: manipulation;
   -webkit-touch-callout: none;
   -webkit-user-select: none;
@@ -3310,11 +3325,13 @@ html[data-tinta='on'] .m-press__wet {
 
 @media (prefers-reduced-motion: no-preference) {
   .m-contact__email,
-  .cp-hero__email[href^='mailto:'] {
+  .cp-hero__email[href^='mailto:'],
+  .cp-grid__email-link[href^='mailto:'] {
     transition: color 0.4s ease, transform 0.55s cubic-bezier(0.3, 0, 0.2, 1);
   }
   .m-contact__email.is-charging,
-  .cp-hero__email.is-charging {
+  .cp-hero__email.is-charging,
+  .cp-grid__email-link.is-charging {
     transform: scale(0.97);
   }
 }

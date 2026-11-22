@@ -9,11 +9,28 @@ export type ProjectImage = {
   caption?: string
 }
 
+export type ProjectProof = {
+  /** Depoimento real, com autorização por escrito do cliente. */
+  testimonial?: {
+    quote: string
+    author: string
+    role: string
+  }
+  /** Número verificável, sempre acompanhado da fonte que o sustenta. */
+  metrics?: {
+    value: string
+    label: string
+    source: string
+  }[]
+}
+
 export type Project = {
   slug: string
   name: string
   category: string
   year: string
+  /** Relação do projeto com a Gandra, quando esse dado estiver confirmado. */
+  ownership?: string
   headline: string
   overview: string
   services: string[]
@@ -44,7 +61,7 @@ export type Project = {
   coverImageAlt?: string
   mainImageAlt?: string
   gallery: ProjectImage[]
-}
+} & ProjectProof
 
 export const projects: Project[] = [
   {
@@ -52,6 +69,7 @@ export const projects: Project[] = [
     name: 'SGS Segurança',
     category: 'Plataforma digital',
     year: '2026',
+    ownership: 'Produto próprio da Gandra Tecnologia',
     headline: 'SGS Segurança: gestão de SST em uma plataforma digital.',
     seoTitle: 'SGS Segurança: Sistema de Gestão SST',
     seoDescription: 'Conheça o case SGS Segurança, plataforma de gestão de SST com inspeções, APR, permissões e indicadores. Veja a arquitetura e as decisões do projeto.',
@@ -105,7 +123,7 @@ export const projects: Project[] = [
     slug: 'telma-santos',
     name: 'Portfólio Telma Santos',
     category: 'Portfólio profissional',
-    year: 'Atual',
+    year: '2026',
     headline: 'Portfólio de Telma Santos: presença digital sob medida.',
     seoTitle: 'Portfólio de Telma Santos: Site Autoral',
     seoDescription: 'Veja como foi criado o portfólio de Telma Santos: uma presença digital responsiva com identidade visual, apresentação de serviços e navegação clara.',

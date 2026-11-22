@@ -4,7 +4,7 @@ const path = require('node:path')
 const { chromium } = require('playwright')
 
 const origin = process.env.QA_ORIGIN || 'http://127.0.0.1:4173'
-const screenshotDir = path.join(__dirname, '..', 'artifacts', 'visual')
+const screenshotDir = path.resolve(process.env.QA_SCREENSHOT_DIR || path.join(__dirname, '..', 'artifacts', 'visual'))
 fs.mkdirSync(screenshotDir, { recursive: true })
 
 // Regressões da caça a bugs (fase 4): cada bloco reproduz um bug que um
@@ -39,7 +39,9 @@ async function fase5(browser) {
       window.__mail = []
       document.addEventListener('click', (e) => { if (e.target.closest('a[href^="mailto:"]')) { window.__mail.push(e.defaultPrevented); e.preventDefault() } })
     })
-    const box = await page.locator('.cp-hero__email').boundingBox()
+    const email = page.locator('.cp-grid__email-link[href^="mailto:"]')
+    await email.scrollIntoViewIfNeeded()
+    const box = await email.boundingBox()
     await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2)
     await page.mouse.down(); await page.waitForTimeout(100); await page.mouse.up()
     await page.waitForTimeout(100)
@@ -49,7 +51,7 @@ async function fase5(browser) {
     await page.waitForTimeout(150)
     assert.equal(await page.locator('.m-stamp').count(), 1, 'carimbo: segurar não carimbou')
     assert.equal((await page.evaluate(() => window.__mail)).length, 1, 'carimbo: segurar também abriu o e-mail')
-    assert.equal(await page.locator('.cp-hero__email').evaluate((e) => getComputedStyle(e).touchAction), 'manipulation', 'carimbo: sem touch-action manipulation')
+    assert.equal(await email.evaluate((e) => getComputedStyle(e).touchAction), 'manipulation', 'carimbo: sem touch-action manipulation')
     // 6) texto líquido no hover; o logotipo fica de fora
     await page.locator('.site-header__link').first().hover()
     await page.waitForTimeout(120)
@@ -315,6 +317,7 @@ async function touchMobileQa(browser) {
   const page = await ctx.newPage()
   await page.goto(origin, { waitUntil: 'domcontentloaded' })
   await page.waitForTimeout(1800)
+  assert.equal(await page.locator('html').evaluate((element) => getComputedStyle(element).touchAction), 'pan-y', 'pincel: toque não preserva rolagem vertical')
   const media = await page.evaluate(() => ({
     fine: matchMedia('(hover: hover) and (pointer: fine)').matches,
     coarse: matchMedia('(pointer: coarse)').matches,

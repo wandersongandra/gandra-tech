@@ -30,11 +30,6 @@ export function loadGsap(): Promise<GsapKit> {
   return pending
 }
 
-/** Kit já carregado (ou null) — para handlers síncronos. */
-export function gsapNow(): GsapKit | null {
-  return kit
-}
-
 /**
  * Roda `run` com o GSAP assim que ele estiver disponível e devolve a limpeza
  * (cancela se o componente desmontar antes do download terminar). Se o

@@ -14,8 +14,8 @@ as animações, o export estático e a CSP existente.
   string `?servico=<slug>`, validada contra o catálogo real após a hidratação.
 - `/contato` tem preparação local de mensagem, com resumo do projeto, serviço,
   nome e contato, seguida de link `mailto:` e opção de copiar a mensagem.
-- Não há coleta de dados no servidor, envio automático, promessa de resposta
-  em prazo específico, preço fictício ou dependência nova.
+- O site informa resposta inicial em até 1 dia útil; isso não é promessa de
+  prazo de entrega, preço ou condição comercial.
 - Sem JavaScript, os campos são desativados; o contato por e-mail continua
   disponível. A página mostra explicitamente que o envio não é automático.
 
@@ -33,8 +33,9 @@ somente por cliques em CTA.
    antispam, limites de requisição, validação server-side, consentimento e
    entrega de e-mail/CRM. Requer definição do destino de leads e credenciais
    da ferramenta de envio, sem armazenar dados sem uma política de retenção.
-2. **Canal alternativo:** adicionar WhatsApp Business somente com número
-   profissional confirmado e jornada de atendimento definida.
+2. **Canal alternativo:** o WhatsApp Business está disponível como canal
+   alternativo com o número comercial confirmado; a operação de atendimento
+   ainda deve ser acompanhada com dados reais.
 3. **Mensuração:** definir eventos de CTA e envio real, métricas de conversão
    por página e atribuição de origem com respeito à privacidade.
 4. **Prova comercial:** acrescentar resultados, depoimentos e números somente

@@ -79,7 +79,7 @@ export default function SurrealLoader() {
         // fase 4: a prensa (meio-tom, rolo, pincel, som, modo tinta)
         import('./press').then((press) => {
           if (cancelled) return
-          const offPress = press.mountPress({ fine })
+          const offPress = press.mountPress()
           cleanup = () => {
             cancelFluidSchedule()
             offFluid?.()

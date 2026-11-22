@@ -250,6 +250,12 @@ body {
   inset: 0;
   z-index: 40;
   display: flex;
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  max-height: none;
+  margin: 0;
+  border: 0;
   align-items: flex-start;
   padding: calc(var(--header-h) + env(safe-area-inset-top, 0px) + env(safe-area-inset-bottom, 0px) + 24px)
     calc(24px + env(safe-area-inset-right, 0px))
@@ -761,12 +767,12 @@ body {
 .cp-hero {
   background: var(--black);
   color: var(--paper);
-  min-height: calc(100dvh - var(--header-h));
+  min-height: auto;
   display: flex;
   flex-direction: column;
   justify-content: center;
-  padding-top: 64px;
-  padding-bottom: 80px;
+  padding-top: clamp(96px, 12vh, 152px);
+  padding-bottom: clamp(56px, 8vh, 96px);
 }
 
 .cp-hero .container {
@@ -928,6 +934,12 @@ body {
   font-size: 16px;
   line-height: 1.7;
   color: var(--dim);
+}
+
+.cp-brief__response-time {
+  color: var(--ink) !important;
+  font-size: 14px !important;
+  font-weight: 600;
 }
 
 .cp-brief__guidance {
@@ -1316,6 +1328,43 @@ html:not(.js) .cp-brief__preview {
   padding: 8px 0 16px;
   margin-bottom: 0;
   transition: color 0.2s ease;
+}
+
+.cp-grid__email-actions {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.cp-grid__email-actions .cp-grid__email-link {
+  flex: 1 1 260px;
+}
+
+.cp-grid__email-actions .cp-email-fallback {
+  flex: 1 1 220px;
+  max-width: none;
+  margin-top: 0;
+  color: var(--dim);
+}
+
+.cp-grid__email-actions .cp-email-fallback__row {
+  flex-wrap: wrap;
+}
+
+.cp-grid__email-actions .cp-email-fallback__address {
+  color: var(--ink);
+  border-color: rgba(18, 17, 14, 0.22);
+}
+
+.cp-grid__email-actions .cp-email-fallback button {
+  color: var(--ink);
+  border-color: rgba(18, 17, 14, 0.42);
+}
+
+.cp-grid__email-actions .cp-email-fallback button:hover {
+  background: var(--ink);
+  color: var(--paper);
 }
 
 .cp-grid__email-link:hover {

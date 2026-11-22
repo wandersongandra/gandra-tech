@@ -2,11 +2,19 @@
   "name": "gandra-tech",
   "version": "0.1.0",
   "private": true,
+  "type": "module",
+  "engines": {
+    "node": "22.x"
+  },
   "scripts": {
     "dev": "next dev --turbopack",
+    "generate:catalog": "node --experimental-strip-types scripts/generate-site-catalog.mjs",
+    "generate:llms": "node --experimental-strip-types scripts/generate-llms.mjs",
+    "pretest": "npm run generate:catalog",
+    "prebuild": "npm run generate:catalog && npm run generate:llms",
     "build": "next build",
     "start": "next start",
-    "lint": "node scripts-lint.cjs",
+    "lint": "eslint app components functions lib next.config.ts && node scripts-lint.cjs",
     "typecheck": "tsc -p tsconfig.typecheck.json --noEmit --pretty false",
     "test": "node scripts-test.cjs && node scripts/validate-content.cjs && node --experimental-strip-types scripts/lead-api.test.mjs && node --experimental-strip-types scripts/lead-response.test.mjs && node --experimental-strip-types scripts/lead-contact-validation.test.mjs && node scripts/lead-transport.test.mjs && node scripts/csp-sources.test.mjs && node scripts/check-lead-origin.test.mjs && node scripts/check-dns.test.mjs && node scripts/check-dnssec.test.mjs && node scripts/check-canonical.test.mjs && node scripts/check-edge-tls.test.mjs && node --experimental-strip-types scripts/site-preferences.test.mjs",
     "audit": "npm audit --audit-level=moderate",
@@ -32,6 +40,9 @@
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "eslint": "^9.39.5",
+    "eslint-config-next": "^16.4.6",
+    "eslint-plugin-jsx-a11y": "^6.10.2",
     "playwright": "^1.62.1",
     "sharp": "^0.35.5",
     "typescript": "^5"

@@ -103,6 +103,11 @@ export default function PoliticaDePrivacidade() {
               recebimento de mensagens. Esses fornecedores podem tratar dados técnicos ou de
               comunicação conforme o serviço utilizado e seus próprios compromissos contratuais.
             </p>
+            <p>
+              Se você optar por iniciar a conversa pelo WhatsApp, a comunicação ocorrerá na
+              plataforma operada pela Meta Platforms, Inc. As informações compartilhadas nesse
+              canal também estarão sujeitas aos termos e à política de privacidade do WhatsApp.
+            </p>
             {leadSubmissionEnabled && (
               <p>
                 No envio direto, o Cloudflare Turnstile verifica o desafio antispam, e o Resend

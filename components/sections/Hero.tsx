@@ -3,6 +3,7 @@ import KineticWordmark from '@/components/motion/KineticWordmark'
 import MagneticButton from '@/components/motion/MagneticButton'
 import LocalClock from '@/components/materia/LocalClock'
 import SplitWords from '@/components/materia/SplitWords'
+import { whatsappUrl } from '@/lib/site'
 
 /**
  * Hero "Matéria": título editorial revelado por máscara (CSS, sem esperar
@@ -42,9 +43,16 @@ export default function Hero() {
                 <span className="m-button__icon" aria-hidden="true">↗</span>
               </Link>
             </MagneticButton>
-            <a href="#servicos" className="m-link">
-              Ver serviços <span aria-hidden="true">↓</span>
-            </a>
+            {whatsappUrl ? (
+              <a href={whatsappUrl} target="_blank" rel="noopener noreferrer" className="m-link">
+                Conversar no WhatsApp <span aria-hidden="true">↗</span>
+                <span className="sr-only"> (abre em nova aba)</span>
+              </a>
+            ) : (
+              <a href="#servicos" className="m-link">
+                Ver serviços <span aria-hidden="true">↓</span>
+              </a>
+            )}
           </div>
         </div>
       </div>

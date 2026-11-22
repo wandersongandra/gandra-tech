@@ -611,7 +611,7 @@ function signature() {
 }
 
 /* --------------------------------------------------------------------- */
-export function mountPress(opts: { fine: boolean }): () => void {
+export function mountPress(): () => void {
   const sfx = Sfx.get()
   const effects: Fx[] = []
   const cleanups: (() => void)[] = []

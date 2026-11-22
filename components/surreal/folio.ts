@@ -281,7 +281,7 @@ export function glyphField(host: HTMLElement, opts: Opts): Off {
     const own = set.get(i)
     // parado e sem letra: nada a repintar
     if (!own && prev === lift[i]) return prev > 0
-    let alive = lift[i] > 0 || lift[i] !== k
+    const alive = lift[i] > 0 || lift[i] !== k
     ctx.clearRect(x * cw, y * ch, cw, ch)
     if (own) {
       const age = (now - own[1]) / 1000
@@ -514,7 +514,7 @@ export function liquidLinks(defs: SVGSVGElement, opts: Opts): Off {
 /* 7. Segurar para carimbar: clique normal continua instantâneo; segurar  */
 /*    (ou manter a tecla) carimba "GANDRA ✶ APROVADO" ao lado do e-mail.  */
 /* --------------------------------------------------------------------- */
-const STAMP_TARGETS = '.m-contact__email, .cp-hero__email[href^="mailto:"]'
+const STAMP_TARGETS = '.m-contact__email, .cp-hero__email[href^="mailto:"], .cp-grid__email-link[href^="mailto:"]'
 const HOLD_MS = 550
 
 export function holdStamp(opts: Opts): Off {
@@ -664,7 +664,10 @@ export function origami(opts: Opts): Off {
     // os que ficaram para trás (salto, restauração de rolagem) abrem sem animar
     for (const prev of items) {
       if (prev === el) break
-      if (prev.classList.contains('is-folded')) (io.unobserve(prev), prev.classList.remove('is-folded'))
+      if (prev.classList.contains('is-folded')) {
+        io.unobserve(prev)
+        prev.classList.remove('is-folded')
+      }
     }
     io.unobserve(el)
     el.classList.remove('is-folded')

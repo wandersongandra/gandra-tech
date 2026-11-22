@@ -1,40 +1,49 @@
 # Gandra Tecnologia
 
-> A Gandra Tecnologia desenvolve sites institucionais, portfólios profissionais, sistemas sob medida, automações e aplicações web para empresas, profissionais e empreendedores em todo o Brasil, com atendimento remoto.
+> Sites institucionais, sistemas sob medida e automações com design autoral e engenharia web. Transforme sua ideia em presença digital. Peça um orçamento.
 
-## Sobre a empresa
+## Sobre
 
-- Nome: Gandra Tecnologia
-- Marca usada no site: Gandra Tech
-- Site oficial: https://gandra.tech
-- Idioma principal: português do Brasil
-- Área de atendimento: Brasil inteiro, com atendimento remoto
-- Contato comercial: mailto:contato@gandra.tech
+Gandra Tech é um estúdio de software digital com base em Vespasiano, na Grande BH, e atendimento remoto em todo o Brasil.
+O trabalho combina direção visual, engenharia web e produtos digitais sob medida.
+
+- Site: https://gandra.tech
+- Base: Vespasiano, Minas Gerais (Grande BH)
+- Contato: contato@gandra.tech
+- Resposta inicial: Respondo em até 1 dia útil.
 
 ## Serviços
 
-- Sites institucionais: presença digital profissional para apresentar a empresa, organizar sua mensagem e facilitar o contato. https://gandra.tech/servicos/sites-institucionais
-- Portfólios profissionais: apresentação digital de trabalhos, trajetória e serviços de profissionais liberais, especialistas e criadores. https://gandra.tech/servicos/portfolios-profissionais
-- Sistemas sob medida: software para organizar a operação interna, dashboards, fluxos de trabalho e regras de negócio. https://gandra.tech/servicos/sistemas-sob-medida
-- Aplicações web: produtos e experiências acessados pelo navegador por clientes, equipes ou usuários finais. https://gandra.tech/servicos/aplicacoes-web
-- Automação de processos e integrações: conexão de ferramentas e sistemas para automatizar rotinas e sincronizar dados entre etapas do negócio. https://gandra.tech/servicos/automacao-de-processos-e-integracoes
+- [Sites institucionais](https://gandra.tech/servicos/sites-institucionais): Presença digital profissional para explicar o negócio e gerar confiança.
+- [Portfólios profissionais](https://gandra.tech/servicos/portfolios-profissionais): Uma apresentação digital autoral para mostrar trabalho, trajetória e serviços.
+- [Sistemas sob medida](https://gandra.tech/servicos/sistemas-sob-medida): Software para organizar a operação interna, dashboards, fluxos de trabalho e regras de negócio.
+- [Aplicações web](https://gandra.tech/servicos/aplicacoes-web): Produtos e experiências acessados pelo navegador por clientes, equipes ou usuários finais.
+- [Automação de processos e integrações](https://gandra.tech/servicos/automacao-de-processos-e-integracoes): Conexão de ferramentas e sistemas para automatizar rotinas e sincronizar dados entre etapas.
 
 ## Projetos públicos
 
-- SGS Segurança: plataforma digital para centralizar inspeções, APRs, permissões de trabalho, auditorias, indicadores, documentos e evidências. https://gandra.tech/trabalhos/sgs
-- Portfólio Telma Santos: portfólio profissional para apresentar trabalho, identidade visual e serviços. https://gandra.tech/trabalhos/telma-santos
+- [SGS Segurança](https://gandra.tech/trabalhos/sgs) — Plataforma digital; 2026. Plataforma digital de segurança do trabalho concebida para centralizar inspeções, APRs, permissões de trabalho, auditorias, indicadores, documentos e evidências.
+- [Portfólio Telma Santos](https://gandra.tech/trabalhos/telma-santos) — Portfólio profissional; 2026. Projeto de portfólio desenvolvido para apresentar trabalho, identidade visual e serviços.
+- [Gisley Nunes Imóveis](https://gandra.tech/trabalhos/gisley-nunes-imoveis) — Site e painel administrativo; 2026. Site imobiliário com busca de imóveis, páginas detalhadas e um painel de gestão para a equipe cadastrar anúncios, organizar imagens e acompanhar contatos.
+- [AJN Consultoria e Engenharia](https://gandra.tech/trabalhos/ajn-consultoria-engenharia) — Site institucional; 2026. Reconstrução do site institucional da AJN, migrando a estrutura legada em WordPress para páginas estáticas em Astro, com catálogo de serviços, conteúdo técnico e blog.
+- [Laboratório Dental Araújo](https://gandra.tech/trabalhos/laboratorio-dental-araujo) — Site institucional e SEO; 2026. Site institucional do Laboratório Dental Araújo, em Belo Horizonte, criado para apresentar serviços de prótese dentária a cirurgiões-dentistas e clínicas, com conteúdo técnico, trabalhos e canais de contato.
 
 ## Páginas principais
 
 - Início: https://gandra.tech/
 - Serviços: https://gandra.tech/servicos
 - Trabalhos: https://gandra.tech/trabalhos
-- Contato: https://gandra.tech/contato
+- Orçamento: https://gandra.tech/contato#orcamento — formulário para explicar objetivo, contexto e referências do projeto.
 - Sitemap: https://gandra.tech/sitemap.xml
+- Políticas: https://gandra.tech/politica-de-privacidade, https://gandra.tech/politica-de-cookies e https://gandra.tech/termos-de-uso
 
-## Processo comercial
+## Processo de contato
 
-- O orçamento começa pela compreensão do objetivo, público, escopo e contexto do projeto.
-- Prazo, investimento, etapas e condições são definidos conforme cada projeto.
-- Titularidade, licenciamento e entrega do código são definidos no contrato ou na proposta.
-- Manutenção e evolução podem ser combinadas conforme a necessidade e as condições do contrato.
+1. Você envia o contexto e o objetivo do projeto.
+2. Retornamos com perguntas de alinhamento de escopo.
+3. Você recebe uma proposta com escopo, etapas e investimento.
+
+## Limites de interpretação
+
+- Prazos, investimento, manutenção e condições de titularidade são definidos caso a caso, depois do alinhamento de escopo.
+- Cases sem endereço público ou sem resultado medido são apresentados com essa limitação explícita na página correspondente.

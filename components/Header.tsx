@@ -18,6 +18,7 @@ export default function Header() {
   const isHome = pathname === '/'
   const headerRef = useRef<HTMLElement>(null)
   const menuButtonRef = useRef<HTMLButtonElement>(null)
+  const mobileMenuRef = useRef<HTMLDialogElement>(null)
   const mobileMenuPanelRef = useRef<HTMLElement>(null)
   const firstMenuLinkRef = useRef<HTMLAnchorElement>(null)
   const [isMenuOpen, setIsMenuOpen] = useState(false)
@@ -130,6 +131,17 @@ export default function Header() {
     }
   }, [closeMenu, isMenuOpen])
 
+  useEffect(() => {
+    if (!isMenuOpen) return
+    const menu = mobileMenuRef.current
+    if (!menu) return
+    const handleBackdropClick = (event: globalThis.MouseEvent) => {
+      if (event.target === menu) closeMenu()
+    }
+    menu.addEventListener('click', handleBackdropClick)
+    return () => menu.removeEventListener('click', handleBackdropClick)
+  }, [closeMenu, isMenuOpen])
+
   const handleMenuToggle = () => {
     if (isMenuOpen) {
       closeMenu()
@@ -184,14 +196,11 @@ export default function Header() {
       </button>
 
       {isMenuOpen && (
-        <div
+        <dialog
+          open
+          ref={mobileMenuRef}
           className="mobile-menu"
-          role="dialog"
-          aria-modal="true"
           aria-label="Menu principal"
-          onClick={(event) => {
-            if (event.target === event.currentTarget) closeMenu()
-          }}
         >
           <nav
             ref={mobileMenuPanelRef}
@@ -223,7 +232,7 @@ export default function Header() {
               Contato
             </Link>
           </nav>
-        </div>
+        </dialog>
       )}
     </header>
   )

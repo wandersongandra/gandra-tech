@@ -20,11 +20,18 @@ export const contactEmail = 'contato@gandra.tech'
 export const contactSubject = 'Novo projeto - Gandra Tecnologia'
 export const contactMailto = `mailto:${contactEmail}?subject=${encodeURIComponent(contactSubject)}`
 
-/** Frases de princípio exibidas nas seções/página de contato. */
+/** DDI + DDD + número, sem símbolos; confirmado como canal comercial. */
+export const whatsappNumber = '5531991419734'
+const whatsappGreeting = 'Olá! Vim pelo site da Gandra Tech e gostaria de conversar sobre um projeto.'
+export const whatsappUrl = whatsappNumber
+  ? `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(whatsappGreeting)}`
+  : ''
+
+/** Orientações práticas exibidas na página de contato. */
 export const contactNotes = [
-  'Movimento é matéria.',
-  'Clareza é um recurso.',
-  'Detalhes criam memória.',
+  'Conte o que precisa resolver.',
+  'Traga referências, se tiver.',
+  'Indique prioridades ou datas importantes.',
 ]
 
 export type SocialLink = {

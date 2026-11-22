@@ -10,7 +10,7 @@ import { INTRO_SCRIPT } from '@/lib/intro'
 import ServiceWorkerRegister from '@/components/ServiceWorkerRegister'
 import ScrollMemory from '@/components/ScrollMemory'
 import StructuredData from '@/components/StructuredData'
-import { contactEmail, brandName, siteDescription, siteName, siteTitle, siteUrl } from '@/lib/site'
+import { contactEmail, brandName, siteDescription, siteName, siteTitle, siteUrl, whatsappNumber } from '@/lib/site'
 import './globals.css'
 import './materia.css'
 import './case.css'
@@ -97,6 +97,10 @@ export const viewport: Viewport = {
   width: 'device-width',
   initialScale: 1,
   viewportFit: 'cover',
+  themeColor: [
+    { media: '(prefers-color-scheme: light)', color: '#ece8df' },
+    { media: '(prefers-color-scheme: dark)', color: '#12110e' },
+  ],
 }
 
 const structuredData = [
@@ -114,6 +118,7 @@ const structuredData = [
     contactPoint: {
       '@type': 'ContactPoint',
       email: contactEmail,
+      ...(whatsappNumber ? { telephone: `+${whatsappNumber}` } : {}),
       contactType: 'sales',
       availableLanguage: 'pt-BR',
     },

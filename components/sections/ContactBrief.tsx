@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useRef, useState, type FormEvent } from 'react'
+import { useEffect, useRef, useState, useSyncExternalStore, type FormEvent } from 'react'
 import { composeContactBrief, isKnownReferenceSlug, isKnownServiceSlug } from '@/lib/contact-brief'
 import { services } from '@/lib/services'
 import { contactEmail, contactMailto } from '@/lib/site'
@@ -12,6 +12,10 @@ import TurnstileChallenge from './TurnstileChallenge'
 
 type FieldName = 'name' | 'contact' | 'project' | 'consent' | 'challenge'
 type FieldErrors = Partial<Record<FieldName, string>>
+
+const subscribeHydration = () => () => {}
+const getClientHydration = () => true
+const getServerHydration = () => false
 
 /** id do elemento que recebe o foco quando o campo é o primeiro inválido. */
 const FIELD_IDS: Record<FieldName, string> = {
@@ -37,7 +41,7 @@ export default function ContactBrief() {
   const [project, setProject] = useState('')
   const [copyState, setCopyState] = useState<'idle' | 'copied' | 'error'>('idle')
   const [emailHintVisible, setEmailHintVisible] = useState(false)
-  const [hydrated, setHydrated] = useState(false)
+  const hydrated = useSyncExternalStore(subscribeHydration, getClientHydration, getServerHydration)
   const [website, setWebsite] = useState('')
   const [acknowledged, setAcknowledged] = useState(false)
   const [challengeToken, setChallengeToken] = useState('')
@@ -49,7 +53,6 @@ export default function ContactBrief() {
   // A exportação estática mantém o mesmo HTML para todos. A origem do CTA é
   // lida apenas depois da hidratação, validada contra o catálogo real.
   useEffect(() => {
-    setHydrated(true)
     // Recupera o que o visitante já digitou antes de o JavaScript assumir.
     if (nameRef.current?.value) setName(nameRef.current.value)
     if (contactRef.current?.value) setContact(contactRef.current.value)
@@ -204,6 +207,7 @@ export default function ContactBrief() {
             Você não precisa ter um briefing pronto. Conte o que pretende resolver;
             nós alinhamos o escopo na conversa.
           </p>
+          <p className="cp-brief__response-time">Respondo em até 1 dia útil.</p>
           <div className="cp-brief__guidance">
             <span className="cp-grid__label">O QUE AJUDA NO PRIMEIRO CONTATO</span>
             <ol>
@@ -353,7 +357,7 @@ export default function ContactBrief() {
           </div>
           <details className="cp-brief__preview">
             <summary>Pré-visualizar a mensagem</summary>
-            <pre tabIndex={0}>{brief.copyText}</pre>
+            <pre>{brief.copyText}</pre>
           </details>
           <p className="cp-brief__disclaimer">
             {leadSubmissionEnabled

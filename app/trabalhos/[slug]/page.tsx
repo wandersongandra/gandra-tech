@@ -6,6 +6,7 @@ import Breadcrumbs from '@/components/Breadcrumbs'
 import StructuredData from '@/components/StructuredData'
 import { getProject, getNextProject, projects } from '@/lib/projects'
 import { createPageMetadata } from '@/lib/seo'
+import { siteUrl } from '@/lib/site'
 
 export function generateStaticParams() {
   return projects.map((p) => ({ slug: p.slug }))
@@ -37,14 +38,14 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
         data={{
           '@context': 'https://schema.org',
           '@type': 'CreativeWork',
-          '@id': `https://gandra.tech/trabalhos/${project.slug}#case`,
+          '@id': `${siteUrl}/trabalhos/${project.slug}#case`,
           name: project.name,
           headline: project.headline,
           description: project.overview,
-          url: `https://gandra.tech/trabalhos/${project.slug}`,
-          image: `https://gandra.tech${project.coverImage}`,
+          url: `${siteUrl}/trabalhos/${project.slug}`,
+          image: `${siteUrl}${project.coverImage}`,
           inLanguage: 'pt-BR',
-          creator: { '@id': 'https://gandra.tech#organization' },
+          creator: { '@id': `${siteUrl}#organization` },
           keywords: project.services,
         }}
       />
