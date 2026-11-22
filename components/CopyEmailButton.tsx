@@ -50,7 +50,7 @@ export default function CopyEmailButton({ email }: { email: string }) {
     <div className="cp-email-fallback">
       <p>Se o seu aplicativo de email não abrir, copie o endereço:</p>
       <div className="cp-email-fallback__row">
-        <span className="cp-email-fallback__address" tabIndex={0}>{email}</span>
+        <span className="cp-email-fallback__address">{email}</span>
         <button type="button" onClick={copyEmail} aria-label={`Copiar ${email}`}>
           {copyState === 'copied' ? 'Copiado' : 'Copiar'}
         </button>
