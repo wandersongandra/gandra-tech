@@ -655,7 +655,11 @@ body {
   color: var(--m-muted);
   font-size: clamp(16px, 1.15vw, 18px);
   line-height: 1.6;
-  animation: m-fade-up 1s var(--m-ease-out) 0.45s both;
+  /* Mesma animação de m-fade-up (duração, delay e easing intactos). A cópia só
+     começa em opacity 0.01: invisível ao olho, mas o Chrome registra o LCP já
+     no primeiro paint em vez de esperar o fade terminar (elementos com
+     opacity 0 não contam como candidatos a LCP). */
+  animation: m-fade-up-lcp 1s var(--m-ease-out) 0.45s both;
 }
 
 .m-hero__actions {
@@ -668,6 +672,11 @@ body {
 
 @keyframes m-fade-up {
   from { opacity: 0; transform: translate3d(0, 18px, 0); }
+  to { opacity: 1; transform: none; }
+}
+
+@keyframes m-fade-up-lcp {
+  from { opacity: 0.01; transform: translate3d(0, 18px, 0); }
   to { opacity: 1; transform: none; }
 }
 
