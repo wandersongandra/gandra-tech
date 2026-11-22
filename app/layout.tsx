@@ -51,14 +51,16 @@ const instrumentSerif = Instrument_Serif({
  * JetBrains Mono: anotações técnicas, índices e metadados. 'optional': se não
  * chegar no período curto de bloqueio, a página fica com o fallback mono e não
  * troca no meio da leitura (era a principal fonte de CLS em cases e serviços);
- * o arquivo fica em cache para as próximas páginas.
+ * o arquivo fica em cache para as próximas páginas. Pré-carregada: sem preload
+ * ela era pedida só depois do CSS e perdia a janela do 'optional' até em rede
+ * rápida — o primeiro acesso ficava sem a tipografia da marca nos rótulos.
  */
 const jetbrains = JetBrains_Mono({
   subsets: ['latin'],
   variable: '--font-jetbrains',
   weight: ['400', '500'],
   display: 'optional',
-  preload: false,
+  preload: true,
 })
 
 export const metadata: Metadata = {
