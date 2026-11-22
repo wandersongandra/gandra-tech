@@ -191,7 +191,7 @@
   justify-content: space-between;
   gap: 16px;
   color: var(--m-paper);
-  font-size: 11px;
+  font-size: 12px;
   letter-spacing: 0.06em;
   text-transform: uppercase;
   mix-blend-mode: difference;
@@ -243,7 +243,7 @@
 .m-case__sheet-grid dt {
   margin-bottom: 10px;
   color: var(--m-muted);
-  font-size: 11px;
+  font-size: 12px;
   letter-spacing: 0.06em;
   text-transform: uppercase;
 }

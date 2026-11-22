@@ -991,7 +991,7 @@ body {
   overflow: hidden;
   color: var(--m-muted-dark);
   font-family: var(--m-mono);
-  font-size: 11px;
+  font-size: 12px;
   line-height: 1.45;
   letter-spacing: 0.01em;
   text-overflow: ellipsis;
@@ -3208,7 +3208,7 @@ html[data-tinta='on'] .m-press__wet {
     position: absolute;
     left: var(--m-gutter);
     bottom: calc(24px + env(safe-area-inset-bottom, 0px));
-    font-size: 11px;
+    font-size: 12px;
     letter-spacing: 0.08em;
     text-transform: uppercase;
     color: var(--m-muted);
