@@ -2,7 +2,8 @@
 
 Retomada da auditoria visual, SEO, conversão e código em 22/11/2026, no
 branch `fix/auditoria-2026-11`. Este registro cobre o trabalho continuado a
-partir do SEO-03; não representa publicação em produção.
+partir do SEO-03. As alterações foram incorporadas à `main` pela PR #75 e
+verificadas em produção em 22/11/2026.
 
 ## Implementado
 
@@ -103,7 +104,7 @@ overflow passaram; não foi tratado como prova de identidade pixel a pixel.
 
 ## Git/Produção
 
-commit: NÃO REALIZADO
-push: NÃO REALIZADO
-PR: NÃO ABERTO
-deploy: NÃO REALIZADO
+commit: REALIZADO — `d278920`, `c448717`, `be8421e`; merge `a1e04ab`
+push: REALIZADO — branch `fix/auditoria-2026-11` e `main`
+PR: REALIZADO — #75, MERGED
+deploy: CONFIRMED — Cloudflare Pages; produção verificada em `https://gandra.tech`
