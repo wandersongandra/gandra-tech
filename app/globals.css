@@ -1153,6 +1153,33 @@ body {
   color: #a43d28;
 }
 
+/* Erro por campo: mesma cor do aviso existente; só aparece quando há erro. */
+.cp-brief__error {
+  max-width: 520px;
+  font-family: var(--font-sans);
+  font-size: 13px;
+  line-height: 1.5;
+  color: #a43d28;
+}
+
+.cp-brief__field [aria-invalid='true'] {
+  border-color: #a43d28;
+}
+
+.cp-brief__consent input[aria-invalid='true'] {
+  outline: 2px solid #a43d28;
+  outline-offset: 2px;
+}
+
+/* Sem JavaScript nada é enviado nem montado: os campos não aparecem para não
+   fingir que enviam dados; ficam o link de e-mail e o aviso <noscript>. */
+html:not(.js) .cp-brief__field,
+html:not(.js) .cp-brief__row,
+html:not(.js) .cp-brief__copy,
+html:not(.js) .cp-brief__preview {
+  display: none;
+}
+
 /* A armadilha antispam não interfere no layout nem na navegação por teclado. */
 .cp-brief__honeypot {
   position: absolute;
