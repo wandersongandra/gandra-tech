@@ -2859,12 +2859,12 @@ html[data-intro='skip'] main {
   pointer-events: none;
 }
 
-/* Em toque, rolagem vertical continua nativa; o eixo horizontal fica livre
-   para o gesto do pincel decidir depois do limiar de direção. */
+/* Em toque, rolagem vertical e zoom continuam nativos; o eixo horizontal fica
+   livre para o gesto do pincel decidir depois do limiar de direção. */
 @media (pointer: coarse) {
   html,
   body {
-    touch-action: pan-y;
+    touch-action: pan-y pinch-zoom;
   }
 }
 

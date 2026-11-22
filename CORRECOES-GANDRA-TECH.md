@@ -27,10 +27,10 @@ partir do SEO-03; não representa publicação em produção.
 - A11Y-07: no mobile, o rodapé reserva o espaço do botão fixo de som; o alvo
   continua com 44×44 px e não cobre o controle de letras nem o botão de voltar
   ao topo.
-- PERF-05: em ponteiros coarse, `touch-action: pan-y` preserva a rolagem
-  vertical nativa e deixa o gesto horizontal disponível para o pincel depois
-  do limiar de direção; a seleção de texto e os controles continuam fora do
-  pincel.
+- PERF-05: em ponteiros coarse, `touch-action: pan-y pinch-zoom` preserva a
+  rolagem vertical e o zoom nativos, deixando o gesto horizontal disponível
+  para o pincel depois do limiar de direção; a seleção de texto e os controles
+  continuam fora do pincel.
 - CONV-04: criado o contrato opcional para métricas e depoimentos verificáveis,
   com renderização somente quando houver conteúdo autorizado e fonte indicada.
 - COD-01: ESLint flat config com `eslint-config-next` (core web vitals e
@@ -63,8 +63,8 @@ Todos os checks abaixo foram executados no checkout local:
   desktop/mobile, reduced-motion, menu, carimbo, galeria, rotas e regressões.
 - QA de conversão — `PASS` para serviço/case pré-selecionados, mensagem,
   fallback sem JavaScript, cópia e overflow desktop/mobile.
-- QA coarse mobile — `PASS` para `touch-action: pan-y`, alvo do botão de som e
-  ausência de sobreposição com os controles do rodapé.
+- QA coarse mobile — `PASS` para `touch-action: pan-y pinch-zoom`, alvo do botão
+  de som e ausência de sobreposição com os controles do rodapé.
 - Checagem final no Chromium — `PASS` para WhatsApp, prazo de primeira resposta,
   telefone no JSON-LD, ano `2026` do case Telma e aviso de privacidade do canal.
 

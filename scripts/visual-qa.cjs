@@ -317,7 +317,7 @@ async function touchMobileQa(browser) {
   const page = await ctx.newPage()
   await page.goto(origin, { waitUntil: 'domcontentloaded' })
   await page.waitForTimeout(1800)
-  assert.equal(await page.locator('html').evaluate((element) => getComputedStyle(element).touchAction), 'pan-y', 'pincel: toque não preserva rolagem vertical')
+  assert.equal(await page.locator('html').evaluate((element) => getComputedStyle(element).touchAction), 'pan-y pinch-zoom', 'pincel: toque não preserva rolagem vertical e zoom')
   const media = await page.evaluate(() => ({
     fine: matchMedia('(hover: hover) and (pointer: fine)').matches,
     coarse: matchMedia('(pointer: coarse)').matches,
