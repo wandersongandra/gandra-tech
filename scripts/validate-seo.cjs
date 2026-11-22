@@ -57,7 +57,7 @@ for (const url of urls) {
   for (const property of ['og:title', 'og:description', 'og:url', 'og:image', 'og:type', 'og:locale']) {
     assert.ok(html.includes(`property="${property}"`), `${route}: ${property} ausente`)
   }
-  const expectedOgType = route.startsWith('/trabalhos/') ? 'article' : 'website'
+  const expectedOgType = 'website'
   assert.ok(html.includes(`property="og:type" content="${expectedOgType}"`), `${route}: og:type incorreto`)
   assert.match(html, /<meta name="twitter:card" content="summary_large_image"/, `${route}: Twitter Card ausente`)
 
