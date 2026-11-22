@@ -599,16 +599,18 @@ export function holdStamp(opts: Opts): Off {
     }
     swallow = null
   }
-  const onMenu = (e: Event) => {
-    if (target(e.target) && (swallow || held)) e.preventDefault()
-  }
+  // O menu de contexto não é mais bloqueado: no toque longo o visitante precisa
+  // conseguir "copiar endereço de e-mail". Segurar continua carimbando.
+  const NATIVE_SPACE = 'a, button, input, textarea, select, [contenteditable]'
   const onKey = (e: KeyboardEvent) => {
     const el = target(e.target)
     if (!el) return
-    // Enter: o primeiro toque segue o link; mantido, carimba a cada repetição.
-    // Espaço: carimba (no link ele só rolaria a página).
+    // Espaço mantém o comportamento nativo em links, botões e campos (não é
+    // sequestrado). Enter: o primeiro toque segue o link; mantido, carimba a
+    // cada repetição — o carimbo continua acessível pelo teclado.
+    if (e.key === ' ' && e.target instanceof Element && e.target.closest(NATIVE_SPACE)) return
     const enterHold = e.key === 'Enter' && e.repeat
-    if (!enterHold && e.key !== ' ') return
+    if (!enterHold) return
     e.preventDefault()
     const now = performance.now()
     if (now - lastKey < 320) return
@@ -620,7 +622,6 @@ export function holdStamp(opts: Opts): Off {
   document.addEventListener('pointercancel', cancel, { passive: true })
   document.addEventListener('dragstart', cancel)
   document.addEventListener('click', onClick, true)
-  document.addEventListener('contextmenu', onMenu)
   document.addEventListener('keydown', onKey)
   return () => {
     cancel()
@@ -629,7 +630,6 @@ export function holdStamp(opts: Opts): Off {
     document.removeEventListener('pointercancel', cancel)
     document.removeEventListener('dragstart', cancel)
     document.removeEventListener('click', onClick, true)
-    document.removeEventListener('contextmenu', onMenu)
     document.removeEventListener('keydown', onKey)
     stamps.forEach((s) => s.remove())
   }
