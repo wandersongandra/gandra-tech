@@ -31,22 +31,33 @@ const archivo = Archivo({
   preload: true,
 })
 
-/* Instrument Serif itálico: a voz humana, usada só em palavras de acento. */
+/*
+ * Instrument Serif itálico: a voz humana, usada só em palavras de acento.
+ * Todas as regras com var(--m-italic)/var(--font-italic) são itálicas (o <em>
+ * do formulário herda o itálico do navegador), então só esse estilo é baixado.
+ * Pré-carregada porque aparece no H1 da home ("evoluir") e nos títulos dos
+ * cases: chegando cedo, não troca de fonte depois do primeiro paint (CLS).
+ */
 const instrumentSerif = Instrument_Serif({
   subsets: ['latin'],
   variable: '--font-instrument',
   weight: '400',
-  style: ['normal', 'italic'],
+  style: ['italic'],
   display: 'swap',
-  preload: false,
+  preload: true,
 })
 
-/* JetBrains Mono: anotações técnicas, índices e metadados. */
+/*
+ * JetBrains Mono: anotações técnicas, índices e metadados. 'optional': se não
+ * chegar no período curto de bloqueio, a página fica com o fallback mono e não
+ * troca no meio da leitura (era a principal fonte de CLS em cases e serviços);
+ * o arquivo fica em cache para as próximas páginas.
+ */
 const jetbrains = JetBrains_Mono({
   subsets: ['latin'],
   variable: '--font-jetbrains',
   weight: ['400', '500'],
-  display: 'swap',
+  display: 'optional',
   preload: false,
 })
 
