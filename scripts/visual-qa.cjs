@@ -444,10 +444,13 @@ async function main() {
       const page = await context.newPage()
       const errors = []
       page.on('pageerror', error => errors.push(error.message))
-      await page.goto(origin, { waitUntil: 'domcontentloaded' })
-      await page.waitForTimeout(300)
+      await page.goto(origin, { waitUntil: 'commit' })
+      // A abertura dura pouco; observe a marca desde o commit para não perder o
+      // estado em runners lentos antes de o DOM inteiro terminar de carregar.
+      const introMarked = await page.waitForFunction(() => document.documentElement.hasAttribute('data-intro'), null, { timeout: 1500 }).then(() => true).catch(() => false)
+      await page.waitForSelector('#trabalhos')
       // Abertura (fase 4): 1ª visita da sessão marca html[data-intro] antes da pintura.
-      assert.ok(await page.evaluate(() => document.documentElement.hasAttribute('data-intro')), viewport.name + ': abertura não marcou data-intro')
+      assert.ok(introMarked, viewport.name + ': abertura não marcou data-intro')
       assert.equal(await page.locator('.m-intro[aria-hidden="true"]').count(), 1, viewport.name + ': camada da abertura ausente')
       // Trabalhos na home: índice tipográfico (sem fotos soltas); a linha leva ao case.
       assert.equal(await page.locator('#trabalhos .project-card').count(), 0, viewport.name + ': cards com foto não deveriam voltar à home')
