@@ -4,7 +4,7 @@ const path = require('node:path')
 const root = __dirname
 const textExtensions = new Set(['.ts', '.tsx'])
 const sourceRoots = ['app', 'components', 'lib']
-const forbidden = /console\.log|debugger|@ts-ignore|dangerouslySetInnerHTML/
+const forbidden = /console\.log|debugger|@ts-ignore|dangerouslySetInnerHTML|innerHTML|outerHTML|document\.write/
 const failures = []
 function visit(current) {
   for (const entry of fs.readdirSync(current, { withFileTypes: true })) {
