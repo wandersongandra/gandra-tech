@@ -1907,6 +1907,13 @@ main {
   }
 }
 
+/* Estado inicial do FadeIn: só com JavaScript (html.js vem do script inline
+   do <head>). Sem JS o conteúdo aparece pronto; com movimento reduzido a
+   regra de [data-motion-hidden] abaixo mantém tudo visível. */
+html.js [data-fade-pending] {
+  opacity: 0;
+}
+
 @media (prefers-reduced-motion: reduce) {
   [data-motion-hidden],
   .work-item__info [data-stagger] {
